@@ -2,7 +2,7 @@
 const firebaseConfig = {
         apiKey: "AIzaSyAH2iXY79IOKr-ssC6hV1cfUho-_oKJgCg",
         authDomain: "lime-for-group-1567103664368.firebaseapp.com",
-        databaseURL: "https://lime-for-group-1567103664368.firebaseio.com",
+        databaseURL: "wss://lime-for-group-1567103664368.firebaseio.com",
         projectId: "lime-for-group-1567103664368",
         storageBucket: "lime-for-group-1567103664368.appspot.com",
         messagingSenderId: "118271867075",
