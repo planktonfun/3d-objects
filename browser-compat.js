@@ -122,7 +122,7 @@ class FirebaseObject {
 
   async retrievePathValue(pathName) {
     const referencePath = this.db.ref(this.path + '/' + pathName);
-    const snapshot = await referencePath.get();
+    const snapshot = await referencePath.once('value');
     return snapshot.val();
   }
 
@@ -688,7 +688,7 @@ class RoomManager {
     try {
       await this.connect();
       const roomRef = this.db.ref(`${this.basePath}/${roomName}`);
-      const snapshot = await roomRef.get();
+      const snapshot = await roomRef.once('value');
 
       if (!snapshot.exists()) {
         return { roomName, success: false, error: 'Room does not exist' };
@@ -770,7 +770,7 @@ class RoomManager {
     try {
       await this.connect();
       const roomsRef = this.db.ref(this.basePath);
-      const snapshot = await roomsRef.get();
+      const snapshot = await roomsRef.once('value');
       const rooms = [];
       if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
@@ -793,7 +793,7 @@ class RoomManager {
     try {
       await this.connect();
       const roomRef = this.db.ref(`${this.basePath}/${roomName}/users`);
-      const snapshot = await roomRef.get();
+      const snapshot = await roomRef.once('value');
       return snapshot.numChildren() || 0;
     } finally {
       // Only disconnect if we're not in this room
@@ -807,7 +807,7 @@ class RoomManager {
     try {
       await this.connect();
       const roomRef = this.db.ref(`${this.basePath}/${roomName}`);
-      const snapshot = await roomRef.get();
+      const snapshot = await roomRef.once('value');
       return snapshot.exists();
     } finally {
       await this.disconnect();
