@@ -28,7 +28,6 @@ class FirebaseSingleton {
     if (!FirebaseSingleton.instance) {
       this.app = firebase.initializeApp(firebaseConfig);
       this.db = firebase.database();
-
       this.online = false;
 
       const connectedRef = firebase.database().ref(".info/connected");
@@ -43,7 +42,10 @@ class FirebaseSingleton {
         }
       });
 
-      this.db.goOffline();
+      // Disconnect after this many ms of inactivity
+      this.inactivityTimeout = 3000;
+      this.inactivityTimer = null;
+      this.activeOperations = 0;
 
       FirebaseSingleton.instance = this;
     }
@@ -62,11 +64,47 @@ class FirebaseSingleton {
   isOnline() {
     return this.online;
   }
+
+  resetInactivityTimer() {
+    // Clear existing timer
+    if (this.inactivityTimer) {
+      clearTimeout(this.inactivityTimer);
+      this.inactivityTimer = null;
+    }
+
+    // Set new timer to disconnect after inactivity
+    this.inactivityTimer = setTimeout(() => {
+      if (this.activeOperations === 0) {
+        this.db.goOffline();
+      }
+    }, this.inactivityTimeout);
+  }
+
+  async performOperation(operation, ...args) {
+    try {
+      // Increment active operations
+      this.activeOperations++;
+      this.db.goOnline();
+
+      // Execute the operation
+      const result = await operation(...args);
+      return result;
+    } finally {
+      // Decrement active operations
+      this.activeOperations--;
+
+      // Reset inactivity timer (will disconnect if no more operations)
+      if (this.activeOperations === 0) {
+        this.resetInactivityTimer();
+      }
+    }
+  }
 }
 
 class FirebaseObject {
   constructor(firebaseConfig, path, signInCallback, extraData = "", readyCallback) {
     const fb = new FirebaseSingleton(firebaseConfig);
+    this.fb= fb;
     this.app = fb.initializeApp(firebaseConfig);
     this.db = fb.database();   // Namespaced
     this.path = path;
@@ -90,7 +128,6 @@ class FirebaseObject {
     const userRef = this.db.ref(this.path + "/users/" + this.uid);
     userRef.remove().then(() => {
       this.cleanup();
-      this.db.goOffline();
       if (callback) callback();
     });
   }
@@ -121,9 +158,11 @@ class FirebaseObject {
   }
 
   async retrievePathValue(pathName) {
-    const referencePath = this.db.ref(this.path + '/' + pathName);
-    const snapshot = await referencePath.once('value');
-    return snapshot.val();
+    return this.fb.performOperation(async()=>{
+      const referencePath = this.db.ref(this.path + '/' + pathName);
+      const snapshot = await referencePath.once('value');
+      return snapshot.val();
+    });
   }
 
   updateServerTimestamp() {
@@ -649,14 +688,12 @@ class RoomManager {
   // Disconnect from Firebase (closes WebSocket)
   async disconnect() {
     if (this.isConnected && this.db && !this.currentRoom) {
-      this.db.goOffline();
       this.isConnected = false;
     }
   }
 
   async createRoom(roomName, roomData = {}) {
-    try {
-      await this.connect();
+    return this.fb.performOperation(async()=>{
       const roomRef = this.db.ref(`${this.basePath}/${roomName}`);
       await roomRef.set({
         name: roomName,
@@ -666,27 +703,21 @@ class RoomManager {
         ...roomData
       });
       return { roomName, success: true };
-    } finally {
-      await this.disconnect();
-    }
+    });
   }
 
   async removeEmptyRoom(roomName) {
-    try {
-      await this.connect();
+    return this.fb.performOperation(async()=>{
       const roomRef = this.db.ref(`${this.basePath}/${roomName}`);
       const current = await this.getRoomPlayerCount(roomName);
       if (current < 1) {
         await roomRef.remove();
       }
-    } finally {
-      await this.disconnect();
-    }
+    });
   }
 
   async joinRoom(roomName) {
-    try {
-      await this.connect();
+    return this.fb.performOperation(async()=>{
       const roomRef = this.db.ref(`${this.basePath}/${roomName}`);
       const snapshot = await roomRef.once('value');
 
@@ -701,10 +732,7 @@ class RoomManager {
       this.setupRoomListeners(roomName);
 
       return { roomName, success: true };
-    } catch (error) {
-      await this.disconnect();
-      throw error;
-    }
+    });
   }
 
   // Setup real-time listeners for room updates (keeps connection alive)
@@ -767,8 +795,7 @@ class RoomManager {
   }
 
   async listRooms() {
-    try {
-      await this.connect();
+    return this.fb.performOperation(async()=>{
       const roomsRef = this.db.ref(this.basePath);
       const snapshot = await roomsRef.once('value');
       const rooms = [];
@@ -784,34 +811,23 @@ class RoomManager {
         });
       }
       return rooms;
-    } finally {
-      await this.disconnect();
-    }
+    });
   }
 
   async getRoomPlayerCount(roomName) {
-    try {
-      await this.connect();
+    return this.fb.performOperation(async()=>{
       const roomRef = this.db.ref(`${this.basePath}/${roomName}/users`);
       const snapshot = await roomRef.once('value');
       return snapshot.numChildren() || 0;
-    } finally {
-      // Only disconnect if we're not in this room
-      if (this.currentRoom !== roomName) {
-        await this.disconnect();
-      }
-    }
+    });
   }
 
   async roomExists(roomName) {
-    try {
-      await this.connect();
+    return this.fb.performOperation(async()=>{
       const roomRef = this.db.ref(`${this.basePath}/${roomName}`);
       const snapshot = await roomRef.once('value');
       return snapshot.exists();
-    } finally {
-      await this.disconnect();
-    }
+    });
   }
 
   // Get the current room (if any)
