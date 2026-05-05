@@ -802,11 +802,12 @@ class RoomManager {
       if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
           const roomData = childSnapshot.val();
+          // console.log(roomData);
           rooms.push({
             name: childSnapshot.key,
             createdAt: roomData.createdAt,
             created: roomData.created || false,
-            playerCount: roomData.playerCount || 0
+            playerCount: Object.keys(roomData?.users ?? {}).length
           });
         });
       }
