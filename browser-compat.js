@@ -716,6 +716,13 @@ class RoomManager {
     });
   }
 
+  async removeRoom(roomName) {
+    return this.fb.performOperation(async()=>{
+      const roomRef = this.db.ref(`${this.basePath}/${roomName}`);
+      await roomRef.remove();
+    });
+  }
+
   async joinRoom(roomName) {
     return this.fb.performOperation(async()=>{
       const roomRef = this.db.ref(`${this.basePath}/${roomName}`);
@@ -794,6 +801,14 @@ class RoomManager {
     }
   }
 
+  getLatestActiveTime(a) {
+    if(!a) return 999;
+
+    const minutesAgo = Math.floor((Date.now() - a) / 1000 / 60);
+
+    return minutesAgo;
+  }
+
   async listRooms() {
     return this.fb.performOperation(async()=>{
       const roomsRef = this.db.ref(this.basePath);
@@ -802,15 +817,17 @@ class RoomManager {
       if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
           const roomData = childSnapshot.val();
-          // console.log(roomData);
+          // ((Date.now()-1778177784404)/1000)/60
           rooms.push({
             name: childSnapshot.key,
             createdAt: roomData.createdAt,
             created: roomData.created || false,
-            playerCount: Object.keys(roomData?.users ?? {}).length
+            playerCount: Object.keys(roomData?.users ?? {}).length,
+            updatedTime: this.getLatestActiveTime(roomData?.serverTimestamp?.timestampField ?? null)
           });
         });
       }
+          // console.log(rooms.length);
       return rooms;
     });
   }
