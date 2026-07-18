@@ -9,7 +9,7 @@ gdjs.evtsExt__JsonLoader__LoadJSUntilLoaded = {};
 gdjs.evtsExt__JsonLoader__LoadJSUntilLoaded.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__JsonLoader__LoadJSUntilLoaded.userFunc0x9752f8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__JsonLoader__LoadJSUntilLoaded.userFunc0x957030 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const url = eventsFunctionContext.getArgument("URL");
 
@@ -48,7 +48,7 @@ gdjs.evtsExt__JsonLoader__LoadJSUntilLoaded.eventsList0 = function(runtimeScene,
 {
 
 
-gdjs.evtsExt__JsonLoader__LoadJSUntilLoaded.userFunc0x9752f8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__JsonLoader__LoadJSUntilLoaded.userFunc0x957030(runtimeScene, eventsFunctionContext);
 
 }
 

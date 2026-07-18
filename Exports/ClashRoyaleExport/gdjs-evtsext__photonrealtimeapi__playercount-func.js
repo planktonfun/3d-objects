@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__PlayerCount = {};
 gdjs.evtsExt__PhotonRealtimeAPI__PlayerCount.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__PlayerCount.userFunc0x1ccf8d8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__PlayerCount.userFunc0x162f990 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = Object.keys(gdjs._photonClientExtension.client.myRoomActors()).length
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__PlayerCount.eventsList0 = function(runtimeScene
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__PlayerCount.userFunc0x1ccf8d8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__PlayerCount.userFunc0x162f990(runtimeScene, eventsFunctionContext);
 
 }
 

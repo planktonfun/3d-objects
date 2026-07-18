@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetIsOpen = {};
 gdjs.evtsExt__PhotonRealtimeAPI__SetIsOpen.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetIsOpen.userFunc0x15f8228 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__SetIsOpen.userFunc0x1668f50 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 
 const value = eventsFunctionContext.getArgument('Value');
@@ -21,7 +21,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetIsOpen.eventsList0 = function(runtimeScene, 
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetIsOpen.userFunc0x15f8228(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__SetIsOpen.userFunc0x1668f50(runtimeScene, eventsFunctionContext);
 
 }
 

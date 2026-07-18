@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__Environment = {};
 gdjs.evtsExt__CrazyGamesAdApi__Environment.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__Environment.userFunc0x1772d58 = function GDJSInlineCode(runtimeScene, objects, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__Environment.userFunc0x17adda8 = function GDJSInlineCode(runtimeScene, objects, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = CrazyGames.SDK.environment;
 };
@@ -19,7 +19,7 @@ gdjs.evtsExt__CrazyGamesAdApi__Environment.eventsList0 = function(runtimeScene, 
 
 
 const objects = [];
-gdjs.evtsExt__CrazyGamesAdApi__Environment.userFunc0x1772d58(runtimeScene, objects, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__Environment.userFunc0x17adda8(runtimeScene, objects, eventsFunctionContext);
 
 }
 

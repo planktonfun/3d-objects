@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__PhotonEventActorId = {};
 gdjs.evtsExt__PhotonRealtimeAPI__PhotonEventActorId.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__PhotonEventActorId.userFunc0x15f5070 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__PhotonEventActorId.userFunc0x1d17848 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._photonClientExtension.data.actorNr;
 };
@@ -28,7 +28,7 @@ let isConditionTrue_0 = false;
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__PhotonEventActorId.userFunc0x15f5070(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__PhotonEventActorId.userFunc0x1d17848(runtimeScene, eventsFunctionContext);
 
 }
 

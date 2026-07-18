@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded = {};
 gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.userFunc0x14f64d8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.userFunc0x18d2c38 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 var $jscomp=$jscomp||{};$jscomp.scope={};$jscomp.ASSUME_ES5=!1;$jscomp.ASSUME_NO_NATIVE_MAP=!1;$jscomp.ASSUME_NO_NATIVE_SET=!1;$jscomp.SIMPLE_FROUND_POLYFILL=!1;$jscomp.ISOLATE_POLYFILLS=!1;$jscomp.FORCE_POLYFILL_PROMISE=!1;$jscomp.FORCE_POLYFILL_PROMISE_WHEN_NO_UNHANDLED_REJECTION=!1;$jscomp.defineProperty=$jscomp.ASSUME_ES5||"function"==typeof Object.defineProperties?Object.defineProperty:function(g,d,p){if(g==Array.prototype||g==Object.prototype)return g;g[d]=p.value;return g};
 $jscomp.getGlobal=function(g){g=["object"==typeof globalThis&&globalThis,g,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<g.length;++d){var p=g[d];if(p&&p.Math==Math)return p}throw Error("Cannot find global object");};$jscomp.global=$jscomp.getGlobal(this);$jscomp.IS_SYMBOL_NATIVE="function"===typeof Symbol&&"symbol"===typeof Symbol("x");$jscomp.TRUST_ES6_POLYFILLS=!$jscomp.ISOLATE_POLYFILLS||$jscomp.IS_SYMBOL_NATIVE;$jscomp.polyfills={};
@@ -188,7 +188,7 @@ FrontEndError:1001,FrontEndConnectFailed:1002,FrontEndConnectClosed:1003,FrontEn
 
 window.Photon = Photon;
 };
-gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.userFunc0x1a11fb0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.userFunc0x18d2cd8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 gdjs._photonClientExtension = {};
 gdjs._photonClientExtension.logObject = null;
@@ -230,7 +230,7 @@ let isConditionTrue_0 = false;
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.userFunc0x14f64d8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.userFunc0x18d2c38(runtimeScene, eventsFunctionContext);
 
 }
 
@@ -238,7 +238,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.userFunc0x14f64d8(runtimeSce
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.userFunc0x1a11fb0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__onFirstSceneLoaded.userFunc0x18d2cd8(runtimeScene, eventsFunctionContext);
 
 }
 

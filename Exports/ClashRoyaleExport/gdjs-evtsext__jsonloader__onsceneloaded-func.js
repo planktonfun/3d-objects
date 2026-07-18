@@ -9,7 +9,7 @@ gdjs.evtsExt__JsonLoader__onSceneLoaded = {};
 gdjs.evtsExt__JsonLoader__onSceneLoaded.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__JsonLoader__onSceneLoaded.userFunc0x970758 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__JsonLoader__onSceneLoaded.userFunc0x952770 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 window.loadedJS = {};
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__JsonLoader__onSceneLoaded.eventsList0 = function(runtimeScene, eve
 {
 
 
-gdjs.evtsExt__JsonLoader__onSceneLoaded.userFunc0x970758(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__JsonLoader__onSceneLoaded.userFunc0x952770(runtimeScene, eventsFunctionContext);
 
 }
 

@@ -9,7 +9,7 @@ gdjs.evtsExt__JsonLoader__LoadJSFile = {};
 gdjs.evtsExt__JsonLoader__LoadJSFile.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__JsonLoader__LoadJSFile.userFunc0x974170 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__JsonLoader__LoadJSFile.userFunc0x955f60 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const url = eventsFunctionContext.getArgument("URL");
 
@@ -39,7 +39,7 @@ gdjs.evtsExt__JsonLoader__LoadJSFile.eventsList0 = function(runtimeScene, events
 {
 
 
-gdjs.evtsExt__JsonLoader__LoadJSFile.userFunc0x974170(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__JsonLoader__LoadJSFile.userFunc0x955f60(runtimeScene, eventsFunctionContext);
 
 }
 

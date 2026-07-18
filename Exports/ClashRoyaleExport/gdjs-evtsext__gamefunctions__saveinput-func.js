@@ -9,7 +9,7 @@ gdjs.evtsExt__GameFunctions__SaveInput = {};
 gdjs.evtsExt__GameFunctions__SaveInput.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__GameFunctions__SaveInput.userFunc0x1765d98 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__GameFunctions__SaveInput.userFunc0x8e7c60 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const input = eventsFunctionContext.getArgument('Input').toJSObject();
 const frame = eventsFunctionContext.getArgument('Frame');
@@ -21,7 +21,7 @@ gdjs.evtsExt__GameFunctions__SaveInput.eventsList0 = function(runtimeScene, even
 {
 
 
-gdjs.evtsExt__GameFunctions__SaveInput.userFunc0x1765d98(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__GameFunctions__SaveInput.userFunc0x8e7c60(runtimeScene, eventsFunctionContext);
 
 }
 

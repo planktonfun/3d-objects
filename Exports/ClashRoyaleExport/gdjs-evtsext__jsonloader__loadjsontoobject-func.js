@@ -10,7 +10,7 @@ gdjs.evtsExt__JsonLoader__LoadJSONToObject.idToCallbackMap = new Map();
 gdjs.evtsExt__JsonLoader__LoadJSONToObject.GDObjectObjects1= [];
 
 
-gdjs.evtsExt__JsonLoader__LoadJSONToObject.userFunc0x975d78 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__JsonLoader__LoadJSONToObject.userFunc0x957a10 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext
     .getArgument("Variable")
@@ -27,7 +27,7 @@ gdjs.evtsExt__JsonLoader__LoadJSONToObject.eventsList0 = function(runtimeScene, 
 {
 
 
-gdjs.evtsExt__JsonLoader__LoadJSONToObject.userFunc0x975d78(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__JsonLoader__LoadJSONToObject.userFunc0x957a10(runtimeScene, eventsFunctionContext);
 
 }
 

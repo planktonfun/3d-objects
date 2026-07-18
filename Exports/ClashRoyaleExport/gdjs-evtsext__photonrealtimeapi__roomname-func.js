@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__RoomName = {};
 gdjs.evtsExt__PhotonRealtimeAPI__RoomName.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__RoomName.userFunc0x1cd4ff8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__RoomName.userFunc0x19f4498 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._photonClientExtension.client.myRoom().name;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__RoomName.eventsList0 = function(runtimeScene, e
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__RoomName.userFunc0x1cd4ff8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__RoomName.userFunc0x19f4498(runtimeScene, eventsFunctionContext);
 
 }
 

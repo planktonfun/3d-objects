@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__RoomMasterID = {};
 gdjs.evtsExt__PhotonRealtimeAPI__RoomMasterID.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__RoomMasterID.userFunc0x15fbcb8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__RoomMasterID.userFunc0x15c2018 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._photonClientExtension.client.myRoomMasterActorNr();
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__RoomMasterID.eventsList0 = function(runtimeScen
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__RoomMasterID.userFunc0x15fbcb8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__RoomMasterID.userFunc0x15c2018(runtimeScene, eventsFunctionContext);
 
 }
 

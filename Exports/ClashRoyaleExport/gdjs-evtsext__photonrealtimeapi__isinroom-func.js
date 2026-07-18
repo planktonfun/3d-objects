@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__IsInRoom = {};
 gdjs.evtsExt__PhotonRealtimeAPI__IsInRoom.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__IsInRoom.userFunc0x15e95f0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__IsInRoom.userFunc0x1d206a8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._photonClientExtension.client.isJoinedToRoom()
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__IsInRoom.eventsList0 = function(runtimeScene, e
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__IsInRoom.userFunc0x15e95f0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__IsInRoom.userFunc0x1d206a8(runtimeScene, eventsFunctionContext);
 
 }
 

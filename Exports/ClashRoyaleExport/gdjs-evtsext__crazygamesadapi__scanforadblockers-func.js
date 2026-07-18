@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__ScanForAdBlockers = {};
 gdjs.evtsExt__CrazyGamesAdApi__ScanForAdBlockers.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__ScanForAdBlockers.userFunc0x1932950 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__ScanForAdBlockers.userFunc0x17c6060 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const logger = new gdjs.Logger("CrazyGames SDK");
 
@@ -43,7 +43,7 @@ gdjs.evtsExt__CrazyGamesAdApi__ScanForAdBlockers.eventsList0 = function(runtimeS
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__ScanForAdBlockers.userFunc0x1932950(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__ScanForAdBlockers.userFunc0x17c6060(runtimeScene, eventsFunctionContext);
 
 }
 

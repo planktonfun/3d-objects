@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__HideAllBanners = {};
 gdjs.evtsExt__CrazyGamesAdApi__HideAllBanners.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__HideAllBanners.userFunc0x1931e28 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__HideAllBanners.userFunc0x17adda8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 CrazyGames.SDK.banner.clearAllBanners();
 
@@ -19,7 +19,7 @@ gdjs.evtsExt__CrazyGamesAdApi__HideAllBanners.eventsList0 = function(runtimeScen
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__HideAllBanners.userFunc0x1931e28(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__HideAllBanners.userFunc0x17adda8(runtimeScene, eventsFunctionContext);
 
 }
 

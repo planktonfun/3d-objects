@@ -9,7 +9,7 @@ gdjs.evtsExt__GameFunctions__TimestampToFrame = {};
 gdjs.evtsExt__GameFunctions__TimestampToFrame.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__GameFunctions__TimestampToFrame.userFunc0x8f20c8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__GameFunctions__TimestampToFrame.userFunc0x8e7480 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 function getFrameFromTimestamps(startTimestamp, currentTimestamp, frameRate) {
   const elapsed = currentTimestamp - startTimestamp;
@@ -38,7 +38,7 @@ let isConditionTrue_0 = false;
 {
 
 
-gdjs.evtsExt__GameFunctions__TimestampToFrame.userFunc0x8f20c8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__GameFunctions__TimestampToFrame.userFunc0x8e7480(runtimeScene, eventsFunctionContext);
 
 }
 

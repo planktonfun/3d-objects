@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__GetBestRegion = {};
 gdjs.evtsExt__PhotonRealtimeAPI__GetBestRegion.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__GetBestRegion.userFunc0x199f5c0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__GetBestRegion.userFunc0x1906f40 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 function getBestRegion(timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone) {
 
@@ -80,7 +80,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__GetBestRegion.eventsList0 = function(runtimeSce
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__GetBestRegion.userFunc0x199f5c0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__GetBestRegion.userFunc0x1906f40(runtimeScene, eventsFunctionContext);
 
 }
 

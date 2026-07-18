@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__UserSignIn = {};
 gdjs.evtsExt__CrazyGamesAdApi__UserSignIn.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__UserSignIn.userFunc0x187d1f8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__UserSignIn.userFunc0x18b45f0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 console.log("Checking if the user is signed in start");
 
@@ -51,7 +51,7 @@ gdjs.evtsExt__CrazyGamesAdApi__UserSignIn.eventsList0 = function(runtimeScene, e
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__UserSignIn.userFunc0x187d1f8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__UserSignIn.userFunc0x18b45f0(runtimeScene, eventsFunctionContext);
 
 }
 

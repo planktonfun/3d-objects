@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__LeaveRoom = {};
 gdjs.evtsExt__PhotonRealtimeAPI__LeaveRoom.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__LeaveRoom.userFunc0x156aec8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__LeaveRoom.userFunc0x19f4498 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 gdjs._photonClientExtension.client.leaveRoom();
 gdjs._photonClientExtension.data.roomName = null;
@@ -20,7 +20,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__LeaveRoom.eventsList0 = function(runtimeScene, 
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__LeaveRoom.userFunc0x156aec8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__LeaveRoom.userFunc0x19f4498(runtimeScene, eventsFunctionContext);
 
 }
 

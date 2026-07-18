@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__IsConnected = {};
 gdjs.evtsExt__PhotonRealtimeAPI__IsConnected.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__IsConnected.userFunc0x15c4810 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__IsConnected.userFunc0x18ee878 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 if(!gdjs._photonClientExtension.client) {
     // gdjs._photonClientExtension.log("Connect to photon first");
@@ -25,7 +25,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__IsConnected.eventsList0 = function(runtimeScene
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__IsConnected.userFunc0x15c4810(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__IsConnected.userFunc0x18ee878(runtimeScene, eventsFunctionContext);
 
 }
 

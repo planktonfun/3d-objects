@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__UserName = {};
 gdjs.evtsExt__CrazyGamesAdApi__UserName.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__UserName.userFunc0x17861a8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__UserName.userFunc0x14b6358 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._crazyGamesExtension.username;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__UserName.eventsList0 = function(runtimeScene, eve
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__UserName.userFunc0x17861a8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__UserName.userFunc0x14b6358(runtimeScene, eventsFunctionContext);
 
 }
 

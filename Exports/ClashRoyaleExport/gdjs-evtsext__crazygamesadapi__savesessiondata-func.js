@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__SaveSessionData = {};
 gdjs.evtsExt__CrazyGamesAdApi__SaveSessionData.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__SaveSessionData.userFunc0x8d36e0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__SaveSessionData.userFunc0x8bd4e0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 // Storing Persistent User Data
 async function saveUserData(key, value) {
@@ -32,7 +32,7 @@ gdjs.evtsExt__CrazyGamesAdApi__SaveSessionData.eventsList0 = function(runtimeSce
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__SaveSessionData.userFunc0x8d36e0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__SaveSessionData.userFunc0x8bd4e0(runtimeScene, eventsFunctionContext);
 
 }
 

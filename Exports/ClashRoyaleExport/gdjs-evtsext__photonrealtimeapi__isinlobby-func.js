@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__IsInLobby = {};
 gdjs.evtsExt__PhotonRealtimeAPI__IsInLobby.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__IsInLobby.userFunc0x1556a10 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__IsInLobby.userFunc0x18ee878 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._photonClientExtension.client.isInLobby();
 
@@ -20,7 +20,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__IsInLobby.eventsList0 = function(runtimeScene, 
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__IsInLobby.userFunc0x1556a10(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__IsInLobby.userFunc0x18ee878(runtimeScene, eventsFunctionContext);
 
 }
 

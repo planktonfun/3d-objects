@@ -168,12 +168,12 @@ gdjs.SandboxCode.GDReplaySpriteObjects2= [];
 gdjs.SandboxCode.GDReplaySpriteObjects3= [];
 
 
-gdjs.SandboxCode.userFunc0x10f4e78 = function GDJSInlineCode(runtimeScene) {
+gdjs.SandboxCode.userFunc0x1103388 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 window.runtimeScene=runtimeScene;
 window.frames = [];
 };
-gdjs.SandboxCode.userFunc0x10f5690 = function GDJSInlineCode(runtimeScene) {
+gdjs.SandboxCode.userFunc0x1103bb8 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 /*!
 
@@ -196,7 +196,7 @@ gdjs.SandboxCode.eventsList0 = function(runtimeScene) {
 {
 
 
-gdjs.SandboxCode.userFunc0x10f4e78(runtimeScene);
+gdjs.SandboxCode.userFunc0x1103388(runtimeScene);
 
 }
 
@@ -204,12 +204,12 @@ gdjs.SandboxCode.userFunc0x10f4e78(runtimeScene);
 {
 
 
-gdjs.SandboxCode.userFunc0x10f5690(runtimeScene);
+gdjs.SandboxCode.userFunc0x1103bb8(runtimeScene);
 
 }
 
 
-};gdjs.SandboxCode.userFunc0x10f58a0 = function GDJSInlineCode(runtimeScene) {
+};gdjs.SandboxCode.userFunc0x1103e98 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 window.frames = [];
 };
@@ -218,12 +218,12 @@ gdjs.SandboxCode.eventsList1 = function(runtimeScene) {
 {
 
 
-gdjs.SandboxCode.userFunc0x10f58a0(runtimeScene);
+gdjs.SandboxCode.userFunc0x1103e98(runtimeScene);
 
 }
 
 
-};gdjs.SandboxCode.userFunc0x10f5ab0 = function GDJSInlineCode(runtimeScene) {
+};gdjs.SandboxCode.userFunc0x1104178 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 function trimTransparentCanvas(canvases) {
 
@@ -338,13 +338,13 @@ gdjs.SandboxCode.eventsList2 = function(runtimeScene) {
 {
 
 
-gdjs.SandboxCode.userFunc0x10f5ab0(runtimeScene);
+gdjs.SandboxCode.userFunc0x1104178(runtimeScene);
 
 }
 
 
 };gdjs.SandboxCode.mapOfGDgdjs_9546SandboxCode_9546GDReplaySpriteObjects2Objects = Hashtable.newFrom({"ReplaySprite": gdjs.SandboxCode.GDReplaySpriteObjects2});
-gdjs.SandboxCode.userFunc0x10f5e20 = function GDJSInlineCode(runtimeScene, objects) {
+gdjs.SandboxCode.userFunc0x11045d0 = function GDJSInlineCode(runtimeScene, objects) {
 "use strict";
 if(!window.frames) return;
 if(window.frames.length == 0) return;
@@ -385,12 +385,12 @@ gdjs.SandboxCode.eventsList3 = function(runtimeScene) {
 /* Reuse gdjs.SandboxCode.GDReplaySpriteObjects2 */
 
 const objects = gdjs.SandboxCode.GDReplaySpriteObjects2;
-gdjs.SandboxCode.userFunc0x10f5e20(runtimeScene, objects);
+gdjs.SandboxCode.userFunc0x11045d0(runtimeScene, objects);
 
 }
 
 
-};gdjs.SandboxCode.userFunc0x10f5fa8 = function GDJSInlineCode(runtimeScene) {
+};gdjs.SandboxCode.userFunc0x11047f8 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 async function downloadImagesAsZip() {
       const imageUrls = frames;
@@ -422,12 +422,12 @@ gdjs.SandboxCode.eventsList4 = function(runtimeScene) {
 {
 
 
-gdjs.SandboxCode.userFunc0x10f5fa8(runtimeScene);
+gdjs.SandboxCode.userFunc0x11047f8(runtimeScene);
 
 }
 
 
-};gdjs.SandboxCode.userFunc0x10f61c0 = function GDJSInlineCode(runtimeScene) {
+};gdjs.SandboxCode.userFunc0x1104b18 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 function printScreen(pointer) {
     // Access the Pixi application and renderer
@@ -459,7 +459,7 @@ gdjs.SandboxCode.eventsList5 = function(runtimeScene) {
 {
 
 
-gdjs.SandboxCode.userFunc0x10f61c0(runtimeScene);
+gdjs.SandboxCode.userFunc0x1104b18(runtimeScene);
 
 }
 

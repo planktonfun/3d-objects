@@ -9,7 +9,7 @@ gdjs.evtsExt__JsonLoader__LoadJSONToVariable = {};
 gdjs.evtsExt__JsonLoader__LoadJSONToVariable.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__JsonLoader__LoadJSONToVariable.userFunc0x9710c8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__JsonLoader__LoadJSONToVariable.userFunc0x9530e0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const jsonStuff = runtimeScene
             .getGame()
@@ -26,7 +26,7 @@ gdjs.evtsExt__JsonLoader__LoadJSONToVariable.eventsList0 = function(runtimeScene
 {
 
 
-gdjs.evtsExt__JsonLoader__LoadJSONToVariable.userFunc0x9710c8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__JsonLoader__LoadJSONToVariable.userFunc0x9530e0(runtimeScene, eventsFunctionContext);
 
 }
 

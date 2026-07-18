@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsInstantMultiplayer = {};
 gdjs.evtsExt__CrazyGamesAdApi__IsInstantMultiplayer.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsInstantMultiplayer.userFunc0x1765d98 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__IsInstantMultiplayer.userFunc0x14cde68 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = CrazyGames.SDK.game.isInstantMultiplayer;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsInstantMultiplayer.eventsList0 = function(runti
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsInstantMultiplayer.userFunc0x1765d98(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__IsInstantMultiplayer.userFunc0x14cde68(runtimeScene, eventsFunctionContext);
 
 }
 

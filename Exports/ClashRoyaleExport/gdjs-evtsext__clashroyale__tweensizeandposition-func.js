@@ -46,14 +46,14 @@ let isConditionTrue_0 = false;
 }
 
 
-};gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.asyncCallback28261460 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+};gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.asyncCallback28527244 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 
 { //Subevents
 gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.eventsList0(runtimeScene, eventsFunctionContext, asyncObjectsList);} //End of subevents
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.idToCallbackMap.set(28261460, gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.asyncCallback28261460);
+gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.idToCallbackMap.set(28527244, gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.asyncCallback28527244);
 gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.eventsList1 = function(runtimeScene, eventsFunctionContext) {
 
 {
@@ -64,7 +64,7 @@ gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.eventsList1 = function(runtimeSc
 const asyncObjectsList = new gdjs.LongLivedObjectsList();
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
 for (const obj of gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.GDTweenObjectObjects1) asyncObjectsList.addObject("TweenObject", obj);
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(eventsFunctionContext.getArgument("Seconds")), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.asyncCallback28261460(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28261460, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(eventsFunctionContext.getArgument("Seconds")), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__TweenSizeAndPosition.asyncCallback28527244(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28527244, asyncObjectsList);
 }
 }
 

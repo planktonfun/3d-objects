@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__GetAllPlayersIds = {};
 gdjs.evtsExt__PhotonRealtimeAPI__GetAllPlayersIds.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__GetAllPlayersIds.userFunc0x1cb6ce0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__GetAllPlayersIds.userFunc0x14ed0e8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const variable = eventsFunctionContext.getArgument("PlayerIdsContainer");
 const actors = gdjs._photonClientExtension.client.myRoomActors();
@@ -26,7 +26,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__GetAllPlayersIds.eventsList0 = function(runtime
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__GetAllPlayersIds.userFunc0x1cb6ce0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__GetAllPlayersIds.userFunc0x14ed0e8(runtimeScene, eventsFunctionContext);
 
 }
 

@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStopped = {};
 gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStopped.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStopped.userFunc0x155e568 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStopped.userFunc0x194f310 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 CrazyGames.SDK.game.gameplayStop();
 
@@ -19,7 +19,7 @@ gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStopped.eventsList0 = function(runtime
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStopped.userFunc0x155e568(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStopped.userFunc0x194f310(runtimeScene, eventsFunctionContext);
 
 }
 
