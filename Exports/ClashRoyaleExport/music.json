@@ -1,0 +1,202 @@
+{
+  "String": {
+    "FileName": "String",
+    "Volume": "int",
+    "Loop": "boolean",
+    "PlayCount": "int",
+    "FadeOutTimeSec": "int",
+    "DurationSec": "int"
+  },
+  "BattleMusic": {
+    "FileName": "music/2min_loop_battle_01.ogg",
+    "Volume": 50,
+    "Loop": true,
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Lunar_Arena_Battle": {
+    "FileName": "music\\lunar_arena_2min_01.ogg",
+    "Volume": 50,
+    "Loop": true,
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "MenuMusic": {
+    "FileName": "music/menu_03.ogg",
+    "Volume": 70,
+    "Loop": "",
+    "PlayCount": 2,
+    "FadeOutTimeSec": 30,
+    "DurationSec": 96
+  },
+  "TrainingArena": {
+    "FileName": "music\\tutorial_2m_arena_forest_amb_01.ogg",
+    "Volume": 50,
+    "Loop": true,
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "60sec_training": {
+    "FileName": "music\\60secs_training_Arena_01.ogg",
+    "Volume": 65,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Sudden_death": {
+    "FileName": "music\\sudden_death_01.ogg",
+    "Volume": 60,
+    "Loop": true,
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Pre_result": {
+    "FileName": "music\\scroll_preresult_loop_01.ogg",
+    "Volume": 80,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Win": {
+    "FileName": "music\\scroll_win_02.ogg",
+    "Volume": 95,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Lose": {
+    "FileName": "music\\scroll_lose_01.ogg",
+    "Volume": 85,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Draw": {
+    "FileName": "music\\scroll_draw_01.ogg",
+    "Volume": 85,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Post_result_loop": {
+    "FileName": "music\\scroll_post_jingle_loop_01.ogg",
+    "Volume": 50,
+    "Loop": true,
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "60sec_loop": {
+    "FileName": "music\\60_sec_music_loop_01.ogg",
+    "Volume": 55,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "30sec_loop": {
+    "FileName": "music\\30_sec_music_loop_01.ogg",
+    "Volume": 60,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Boat_PVE_Win": {
+    "FileName": "music\\boat_pve_win_01.ogg",
+    "Volume": 70,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Boat_PVE_Lose": {
+    "FileName": "music\\boat_pve_lose_01.ogg",
+    "Volume": 70,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Boat_Bonustime_60": {
+    "FileName": "music\\boat_bonus_60sec_01.ogg",
+    "Volume": 70,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Boat_Bonustime_30": {
+    "FileName": "music\\boat_bonus_30sec_01.ogg",
+    "Volume": 80,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Retro_Battle_Music": {
+    "FileName": "music\\royale_8bit_2min_battle_01.ogg",
+    "Volume": 50,
+    "Loop": true,
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Retro_Menu_Music": {
+    "FileName": "music\\royale_8bit_menu_01.ogg",
+    "Volume": 65,
+    "Loop": true,
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Retro_60sec_loop": {
+    "FileName": "music\\royale_8bit_60sec_music_01.ogg",
+    "Volume": 55,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Retro_30sec_loop": {
+    "FileName": "music\\royale_8bit_30sec_music_01.ogg",
+    "Volume": 60,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Retro_Sudden_Death": {
+    "FileName": "music\\royale_8bit_overtime_01.ogg",
+    "Volume": 65,
+    "Loop": true,
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Draft_Music": {
+    "FileName": "music\\draft_music_30secs_01.ogg",
+    "Volume": 70,
+    "Loop": "",
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  },
+  "Mega_Draft_Music_Loop": {
+    "FileName": "music\\megadraft_music_60secs_loop_01.ogg",
+    "Volume": 70,
+    "Loop": true,
+    "PlayCount": "",
+    "FadeOutTimeSec": "",
+    "DurationSec": ""
+  }
+}
