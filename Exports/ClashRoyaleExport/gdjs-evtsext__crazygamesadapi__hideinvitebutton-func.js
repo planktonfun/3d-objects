@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__HideInviteButton = {};
 gdjs.evtsExt__CrazyGamesAdApi__HideInviteButton.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__HideInviteButton.userFunc0x176ca68 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__HideInviteButton.userFunc0x9d3740 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 CrazyGames.SDK.game.hideInviteButton();
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__HideInviteButton.eventsList0 = function(runtimeSc
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__HideInviteButton.userFunc0x176ca68(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__HideInviteButton.userFunc0x9d3740(runtimeScene, eventsFunctionContext);
 
 }
 

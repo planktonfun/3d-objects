@@ -87,13 +87,13 @@ gdjs.MenuCode.GDReplaySpriteObjects2= [];
 gdjs.MenuCode.GDReplaySpriteObjects3= [];
 
 
-gdjs.MenuCode.asyncCallback29084332 = function (runtimeScene, asyncObjectsList) {
+gdjs.MenuCode.asyncCallback30183436 = function (runtimeScene, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(gdjs.MenuCode.localVariables);
 {gdjs.evtTools.runtimeScene.replaceScene(runtimeScene, "Battle", false);
 }
 gdjs.MenuCode.localVariables.length = 0;
 }
-gdjs.MenuCode.idToCallbackMap.set(29084332, gdjs.MenuCode.asyncCallback29084332);
+gdjs.MenuCode.idToCallbackMap.set(30183436, gdjs.MenuCode.asyncCallback30183436);
 gdjs.MenuCode.eventsList0 = function(runtimeScene, asyncObjectsList) {
 
 {
@@ -104,14 +104,14 @@ const parentAsyncObjectsList = asyncObjectsList;
 {
 const asyncObjectsList = gdjs.LongLivedObjectsList.from(parentAsyncObjectsList);
 asyncObjectsList.backupLocalVariablesContainers(gdjs.MenuCode.localVariables);
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(1), (runtimeScene) => (gdjs.MenuCode.asyncCallback29084332(runtimeScene, asyncObjectsList)), 29084332, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(1), (runtimeScene) => (gdjs.MenuCode.asyncCallback30183436(runtimeScene, asyncObjectsList)), 30183436, asyncObjectsList);
 }
 }
 
 }
 
 
-};gdjs.MenuCode.asyncCallback29083932 = function (runtimeScene, asyncObjectsList) {
+};gdjs.MenuCode.asyncCallback30183036 = function (runtimeScene, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(gdjs.MenuCode.localVariables);
 {gdjs.evtsExt__ClashRoyale__PlaySfxUsingId.func(runtimeScene, "AttackButton", null);
 }
@@ -120,7 +120,7 @@ asyncObjectsList.restoreLocalVariablesContainers(gdjs.MenuCode.localVariables);
 gdjs.MenuCode.eventsList0(runtimeScene, asyncObjectsList);} //End of subevents
 gdjs.MenuCode.localVariables.length = 0;
 }
-gdjs.MenuCode.idToCallbackMap.set(29083932, gdjs.MenuCode.asyncCallback29083932);
+gdjs.MenuCode.idToCallbackMap.set(30183036, gdjs.MenuCode.asyncCallback30183036);
 gdjs.MenuCode.eventsList1 = function(runtimeScene) {
 
 {
@@ -130,7 +130,7 @@ gdjs.MenuCode.eventsList1 = function(runtimeScene) {
 {
 const asyncObjectsList = new gdjs.LongLivedObjectsList();
 asyncObjectsList.backupLocalVariablesContainers(gdjs.MenuCode.localVariables);
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(2), (runtimeScene) => (gdjs.MenuCode.asyncCallback29083932(runtimeScene, asyncObjectsList)), 29083932, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(2), (runtimeScene) => (gdjs.MenuCode.asyncCallback30183036(runtimeScene, asyncObjectsList)), 30183036, asyncObjectsList);
 }
 }
 

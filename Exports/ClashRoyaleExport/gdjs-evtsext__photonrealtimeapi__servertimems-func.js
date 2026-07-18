@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__ServerTimeMs = {};
 gdjs.evtsExt__PhotonRealtimeAPI__ServerTimeMs.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__ServerTimeMs.userFunc0x15fbaa8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__ServerTimeMs.userFunc0x1a64d70 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._photonClientExtension.client.getServerTimeMs();
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__ServerTimeMs.eventsList0 = function(runtimeScen
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__ServerTimeMs.userFunc0x15fbaa8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__ServerTimeMs.userFunc0x1a64d70(runtimeScene, eventsFunctionContext);
 
 }
 

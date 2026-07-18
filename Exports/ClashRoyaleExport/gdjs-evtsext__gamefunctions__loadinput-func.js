@@ -9,7 +9,7 @@ gdjs.evtsExt__GameFunctions__LoadInput = {};
 gdjs.evtsExt__GameFunctions__LoadInput.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__GameFunctions__LoadInput.userFunc0x8f3cf8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__GameFunctions__LoadInput.userFunc0x9bdda0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const frame = eventsFunctionContext.getArgument('Frame');
 
@@ -20,7 +20,7 @@ gdjs.evtsExt__GameFunctions__LoadInput.eventsList0 = function(runtimeScene, even
 {
 
 
-gdjs.evtsExt__GameFunctions__LoadInput.userFunc0x8f3cf8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__GameFunctions__LoadInput.userFunc0x9bdda0(runtimeScene, eventsFunctionContext);
 
 }
 

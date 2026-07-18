@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetPlayerTimeToLive = {};
 gdjs.evtsExt__PhotonRealtimeAPI__SetPlayerTimeToLive.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetPlayerTimeToLive.userFunc0x15e7ea8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__SetPlayerTimeToLive.userFunc0x1879f68 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 
 const milliseconds = eventsFunctionContext.getArgument('Milliseconds');
@@ -21,7 +21,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetPlayerTimeToLive.eventsList0 = function(runt
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetPlayerTimeToLive.userFunc0x15e7ea8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__SetPlayerTimeToLive.userFunc0x1879f68(runtimeScene, eventsFunctionContext);
 
 }
 

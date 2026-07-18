@@ -9,7 +9,7 @@ gdjs.evtsExt__GameFunctions__Initialize = {};
 gdjs.evtsExt__GameFunctions__Initialize.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__GameFunctions__Initialize.userFunc0x1765d98 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__GameFunctions__Initialize.userFunc0x88ccb0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 if(gdjs.__snapshotBuffer) return;
 
@@ -37,7 +37,7 @@ gdjs.evtsExt__GameFunctions__Initialize.eventsList0 = function(runtimeScene, eve
 {
 
 
-gdjs.evtsExt__GameFunctions__Initialize.userFunc0x1765d98(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__GameFunctions__Initialize.userFunc0x88ccb0(runtimeScene, eventsFunctionContext);
 
 }
 

@@ -9,7 +9,7 @@ gdjs.evtsExt__JsonLoader__IsJSFileLoaded = {};
 gdjs.evtsExt__JsonLoader__IsJSFileLoaded.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__JsonLoader__IsJSFileLoaded.userFunc0x9749e8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__JsonLoader__IsJSFileLoaded.userFunc0x19412d8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const url = eventsFunctionContext.getArgument("URL");
 
@@ -20,7 +20,7 @@ gdjs.evtsExt__JsonLoader__IsJSFileLoaded.eventsList0 = function(runtimeScene, ev
 {
 
 
-gdjs.evtsExt__JsonLoader__IsJSFileLoaded.userFunc0x9749e8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__JsonLoader__IsJSFileLoaded.userFunc0x19412d8(runtimeScene, eventsFunctionContext);
 
 }
 

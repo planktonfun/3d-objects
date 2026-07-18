@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetRoomPropertyNumber = {};
 gdjs.evtsExt__PhotonRealtimeAPI__SetRoomPropertyNumber.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetRoomPropertyNumber.userFunc0x162b700 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__SetRoomPropertyNumber.userFunc0x18794b0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 function setRoomProperty(propertyName, value) {
     const room = gdjs._photonClientExtension.client.myRoom();
@@ -30,7 +30,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetRoomPropertyNumber.eventsList0 = function(ru
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetRoomPropertyNumber.userFunc0x162b700(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__SetRoomPropertyNumber.userFunc0x18794b0(runtimeScene, eventsFunctionContext);
 
 }
 

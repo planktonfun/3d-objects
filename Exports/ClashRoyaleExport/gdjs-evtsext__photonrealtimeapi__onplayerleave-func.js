@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__OnPlayerLeave = {};
 gdjs.evtsExt__PhotonRealtimeAPI__OnPlayerLeave.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__OnPlayerLeave.userFunc0x14aad78 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__OnPlayerLeave.userFunc0x1a47a60 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._photonClientExtension.data.hasActorLeft
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__OnPlayerLeave.eventsList0 = function(runtimeSce
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__OnPlayerLeave.userFunc0x14aad78(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__OnPlayerLeave.userFunc0x1a47a60(runtimeScene, eventsFunctionContext);
 
 }
 

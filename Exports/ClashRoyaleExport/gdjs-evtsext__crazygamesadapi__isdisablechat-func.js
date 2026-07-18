@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsDisableChat = {};
 gdjs.evtsExt__CrazyGamesAdApi__IsDisableChat.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsDisableChat.userFunc0x1765d98 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__IsDisableChat.userFunc0x18604f8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = CrazyGames.SDK.game.settings.disableChat;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsDisableChat.eventsList0 = function(runtimeScene
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsDisableChat.userFunc0x1765d98(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__IsDisableChat.userFunc0x18604f8(runtimeScene, eventsFunctionContext);
 
 }
 

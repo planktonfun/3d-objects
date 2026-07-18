@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__AdFinishedPlaying = {};
 gdjs.evtsExt__CrazyGamesAdApi__AdFinishedPlaying.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__AdFinishedPlaying.userFunc0x1477d50 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__AdFinishedPlaying.userFunc0x183fe98 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._crazyGamesExtension.hasVideoAdJustFinishedPlaying;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__AdFinishedPlaying.eventsList0 = function(runtimeS
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__AdFinishedPlaying.userFunc0x1477d50(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__AdFinishedPlaying.userFunc0x183fe98(runtimeScene, eventsFunctionContext);
 
 }
 

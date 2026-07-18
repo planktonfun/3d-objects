@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetLocalPlayerName = {};
 gdjs.evtsExt__PhotonRealtimeAPI__SetLocalPlayerName.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetLocalPlayerName.userFunc0x1cd0028 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__SetLocalPlayerName.userFunc0x1a64d70 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 
 const playerName = eventsFunctionContext.getArgument('PlayerName');
@@ -20,7 +20,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetLocalPlayerName.eventsList0 = function(runti
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetLocalPlayerName.userFunc0x1cd0028(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__SetLocalPlayerName.userFunc0x1a64d70(runtimeScene, eventsFunctionContext);
 
 }
 

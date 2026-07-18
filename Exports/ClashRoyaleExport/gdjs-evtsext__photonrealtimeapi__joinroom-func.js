@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__JoinRoom = {};
 gdjs.evtsExt__PhotonRealtimeAPI__JoinRoom.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__JoinRoom.userFunc0x156b0e8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__JoinRoom.userFunc0x18794b0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const roomName = eventsFunctionContext.getArgument('RoomName')
 gdjs._photonClientExtension.log(`Joining room name ${roomName}`);
@@ -20,7 +20,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__JoinRoom.eventsList0 = function(runtimeScene, e
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__JoinRoom.userFunc0x156b0e8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__JoinRoom.userFunc0x18794b0(runtimeScene, eventsFunctionContext);
 
 }
 

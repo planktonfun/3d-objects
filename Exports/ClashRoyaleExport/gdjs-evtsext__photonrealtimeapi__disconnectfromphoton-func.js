@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__DisconnectFromPhoton = {};
 gdjs.evtsExt__PhotonRealtimeAPI__DisconnectFromPhoton.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__DisconnectFromPhoton.userFunc0x1621ae0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__DisconnectFromPhoton.userFunc0x1ab8910 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 gdjs._photonClientExtension.client.disconnect();
 };
@@ -28,7 +28,7 @@ let isConditionTrue_0 = false;
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__DisconnectFromPhoton.userFunc0x1621ae0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__DisconnectFromPhoton.userFunc0x1ab8910(runtimeScene, eventsFunctionContext);
 
 }
 

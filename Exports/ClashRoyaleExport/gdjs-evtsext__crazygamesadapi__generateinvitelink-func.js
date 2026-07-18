@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__GenerateInviteLink = {};
 gdjs.evtsExt__CrazyGamesAdApi__GenerateInviteLink.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__GenerateInviteLink.userFunc0x146c390 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__GenerateInviteLink.userFunc0xa639d8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const roomId = eventsFunctionContext.getArgument("RoomId");
 
@@ -27,7 +27,7 @@ gdjs.evtsExt__CrazyGamesAdApi__GenerateInviteLink.eventsList0 = function(runtime
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__GenerateInviteLink.userFunc0x146c390(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__GenerateInviteLink.userFunc0xa639d8(runtimeScene, eventsFunctionContext);
 
 }
 

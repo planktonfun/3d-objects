@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsAdBlocked = {};
 gdjs.evtsExt__CrazyGamesAdApi__IsAdBlocked.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsAdBlocked.userFunc0x1474658 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__IsAdBlocked.userFunc0x936098 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._crazyGamesExtension.isAdBlockerDetected;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsAdBlocked.eventsList0 = function(runtimeScene, 
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsAdBlocked.userFunc0x1474658(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__IsAdBlocked.userFunc0x936098(runtimeScene, eventsFunctionContext);
 
 }
 

@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__XsollaToken = {};
 gdjs.evtsExt__CrazyGamesAdApi__XsollaToken.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__XsollaToken.userFunc0x1765d98 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__XsollaToken.userFunc0x9bdda0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._crazyGamesExtension.xsollaToken;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__XsollaToken.eventsList0 = function(runtimeScene, 
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__XsollaToken.userFunc0x1765d98(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__XsollaToken.userFunc0x9bdda0(runtimeScene, eventsFunctionContext);
 
 }
 

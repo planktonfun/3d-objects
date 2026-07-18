@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__GetPlayerName = {};
 gdjs.evtsExt__PhotonRealtimeAPI__GetPlayerName.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__GetPlayerName.userFunc0x1581610 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__GetPlayerName.userFunc0x1a64d70 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 function GetPlayerName(actorId) {
     const actor = gdjs._photonClientExtension.client.myRoomActors()[actorId];
@@ -27,7 +27,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__GetPlayerName.eventsList0 = function(runtimeSce
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__GetPlayerName.userFunc0x1581610(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__GetPlayerName.userFunc0x1a64d70(runtimeScene, eventsFunctionContext);
 
 }
 
