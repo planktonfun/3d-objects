@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__PlayerLeft = {};
 gdjs.evtsExt__PhotonRealtimeAPI__PlayerLeft.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__PlayerLeft.userFunc0x196df10 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__PlayerLeft.userFunc0x1acf8c8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._photonClientExtension.data.actorLeft
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__PlayerLeft.eventsList0 = function(runtimeScene,
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__PlayerLeft.userFunc0x196df10(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__PlayerLeft.userFunc0x1acf8c8(runtimeScene, eventsFunctionContext);
 
 }
 

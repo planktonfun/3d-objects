@@ -9,7 +9,7 @@ gdjs.evtsExt__ClashRoyale__PlayMusicUsingId = {};
 gdjs.evtsExt__ClashRoyale__PlayMusicUsingId.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__ClashRoyale__PlayMusicUsingId.userFunc0x18fafa0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__ClashRoyale__PlayMusicUsingId.userFunc0x1af7fe0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const soundId = eventsFunctionContext.getArgument("SoundID").toString().trim();
 const soundProperties = runtimeScene.getGame().getVariables().get('MusicFileMap').toJSObject();
@@ -39,7 +39,7 @@ let isConditionTrue_0 = false;
 {
 
 
-gdjs.evtsExt__ClashRoyale__PlayMusicUsingId.userFunc0x18fafa0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__ClashRoyale__PlayMusicUsingId.userFunc0x1af7fe0(runtimeScene, eventsFunctionContext);
 
 }
 

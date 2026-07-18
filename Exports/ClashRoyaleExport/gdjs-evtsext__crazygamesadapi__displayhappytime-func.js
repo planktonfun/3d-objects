@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__DisplayHappyTime = {};
 gdjs.evtsExt__CrazyGamesAdApi__DisplayHappyTime.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__DisplayHappyTime.userFunc0x17c5a70 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__DisplayHappyTime.userFunc0x1a00a78 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 CrazyGames.SDK.game.happytime();
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__DisplayHappyTime.eventsList0 = function(runtimeSc
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__DisplayHappyTime.userFunc0x17c5a70(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__DisplayHappyTime.userFunc0x1a00a78(runtimeScene, eventsFunctionContext);
 
 }
 

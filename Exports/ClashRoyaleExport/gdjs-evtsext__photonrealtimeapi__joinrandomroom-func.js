@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__JoinRandomRoom = {};
 gdjs.evtsExt__PhotonRealtimeAPI__JoinRandomRoom.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__JoinRandomRoom.userFunc0x19f4498 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__JoinRandomRoom.userFunc0x1896830 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 if (gdjs._photonClientExtension.client.isInLobby()) {
     gdjs._photonClientExtension.client.joinRandomOrCreateRoom();
@@ -23,7 +23,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__JoinRandomRoom.eventsList0 = function(runtimeSc
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__JoinRandomRoom.userFunc0x19f4498(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__JoinRandomRoom.userFunc0x1896830(runtimeScene, eventsFunctionContext);
 
 }
 

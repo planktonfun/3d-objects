@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__ConnectToPhoton = {};
 gdjs.evtsExt__PhotonRealtimeAPI__ConnectToPhoton.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__ConnectToPhoton.userFunc0x1a50600 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__ConnectToPhoton.userFunc0x1ab8910 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 gdjs._photonClientExtension.client = new Photon.LoadBalancing.LoadBalancingClient(
     Photon.ConnectionProtocol.Wss,
@@ -77,7 +77,7 @@ let isConditionTrue_0 = false;
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__ConnectToPhoton.userFunc0x1a50600(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__ConnectToPhoton.userFunc0x1ab8910(runtimeScene, eventsFunctionContext);
 
 }
 

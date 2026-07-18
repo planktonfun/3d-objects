@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__GenerateXsollaToken = {};
 gdjs.evtsExt__CrazyGamesAdApi__GenerateXsollaToken.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__GenerateXsollaToken.userFunc0x8dd908 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__GenerateXsollaToken.userFunc0x9bdda0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 (async () => {
     try {
@@ -29,7 +29,7 @@ gdjs.evtsExt__CrazyGamesAdApi__GenerateXsollaToken.eventsList0 = function(runtim
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__GenerateXsollaToken.userFunc0x8dd908(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__GenerateXsollaToken.userFunc0x9bdda0(runtimeScene, eventsFunctionContext);
 
 }
 

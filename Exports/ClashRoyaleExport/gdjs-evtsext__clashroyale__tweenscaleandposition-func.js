@@ -12,13 +12,13 @@ gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.GDTweenObjectObjects2= [];
 gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.GDTweenObjectObjects3= [];
 
 
-gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.asyncCallback28533588 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.asyncCallback29367356 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 {gdjs.evtTools.common.resolveAsyncEventsFunction(eventsFunctionContext);
 }
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.idToCallbackMap.set(28533588, gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.asyncCallback28533588);
+gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.idToCallbackMap.set(29367356, gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.asyncCallback29367356);
 gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.eventsList0 = function(runtimeScene, eventsFunctionContext) {
 
 {
@@ -28,7 +28,7 @@ gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.eventsList0 = function(runtimeS
 {
 const asyncObjectsList = new gdjs.LongLivedObjectsList();
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(eventsFunctionContext.getArgument("Seconds")), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.asyncCallback28533588(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28533588, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(eventsFunctionContext.getArgument("Seconds")), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.asyncCallback29367356(runtimeScene, eventsFunctionContext, asyncObjectsList)), 29367356, asyncObjectsList);
 }
 }
 

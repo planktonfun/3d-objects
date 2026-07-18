@@ -23,7 +23,7 @@ gdjs.ScreenRecorderCode.GDReplaySpriteObjects3= [];
 
 gdjs.ScreenRecorderCode.mapOfGDgdjs_9546ScreenRecorderCode_9546GDRedExplosionObjects1Objects = Hashtable.newFrom({"RedExplosion": gdjs.ScreenRecorderCode.GDRedExplosionObjects1});
 gdjs.ScreenRecorderCode.mapOfGDgdjs_9546ScreenRecorderCode_9546GDExplosion3Objects1Objects = Hashtable.newFrom({"Explosion3": gdjs.ScreenRecorderCode.GDExplosion3Objects1});
-gdjs.ScreenRecorderCode.userFunc0x1106c40 = function GDJSInlineCode(runtimeScene) {
+gdjs.ScreenRecorderCode.userFunc0xa0ea90 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 // addObjectPositionTween2
 
@@ -69,12 +69,12 @@ gdjs.ScreenRecorderCode.eventsList0 = function(runtimeScene) {
 {
 
 
-gdjs.ScreenRecorderCode.userFunc0x1106c40(runtimeScene);
+gdjs.ScreenRecorderCode.userFunc0xa0ea90(runtimeScene);
 
 }
 
 
-};gdjs.ScreenRecorderCode.userFunc0x1106db8 = function GDJSInlineCode(runtimeScene, objects) {
+};gdjs.ScreenRecorderCode.userFunc0x1a244b0 = function GDJSInlineCode(runtimeScene, objects) {
 "use strict";
 function getParticles(emitter) {
     return emitter._renderer.renderer.children;
@@ -108,12 +108,12 @@ particles.forEach(particle=>{
 });
 
 };
-gdjs.ScreenRecorderCode.userFunc0x1107190 = function GDJSInlineCode(runtimeScene) {
+gdjs.ScreenRecorderCode.userFunc0x199c948 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 window.runtimeScene=runtimeScene;
 window.frames = [];
 };
-gdjs.ScreenRecorderCode.userFunc0x1107278 = function GDJSInlineCode(runtimeScene) {
+gdjs.ScreenRecorderCode.userFunc0x18ad410 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 /*!
 
@@ -136,7 +136,7 @@ gdjs.ScreenRecorderCode.eventsList1 = function(runtimeScene) {
 {
 
 
-gdjs.ScreenRecorderCode.userFunc0x1107190(runtimeScene);
+gdjs.ScreenRecorderCode.userFunc0x199c948(runtimeScene);
 
 }
 
@@ -144,12 +144,12 @@ gdjs.ScreenRecorderCode.userFunc0x1107190(runtimeScene);
 {
 
 
-gdjs.ScreenRecorderCode.userFunc0x1107278(runtimeScene);
+gdjs.ScreenRecorderCode.userFunc0x18ad410(runtimeScene);
 
 }
 
 
-};gdjs.ScreenRecorderCode.userFunc0x1107558 = function GDJSInlineCode(runtimeScene) {
+};gdjs.ScreenRecorderCode.userFunc0x18ad530 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 window.frames = [];
 };
@@ -158,12 +158,12 @@ gdjs.ScreenRecorderCode.eventsList2 = function(runtimeScene) {
 {
 
 
-gdjs.ScreenRecorderCode.userFunc0x1107558(runtimeScene);
+gdjs.ScreenRecorderCode.userFunc0x18ad530(runtimeScene);
 
 }
 
 
-};gdjs.ScreenRecorderCode.userFunc0x1107838 = function GDJSInlineCode(runtimeScene) {
+};gdjs.ScreenRecorderCode.userFunc0x18ad2f0 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 function trimTransparentCanvas(canvases) {
 
@@ -278,13 +278,13 @@ gdjs.ScreenRecorderCode.eventsList3 = function(runtimeScene) {
 {
 
 
-gdjs.ScreenRecorderCode.userFunc0x1107838(runtimeScene);
+gdjs.ScreenRecorderCode.userFunc0x18ad2f0(runtimeScene);
 
 }
 
 
 };gdjs.ScreenRecorderCode.mapOfGDgdjs_9546ScreenRecorderCode_9546GDReplaySpriteObjects2Objects = Hashtable.newFrom({"ReplaySprite": gdjs.ScreenRecorderCode.GDReplaySpriteObjects2});
-gdjs.ScreenRecorderCode.userFunc0x1107c90 = function GDJSInlineCode(runtimeScene, objects) {
+gdjs.ScreenRecorderCode.userFunc0x15701d0 = function GDJSInlineCode(runtimeScene, objects) {
 "use strict";
 if(!window.frames) return;
 if(window.frames.length == 0) return;
@@ -325,12 +325,12 @@ gdjs.ScreenRecorderCode.eventsList4 = function(runtimeScene) {
 /* Reuse gdjs.ScreenRecorderCode.GDReplaySpriteObjects2 */
 
 const objects = gdjs.ScreenRecorderCode.GDReplaySpriteObjects2;
-gdjs.ScreenRecorderCode.userFunc0x1107c90(runtimeScene, objects);
+gdjs.ScreenRecorderCode.userFunc0x15701d0(runtimeScene, objects);
 
 }
 
 
-};gdjs.ScreenRecorderCode.userFunc0x1107eb8 = function GDJSInlineCode(runtimeScene) {
+};gdjs.ScreenRecorderCode.userFunc0x1570410 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 async function downloadImagesAsZip() {
       const imageUrls = frames;
@@ -362,12 +362,12 @@ gdjs.ScreenRecorderCode.eventsList5 = function(runtimeScene) {
 {
 
 
-gdjs.ScreenRecorderCode.userFunc0x1107eb8(runtimeScene);
+gdjs.ScreenRecorderCode.userFunc0x1570410(runtimeScene);
 
 }
 
 
-};gdjs.ScreenRecorderCode.userFunc0x11081d8 = function GDJSInlineCode(runtimeScene) {
+};gdjs.ScreenRecorderCode.userFunc0x15702f0 = function GDJSInlineCode(runtimeScene) {
 "use strict";
 function printScreen(pointer) {
     // Access the Pixi application and renderer
@@ -399,7 +399,7 @@ gdjs.ScreenRecorderCode.eventsList6 = function(runtimeScene) {
 {
 
 
-gdjs.ScreenRecorderCode.userFunc0x11081d8(runtimeScene);
+gdjs.ScreenRecorderCode.userFunc0x15702f0(runtimeScene);
 
 }
 
@@ -670,7 +670,7 @@ if (isConditionTrue_0) {
 gdjs.copyArray(runtimeScene.getObjects("Rain"), gdjs.ScreenRecorderCode.GDRainObjects1);
 
 const objects = gdjs.ScreenRecorderCode.GDRainObjects1;
-gdjs.ScreenRecorderCode.userFunc0x1106db8(runtimeScene, objects);
+gdjs.ScreenRecorderCode.userFunc0x1a244b0(runtimeScene, objects);
 
 }
 

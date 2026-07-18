@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__AuthenticateUser = {};
 gdjs.evtsExt__CrazyGamesAdApi__AuthenticateUser.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__AuthenticateUser.userFunc0x14ccf10 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__AuthenticateUser.userFunc0xa40850 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 console.log("Retrieving user start");
 async function authenticate() {
@@ -132,7 +132,7 @@ gdjs.evtsExt__CrazyGamesAdApi__AuthenticateUser.eventsList0 = function(runtimeSc
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__AuthenticateUser.userFunc0x14ccf10(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__AuthenticateUser.userFunc0xa40850(runtimeScene, eventsFunctionContext);
 
 }
 

@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__LinkAccount = {};
 gdjs.evtsExt__CrazyGamesAdApi__LinkAccount.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__LinkAccount.userFunc0x17adda8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__LinkAccount.userFunc0x9c1130 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 async function linkAccount() {
     try {
@@ -31,7 +31,7 @@ gdjs.evtsExt__CrazyGamesAdApi__LinkAccount.eventsList0 = function(runtimeScene, 
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__LinkAccount.userFunc0x17adda8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__LinkAccount.userFunc0x9c1130(runtimeScene, eventsFunctionContext);
 
 }
 

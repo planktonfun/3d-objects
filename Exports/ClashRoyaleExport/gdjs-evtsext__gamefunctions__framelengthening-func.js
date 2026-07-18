@@ -9,7 +9,7 @@ gdjs.evtsExt__GameFunctions__FrameLengthening = {};
 gdjs.evtsExt__GameFunctions__FrameLengthening.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__GameFunctions__FrameLengthening.userFunc0x8e60d8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__GameFunctions__FrameLengthening.userFunc0x88ccb0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 function convertFrame(frame, sourceFrameRate = 30, targetFrameRate = 60) {
   // Calculate time in seconds
@@ -43,7 +43,7 @@ let isConditionTrue_0 = false;
 {
 
 
-gdjs.evtsExt__GameFunctions__FrameLengthening.userFunc0x8e60d8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__GameFunctions__FrameLengthening.userFunc0x88ccb0(runtimeScene, eventsFunctionContext);
 
 }
 

@@ -9,7 +9,7 @@ gdjs.evtsExt__GameFunctions__AddConfirmedFrame = {};
 gdjs.evtsExt__GameFunctions__AddConfirmedFrame.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__GameFunctions__AddConfirmedFrame.userFunc0x8ed7e8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__GameFunctions__AddConfirmedFrame.userFunc0x19bedd0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 if(!gdjs.__confirmed) {
     gdjs.__confirmed = new Set();
@@ -24,7 +24,7 @@ gdjs.evtsExt__GameFunctions__AddConfirmedFrame.eventsList0 = function(runtimeSce
 {
 
 
-gdjs.evtsExt__GameFunctions__AddConfirmedFrame.userFunc0x8ed7e8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__GameFunctions__AddConfirmedFrame.userFunc0x19bedd0(runtimeScene, eventsFunctionContext);
 
 }
 

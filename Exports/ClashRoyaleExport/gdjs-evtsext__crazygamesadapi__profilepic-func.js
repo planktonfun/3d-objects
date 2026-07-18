@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__ProfilePic = {};
 gdjs.evtsExt__CrazyGamesAdApi__ProfilePic.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__ProfilePic.userFunc0x14cde68 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__ProfilePic.userFunc0x9c06e8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._crazyGamesExtension.profilePictureUrl;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__ProfilePic.eventsList0 = function(runtimeScene, e
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__ProfilePic.userFunc0x14cde68(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__ProfilePic.userFunc0x9c06e8(runtimeScene, eventsFunctionContext);
 
 }
 

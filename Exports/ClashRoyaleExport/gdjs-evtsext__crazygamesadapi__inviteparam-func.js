@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__InviteParam = {};
 gdjs.evtsExt__CrazyGamesAdApi__InviteParam.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__InviteParam.userFunc0x14cde68 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__InviteParam.userFunc0x18604f8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const param = eventsFunctionContext.getArgument("Param").toString();
 eventsFunctionContext.returnValue = CrazyGames.SDK.game.getInviteParam(param);
@@ -19,7 +19,7 @@ gdjs.evtsExt__CrazyGamesAdApi__InviteParam.eventsList0 = function(runtimeScene, 
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__InviteParam.userFunc0x14cde68(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__InviteParam.userFunc0x18604f8(runtimeScene, eventsFunctionContext);
 
 }
 

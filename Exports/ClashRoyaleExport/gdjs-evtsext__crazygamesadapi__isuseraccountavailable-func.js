@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsUserAccountAvailable = {};
 gdjs.evtsExt__CrazyGamesAdApi__IsUserAccountAvailable.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsUserAccountAvailable.userFunc0x8d72a0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__IsUserAccountAvailable.userFunc0x156b8e8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = window.CrazyGames.SDK.user.isUserAccountAvailable;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsUserAccountAvailable.eventsList0 = function(run
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsUserAccountAvailable.userFunc0x8d72a0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__IsUserAccountAvailable.userFunc0x156b8e8(runtimeScene, eventsFunctionContext);
 
 }
 

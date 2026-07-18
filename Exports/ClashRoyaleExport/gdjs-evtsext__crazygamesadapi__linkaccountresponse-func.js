@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__LinkAccountResponse = {};
 gdjs.evtsExt__CrazyGamesAdApi__LinkAccountResponse.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__LinkAccountResponse.userFunc0x18bb090 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__LinkAccountResponse.userFunc0x1acf280 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._crazyGamesExtension.linkAccountResponse;
 };
@@ -28,7 +28,7 @@ let isConditionTrue_0 = false;
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__LinkAccountResponse.userFunc0x18bb090(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__LinkAccountResponse.userFunc0x1acf280(runtimeScene, eventsFunctionContext);
 
 }
 

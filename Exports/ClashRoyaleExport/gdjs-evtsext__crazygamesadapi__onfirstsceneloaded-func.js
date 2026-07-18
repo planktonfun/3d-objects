@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__onFirstSceneLoaded = {};
 gdjs.evtsExt__CrazyGamesAdApi__onFirstSceneLoaded.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__onFirstSceneLoaded.userFunc0x18bd528 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__onFirstSceneLoaded.userFunc0x1acf280 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 gdjs._crazyGamesExtension = {
     isSdkReady: false,
@@ -32,7 +32,7 @@ gdjs.evtsExt__CrazyGamesAdApi__onFirstSceneLoaded.eventsList0 = function(runtime
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__onFirstSceneLoaded.userFunc0x18bd528(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__onFirstSceneLoaded.userFunc0x1acf280(runtimeScene, eventsFunctionContext);
 
 }
 

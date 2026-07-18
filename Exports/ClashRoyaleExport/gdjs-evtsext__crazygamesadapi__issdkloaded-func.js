@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsSDKLoaded = {};
 gdjs.evtsExt__CrazyGamesAdApi__IsSDKLoaded.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsSDKLoaded.userFunc0x14a9d40 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__IsSDKLoaded.userFunc0xa52cc8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._crazyGamesExtension.isSdkReady;
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__IsSDKLoaded.eventsList0 = function(runtimeScene, 
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__IsSDKLoaded.userFunc0x14a9d40(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__IsSDKLoaded.userFunc0xa52cc8(runtimeScene, eventsFunctionContext);
 
 }
 

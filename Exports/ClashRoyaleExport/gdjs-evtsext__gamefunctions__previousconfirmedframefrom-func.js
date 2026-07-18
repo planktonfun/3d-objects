@@ -9,7 +9,7 @@ gdjs.evtsExt__GameFunctions__PreviousConfirmedFrameFrom = {};
 gdjs.evtsExt__GameFunctions__PreviousConfirmedFrameFrom.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__GameFunctions__PreviousConfirmedFrameFrom.userFunc0x8ee1d0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__GameFunctions__PreviousConfirmedFrameFrom.userFunc0x1780b50 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 let rollbackStart = eventsFunctionContext.getArgument("RollbackFrame");
 
@@ -22,7 +22,7 @@ gdjs.evtsExt__GameFunctions__PreviousConfirmedFrameFrom.eventsList0 = function(r
 {
 
 
-gdjs.evtsExt__GameFunctions__PreviousConfirmedFrameFrom.userFunc0x8ee1d0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__GameFunctions__PreviousConfirmedFrameFrom.userFunc0x1780b50(runtimeScene, eventsFunctionContext);
 
 }
 

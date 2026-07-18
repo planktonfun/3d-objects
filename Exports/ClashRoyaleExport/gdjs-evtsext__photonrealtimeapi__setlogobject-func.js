@@ -11,7 +11,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetLogObject.GDTextObjectObjects1= [];
 gdjs.evtsExt__PhotonRealtimeAPI__SetLogObject.GDTextObjectObjects2= [];
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetLogObject.userFunc0x1a320a8 = function GDJSInlineCode(runtimeScene, objects, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__SetLogObject.userFunc0x18880a8 = function GDJSInlineCode(runtimeScene, objects, eventsFunctionContext) {
 "use strict";
 gdjs._photonClientExtension.logObject = objects[0];
 
@@ -37,7 +37,7 @@ let isConditionTrue_0 = false;
 gdjs.copyArray(eventsFunctionContext.getObjects("TextObject"), gdjs.evtsExt__PhotonRealtimeAPI__SetLogObject.GDTextObjectObjects1);
 
 const objects = gdjs.evtsExt__PhotonRealtimeAPI__SetLogObject.GDTextObjectObjects1;
-gdjs.evtsExt__PhotonRealtimeAPI__SetLogObject.userFunc0x1a320a8(runtimeScene, objects, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__SetLogObject.userFunc0x18880a8(runtimeScene, objects, eventsFunctionContext);
 
 }
 

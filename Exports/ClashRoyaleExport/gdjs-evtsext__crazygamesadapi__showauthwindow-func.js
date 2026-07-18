@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__ShowAuthWindow = {};
 gdjs.evtsExt__CrazyGamesAdApi__ShowAuthWindow.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__ShowAuthWindow.userFunc0x14d4a68 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__ShowAuthWindow.userFunc0x9e4528 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 async function showAuthPrompt() {
     try {
@@ -78,7 +78,7 @@ gdjs.evtsExt__CrazyGamesAdApi__ShowAuthWindow.eventsList0 = function(runtimeScen
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__ShowAuthWindow.userFunc0x14d4a68(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__ShowAuthWindow.userFunc0x9e4528(runtimeScene, eventsFunctionContext);
 
 }
 

@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetRoomTimeToLive = {};
 gdjs.evtsExt__PhotonRealtimeAPI__SetRoomTimeToLive.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetRoomTimeToLive.userFunc0x1651110 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__SetRoomTimeToLive.userFunc0x18794b0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 
 const milliseconds = eventsFunctionContext.getArgument('Milliseconds');
@@ -21,7 +21,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__SetRoomTimeToLive.eventsList0 = function(runtim
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__SetRoomTimeToLive.userFunc0x1651110(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__SetRoomTimeToLive.userFunc0x18794b0(runtimeScene, eventsFunctionContext);
 
 }
 

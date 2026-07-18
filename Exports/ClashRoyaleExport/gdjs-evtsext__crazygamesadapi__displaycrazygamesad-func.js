@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__DisplayCrazyGamesAd = {};
 gdjs.evtsExt__CrazyGamesAdApi__DisplayCrazyGamesAd.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__DisplayCrazyGamesAd.userFunc0x17a52a8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__DisplayCrazyGamesAd.userFunc0x1a81078 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const logger = new gdjs.Logger("CrazyGames SDK");
 const adType = eventsFunctionContext.getArgument("AdType");
@@ -54,7 +54,7 @@ gdjs.evtsExt__CrazyGamesAdApi__DisplayCrazyGamesAd.eventsList0 = function(runtim
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__DisplayCrazyGamesAd.userFunc0x17a52a8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__DisplayCrazyGamesAd.userFunc0x1a81078(runtimeScene, eventsFunctionContext);
 
 }
 

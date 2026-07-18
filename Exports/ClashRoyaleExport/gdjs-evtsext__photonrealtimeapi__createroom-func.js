@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__CreateRoom = {};
 gdjs.evtsExt__PhotonRealtimeAPI__CreateRoom.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__CreateRoom.userFunc0x1673e48 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__CreateRoom.userFunc0x1a64d70 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const roomName = eventsFunctionContext.getArgument('RoomName');
 const maxPlayers = eventsFunctionContext.getArgument('MaxPlayers');
@@ -26,7 +26,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__CreateRoom.eventsList0 = function(runtimeScene,
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__CreateRoom.userFunc0x1673e48(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__CreateRoom.userFunc0x1a64d70(runtimeScene, eventsFunctionContext);
 
 }
 

@@ -94,7 +94,7 @@ gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesImageOb
 
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesPlaceHolderObjects1Objects = Hashtable.newFrom({"EmotesPlaceHolder": gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesPlaceHolderObjects1});
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesTextObjects1Objects = Hashtable.newFrom({"EmotesText": gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesTextObjects1});
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28603180 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29436668 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 gdjs.copyArray(asyncObjectsList.getObjects("EmotesPlaceHolder"), gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesPlaceHolderObjects2);
 
@@ -108,7 +108,7 @@ gdjs.copyArray(asyncObjectsList.getObjects("EmotesPlaceHolder"), gdjs.evtsExt__C
 }
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(28603180, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28603180);
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(29436668, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29436668);
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList0 = function(runtimeScene, eventsFunctionContext) {
 
 {
@@ -119,7 +119,7 @@ gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList0 = f
 const asyncObjectsList = new gdjs.LongLivedObjectsList();
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
 for (const obj of gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesPlaceHolderObjects1) asyncObjectsList.addObject("EmotesPlaceHolder", obj);
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(0.15), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28603180(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28603180, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(0.15), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29436668(runtimeScene, eventsFunctionContext, asyncObjectsList)), 29436668, asyncObjectsList);
 }
 }
 
@@ -176,11 +176,11 @@ gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList0(run
 
 
 };gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects1Objects = Hashtable.newFrom({"EmotesImage": gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesImageObjects1});
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28650628 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29484116 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(28650628, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28650628);
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(29484116, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29484116);
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects6Objects = Hashtable.newFrom({"EmotesImage": gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesImageObjects6});
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList2 = function(runtimeScene, eventsFunctionContext, asyncObjectsList) {
 
@@ -194,21 +194,21 @@ const parentAsyncObjectsList = asyncObjectsList;
 {
 const asyncObjectsList = gdjs.LongLivedObjectsList.from(parentAsyncObjectsList);
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects6Objects, eventsFunctionContext.getBehaviorName("Tween"), 232, 133, 34 / 171, 0, 0.1166666667, true, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28650628(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28650628, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects6Objects, eventsFunctionContext.getBehaviorName("Tween"), 232, 133, 34 / 171, 0, 0.1166666667, true, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29484116(runtimeScene, eventsFunctionContext, asyncObjectsList)), 29484116, asyncObjectsList);
 }
 }
 
 }
 
 
-};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28650132 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29483620 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 
 { //Subevents
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList2(runtimeScene, eventsFunctionContext, asyncObjectsList);} //End of subevents
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(28650132, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28650132);
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(29483620, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29483620);
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects5Objects = Hashtable.newFrom({"EmotesImage": gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesImageObjects5});
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList3 = function(runtimeScene, eventsFunctionContext, asyncObjectsList) {
 
@@ -223,21 +223,21 @@ const parentAsyncObjectsList = asyncObjectsList;
 const asyncObjectsList = gdjs.LongLivedObjectsList.from(parentAsyncObjectsList);
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
 /* Don't save EmotesImage as it will be provided by the parent asyncObjectsList. */
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects5Objects, eventsFunctionContext.getBehaviorName("Tween"), 140, 68, 187 / 171, 0, 0.1, false, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28650132(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28650132, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects5Objects, eventsFunctionContext.getBehaviorName("Tween"), 140, 68, 187 / 171, 0, 0.1, false, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29483620(runtimeScene, eventsFunctionContext, asyncObjectsList)), 29483620, asyncObjectsList);
 }
 }
 
 }
 
 
-};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28649020 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29482508 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 
 { //Subevents
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList3(runtimeScene, eventsFunctionContext, asyncObjectsList);} //End of subevents
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(28649020, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28649020);
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(29482508, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29482508);
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList4 = function(runtimeScene, eventsFunctionContext, asyncObjectsList) {
 
 {
@@ -249,21 +249,21 @@ const parentAsyncObjectsList = asyncObjectsList;
 const asyncObjectsList = gdjs.LongLivedObjectsList.from(parentAsyncObjectsList);
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
 /* Don't save EmotesImage as it will be provided by the parent asyncObjectsList. */
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(1.533333333), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28649020(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28649020, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(1.533333333), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29482508(runtimeScene, eventsFunctionContext, asyncObjectsList)), 29482508, asyncObjectsList);
 }
 }
 
 }
 
 
-};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28648324 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29481812 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 
 { //Subevents
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList4(runtimeScene, eventsFunctionContext, asyncObjectsList);} //End of subevents
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(28648324, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28648324);
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(29481812, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29481812);
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects3Objects = Hashtable.newFrom({"EmotesImage": gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesImageObjects3});
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList5 = function(runtimeScene, eventsFunctionContext, asyncObjectsList) {
 
@@ -278,21 +278,21 @@ const parentAsyncObjectsList = asyncObjectsList;
 const asyncObjectsList = gdjs.LongLivedObjectsList.from(parentAsyncObjectsList);
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
 /* Don't save EmotesImage as it will be provided by the parent asyncObjectsList. */
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects3Objects, eventsFunctionContext.getBehaviorName("Tween"), 150, 75, 173 / 171, 0, 0.08333333333, false, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28648324(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28648324, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects3Objects, eventsFunctionContext.getBehaviorName("Tween"), 150, 75, 173 / 171, 0, 0.08333333333, false, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29481812(runtimeScene, eventsFunctionContext, asyncObjectsList)), 29481812, asyncObjectsList);
 }
 }
 
 }
 
 
-};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28646708 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29480196 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 
 { //Subevents
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList5(runtimeScene, eventsFunctionContext, asyncObjectsList);} //End of subevents
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(28646708, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28646708);
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(29480196, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29480196);
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects2Objects = Hashtable.newFrom({"EmotesImage": gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesImageObjects2});
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList6 = function(runtimeScene, eventsFunctionContext, asyncObjectsList) {
 
@@ -307,21 +307,21 @@ const parentAsyncObjectsList = asyncObjectsList;
 const asyncObjectsList = gdjs.LongLivedObjectsList.from(parentAsyncObjectsList);
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
 /* Don't save EmotesImage as it will be provided by the parent asyncObjectsList. */
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects2Objects, eventsFunctionContext.getBehaviorName("Tween"), 154, 78, 167 / 171, 0, 0.08333333333, false, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28646708(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28646708, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects2Objects, eventsFunctionContext.getBehaviorName("Tween"), 154, 78, 167 / 171, 0, 0.08333333333, false, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29480196(runtimeScene, eventsFunctionContext, asyncObjectsList)), 29480196, asyncObjectsList);
 }
 }
 
 }
 
 
-};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28641164 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29474652 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 
 { //Subevents
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList6(runtimeScene, eventsFunctionContext, asyncObjectsList);} //End of subevents
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(28641164, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28641164);
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.idToCallbackMap.set(29474652, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29474652);
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects1Objects = Hashtable.newFrom({"EmotesImage": gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesImageObjects1});
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList7 = function(runtimeScene, eventsFunctionContext) {
 
@@ -334,7 +334,7 @@ gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.eventsList7 = f
 const asyncObjectsList = new gdjs.LongLivedObjectsList();
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
 for (const obj of gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.GDEmotesImageObjects1) asyncObjectsList.addObject("EmotesImage", obj);
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects1Objects, eventsFunctionContext.getBehaviorName("Tween"), 135, 65, 206 / 171, 0, 0.1666666667, false, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback28641164(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28641164, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtsExt__ClashRoyale__TweenScaleAndPosition.func(runtimeScene, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.mapOfGDgdjs_9546evtsExt_9595_9595ClashRoyale_9595_9595Emotes_9546Emotes_9546prototype_9546UpdateContext_9546GDEmotesImageObjects1Objects, eventsFunctionContext.getBehaviorName("Tween"), 135, 65, 206 / 171, 0, 0.1666666667, false, eventsFunctionContext), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.UpdateContext.asyncCallback29474652(runtimeScene, eventsFunctionContext, asyncObjectsList)), 29474652, asyncObjectsList);
 }
 }
 
@@ -1226,7 +1226,7 @@ gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.GDEmotesI
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.GDEmotesImageObjects3= [];
 
 
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.userFunc0xbfd1a0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.userFunc0x18311c8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 const key = eventsFunctionContext.getArgument("Value").toString();
 const soundFile = eventsFunctionContext.sceneVariablesForExtension._variables.get('EmoteSoundMap').getChild(key).getAsString();
@@ -1247,19 +1247,19 @@ gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.eventsLis
 {
 
 
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.userFunc0xbfd1a0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.userFunc0x18311c8(runtimeScene, eventsFunctionContext);
 
 }
 
 
-};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.asyncCallback28629292 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
+};gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.asyncCallback29462780 = function (runtimeScene, eventsFunctionContext, asyncObjectsList) {
 asyncObjectsList.restoreLocalVariablesContainers(eventsFunctionContext.localVariables);
 
 { //Subevents
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.eventsList0(runtimeScene, eventsFunctionContext, asyncObjectsList);} //End of subevents
 eventsFunctionContext.localVariables.length = 0;
 }
-gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.idToCallbackMap.set(28629292, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.asyncCallback28629292);
+gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.idToCallbackMap.set(29462780, gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.asyncCallback29462780);
 gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.eventsList1 = function(runtimeScene, eventsFunctionContext) {
 
 {
@@ -1269,7 +1269,7 @@ gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.eventsLis
 {
 const asyncObjectsList = new gdjs.LongLivedObjectsList();
 asyncObjectsList.backupLocalVariablesContainers(eventsFunctionContext.localVariables);
-runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(0.1666666667 * 2), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.asyncCallback28629292(runtimeScene, eventsFunctionContext, asyncObjectsList)), 28629292, asyncObjectsList);
+runtimeScene.getAsyncTasksManager().addTask(gdjs.evtTools.runtimeScene.wait(0.1666666667 * 2), (runtimeScene) => (gdjs.evtsExt__ClashRoyale__Emotes.Emotes.prototype.SetEmoteTypeContext.asyncCallback29462780(runtimeScene, eventsFunctionContext, asyncObjectsList)), 29462780, asyncObjectsList);
 }
 }
 

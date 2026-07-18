@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStarted = {};
 gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStarted.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStarted.userFunc0x19468e0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStarted.userFunc0xa52cc8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 CrazyGames.SDK.game.gameplayStart();
 
@@ -19,7 +19,7 @@ gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStarted.eventsList0 = function(runtime
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStarted.userFunc0x19468e0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__SetGameplayStarted.userFunc0xa52cc8(runtimeScene, eventsFunctionContext);
 
 }
 

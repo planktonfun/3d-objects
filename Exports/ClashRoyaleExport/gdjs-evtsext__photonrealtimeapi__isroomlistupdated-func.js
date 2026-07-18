@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__IsRoomListUpdated = {};
 gdjs.evtsExt__PhotonRealtimeAPI__IsRoomListUpdated.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__IsRoomListUpdated.userFunc0x19f4498 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__IsRoomListUpdated.userFunc0x1879f68 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 eventsFunctionContext.returnValue = gdjs._photonClientExtension.data.roomUpdated
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__IsRoomListUpdated.eventsList0 = function(runtim
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__IsRoomListUpdated.userFunc0x19f4498(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__IsRoomListUpdated.userFunc0x1879f68(runtimeScene, eventsFunctionContext);
 
 }
 

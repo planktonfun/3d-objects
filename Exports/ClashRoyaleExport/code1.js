@@ -15,8 +15,9 @@ gdjs.LoadingCode.GDReplaySpriteObjects1= [];
 gdjs.LoadingCode.GDReplaySpriteObjects2= [];
 
 
-gdjs.LoadingCode.userFunc0x106a8e8 = function GDJSInlineCode(runtimeScene, objects) {
+gdjs.LoadingCode.userFunc0x1a244b0 = function GDJSInlineCode(runtimeScene, objects) {
 "use strict";
+
 const loadingBar = runtimeScene.getScene().getVariables().get('LoadingBarTarget');
 
 const imageURLs = [
@@ -1213,7 +1214,7 @@ gdjs.LoadingCode.eventsList0 = function(runtimeScene) {
 gdjs.copyArray(runtimeScene.getObjects("LoadingBar"), gdjs.LoadingCode.GDLoadingBarObjects1);
 
 const objects = gdjs.LoadingCode.GDLoadingBarObjects1;
-gdjs.LoadingCode.userFunc0x106a8e8(runtimeScene, objects);
+gdjs.LoadingCode.userFunc0x1a244b0(runtimeScene, objects);
 
 }
 

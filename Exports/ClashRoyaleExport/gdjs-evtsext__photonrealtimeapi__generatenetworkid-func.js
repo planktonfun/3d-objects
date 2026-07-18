@@ -9,7 +9,7 @@ gdjs.evtsExt__PhotonRealtimeAPI__GenerateNetworkId = {};
 gdjs.evtsExt__PhotonRealtimeAPI__GenerateNetworkId.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__GenerateNetworkId.userFunc0x1d1a758 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__PhotonRealtimeAPI__GenerateNetworkId.userFunc0x1ab8910 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 function uuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -36,7 +36,7 @@ let isConditionTrue_0 = false;
 {
 
 
-gdjs.evtsExt__PhotonRealtimeAPI__GenerateNetworkId.userFunc0x1d1a758(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__PhotonRealtimeAPI__GenerateNetworkId.userFunc0x1ab8910(runtimeScene, eventsFunctionContext);
 
 }
 

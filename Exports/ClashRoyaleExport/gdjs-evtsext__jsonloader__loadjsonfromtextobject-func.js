@@ -13,7 +13,7 @@ gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.GDTextObjectObjects2= [];
 
 gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.mapOfEmptyGDTextObjectObjects = Hashtable.newFrom({"TextObject": []});
 gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.mapOfGDgdjs_9546evtsExt_9595_9595JsonLoader_9595_9595LoadJSONFromTextObject_9546GDTextObjectObjects1Objects = Hashtable.newFrom({"TextObject": gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.GDTextObjectObjects1});
-gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.userFunc0x9545b0 = function GDJSInlineCode(runtimeScene, objects, eventsFunctionContext) {
+gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.userFunc0x1941198 = function GDJSInlineCode(runtimeScene, objects, eventsFunctionContext) {
 "use strict";
 const SceneVariableName = JSON.parse(objects[0].getString());
 console.log({SceneVariableName});
@@ -28,7 +28,7 @@ gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.eventsList0 = function(runtimeS
 /* Reuse gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.GDTextObjectObjects1 */
 
 const objects = gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.GDTextObjectObjects1;
-gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.userFunc0x9545b0(runtimeScene, objects, eventsFunctionContext);
+gdjs.evtsExt__JsonLoader__LoadJSONFromTextObject.userFunc0x1941198(runtimeScene, objects, eventsFunctionContext);
 
 }
 

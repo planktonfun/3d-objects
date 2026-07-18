@@ -9,7 +9,7 @@ gdjs.evtsExt__JsonLoader__LoadJSONFileFromURL = {};
 gdjs.evtsExt__JsonLoader__LoadJSONFileFromURL.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__JsonLoader__LoadJSONFileFromURL.userFunc0x9539c8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__JsonLoader__LoadJSONFileFromURL.userFunc0x19409f8 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 async function fetchJSON(url) {
   const response = await fetch(url);
@@ -32,7 +32,7 @@ gdjs.evtsExt__JsonLoader__LoadJSONFileFromURL.eventsList0 = function(runtimeScen
 {
 
 
-gdjs.evtsExt__JsonLoader__LoadJSONFileFromURL.userFunc0x9539c8(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__JsonLoader__LoadJSONFileFromURL.userFunc0x19409f8(runtimeScene, eventsFunctionContext);
 
 }
 

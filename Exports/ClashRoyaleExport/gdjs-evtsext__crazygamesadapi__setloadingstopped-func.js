@@ -9,7 +9,7 @@ gdjs.evtsExt__CrazyGamesAdApi__SetLoadingStopped = {};
 gdjs.evtsExt__CrazyGamesAdApi__SetLoadingStopped.idToCallbackMap = new Map();
 
 
-gdjs.evtsExt__CrazyGamesAdApi__SetLoadingStopped.userFunc0x194add0 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
+gdjs.evtsExt__CrazyGamesAdApi__SetLoadingStopped.userFunc0x1875468 = function GDJSInlineCode(runtimeScene, eventsFunctionContext) {
 "use strict";
 CrazyGames.SDK.game.loadingStop();
 };
@@ -18,7 +18,7 @@ gdjs.evtsExt__CrazyGamesAdApi__SetLoadingStopped.eventsList0 = function(runtimeS
 {
 
 
-gdjs.evtsExt__CrazyGamesAdApi__SetLoadingStopped.userFunc0x194add0(runtimeScene, eventsFunctionContext);
+gdjs.evtsExt__CrazyGamesAdApi__SetLoadingStopped.userFunc0x1875468(runtimeScene, eventsFunctionContext);
 
 }
 
