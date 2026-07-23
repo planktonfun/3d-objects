@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, orientation=landscape">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-orientation" content="landscape">
+    <meta name="theme-color" content="#0a0e27">
+    <title>Game Controller</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            background: linear-gradient(145deg, #0a0e27, #1a1f3a);
+        }
+
+        .controller {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            height: 100dvh;
+            height: 100vh;
+            height: 100lvh;
+            padding: 10px 20px;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            padding-top: max(10px, env(safe-area-inset-top));
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .row.top {
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .dpad-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .dpad-row {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .dpad-btn {
+            width: clamp(48px, 12vw, 64px);
+            height: clamp(48px, 12vw, 64px);
+            background: linear-gradient(145deg, #2a2f4a, #1e2235);
+            border: 2px solid #3a3f5a;
+            border-radius: 12px;
+            color: #7a8baa;
+            font-size: clamp(18px, 4.5vw, 22px);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.08s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255,255,255,0.05);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .dpad-btn:active, .dpad-btn.active {
+            background: linear-gradient(145deg, #3a4a7a, #2a3560);
+            border-color: #5a8aff;
+            color: #ffffff;
+            box-shadow: 0 0 18px rgba(90, 138, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
+            transform: scale(0.93);
+        }
+
+        .dpad-center {
+            width: clamp(48px, 12vw, 64px);
+            height: clamp(48px, 12vw, 64px);
+            background: radial-gradient(circle, #252b45 0%, #1a1f35 100%);
+            border: 2px solid #2d3350;
+            border-radius: 50%;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            grid-template-areas:
+                ". y ."
+                "x . b"
+                ". a .";
+            gap: 8px;
+            align-items: center;
+            justify-items: center;
+            flex-shrink: 0;
+        }
+
+        .btn-y { grid-area: y; }
+        .btn-x { grid-area: x; }
+        .btn-b { grid-area: b; }
+        .btn-a { grid-area: a; }
+
+        .action-btn {
+            width: clamp(52px, 13vw, 64px);
+            height: clamp(52px, 13vw, 64px);
+            border-radius: 50%;
+            border: 3px solid #3a3f5a;
+            background: linear-gradient(145deg, #2a1f2f, #1f1525);
+            color: #aa6a9a;
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.08s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255,255,255,0.05);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .action-btn:active, .action-btn.active {
+            transform: scale(0.9);
+            border-color: #ff5a8b;
+            color: #ffffff;
+            background: linear-gradient(145deg, #5a2f4a, #3f1f35);
+            box-shadow: 0 0 20px rgba(255, 90, 139, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-y:active, .btn-y.active {
+            border-color: #ffcc5a;
+            background: linear-gradient(145deg, #5a4a2f, #3f351f);
+            box-shadow: 0 0 20px rgba(255, 204, 90, 0.6);
+        }
+
+        .btn-x:active, .btn-x.active {
+            border-color: #5abfff;
+            background: linear-gradient(145deg, #2f4a5a, #1f353f);
+            box-shadow: 0 0 20px rgba(90, 191, 255, 0.6);
+        }
+
+        .btn-a:active, .btn-a.active {
+            border-color: #5aff7a;
+            background: linear-gradient(145deg, #2f5a3a, #1f3f25);
+            box-shadow: 0 0 20px rgba(90, 255, 122, 0.6);
+        }
+
+        .btn-b:active, .btn-b.active {
+            border-color: #ff5a8b;
+            background: linear-gradient(145deg, #5a2f4a, #3f1f35);
+            box-shadow: 0 0 20px rgba(255, 90, 139, 0.6);
+        }
+
+        .middle-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+
+        .shoulder-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .shoulder-btn {
+            width: clamp(56px, 16vw, 90px);
+            height: clamp(32px, 8vw, 42px);
+            background: linear-gradient(145deg, #252b40, #1a1f35);
+            border: 2px solid #3a3f5a;
+            border-radius: 10px;
+            color: #8a8baa;
+            font-size: clamp(11px, 3vw, 13px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .shoulder-btn:active, .shoulder-btn.active {
+            background: linear-gradient(145deg, #4a5a8a, #2f3560);
+            border-color: #7a9aff;
+            color: #ffffff;
+            transform: translateY(2px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-btns {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .menu-btn {
+            width: clamp(36px, 9vw, 50px);
+            height: clamp(36px, 9vw, 50px);
+            border-radius: 50%;
+            background: linear-gradient(145deg, #2a2f4a, #1e2235);
+            border: 2px solid #3a3f5a;
+            color: #8a8baa;
+            font-size: clamp(9px, 2.5vw, 11px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.08s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .menu-btn:active, .menu-btn.active {
+            background: linear-gradient(145deg, #3a4a7a, #2a3560);
+            border-color: #7a9aff;
+            color: #ffffff;
+            transform: scale(0.9);
+            box-shadow: 0 0 14px rgba(122, 154, 255, 0.5);
+        }
+
+        .status-bar {
+            width: 100%;
+            max-width: 350px;
+            margin-top: 10px;
+            padding: 10px 16px;
+            background: rgba(30, 35, 55, 0.7);
+            border: 1px solid #3a3f55;
+            border-radius: 16px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .status-bar p {
+            color: #8a9bba;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.5;
+            margin: 0;
+            word-break: break-word;
+        }
+
+        .connector {
+            width: 100%;
+            max-width: 350px;
+            padding: 12px;
+            background: rgba(42, 47, 74, 0.6);
+            border: 2px dashed #3a3f5a;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .connector:hover, .connector.drag-over {
+            border-color: #5a8aff;
+            background: rgba(50, 60, 100, 0.7);
+        }
+
+        .connector p {
+            color: #6a7a9a;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .connector-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .thumbstick-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            position: relative;
+        }
+
+        .thumbstick-outer {
+            width: clamp(100px, 26vw, 140px);
+            height: clamp(100px, 26vw, 140px);
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #2a2f45, #181c2f);
+            border: 3px solid #3a3f5a;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 2px 6px rgba(0,0,0,0.4);
+            transition: border-color 0.2s ease;
+        }
+
+        .thumbstick-outer.active {
+            border-color: #7a9aff;
+            box-shadow: 0 0 20px rgba(122, 154, 255, 0.35), 0 4px 12px rgba(0,0,0,0.5), inset 0 2px 6px rgba(0,0,0,0.4);
+        }
+
+        .thumbstick-inner {
+            width: clamp(44px, 11vw, 58px);
+            height: clamp(44px, 11vw, 58px);
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%, #4a5080, #252b48);
+            border: 2px solid #5a60a0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+            transition: background 0.2s ease;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .thumbstick-outer.active .thumbstick-inner {
+            background: radial-gradient(circle at 40% 35%, #6070b0, #354080);
+            border-color: #8aa8ff;
+        }
+
+        .thumbstick-label {
+            color: #5a6a9a;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            user-select: none;
+        }
+
+        .thumbstick-reading {
+            color: #3a5a8a;
+            font-size: 9px;
+            font-family: 'Courier New', monospace;
+            margin-top: 4px;
+            min-height: 12px;
+            user-select: none;
+        }
+
+        @media (max-width: 380px) {
+            .thumbstick-outer {
+                width: 90px;
+                height: 90px;
+            }
+
+            .thumbstick-inner {
+                width: 38px;
+                height: 38px;
+            }
+        }
+
+        @media (orientation: landscape) {
+            .thumbstick-outer {
+                width: clamp(90px, 22vw, 120px);
+                height: clamp(90px, 22vw, 120px);
+            }
+
+            .thumbstick-inner {
+                width: clamp(40px, 10vw, 52px);
+                height: clamp(40px, 10vw, 52px);
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 400px) {
+            .thumbstick-outer {
+                width: clamp(70px, 16vw, 90px);
+                height: clamp(70px, 16vw, 90px);
+            }
+
+            .thumbstick-inner {
+                width: clamp(30px, 7vw, 40px);
+                height: clamp(30px, 7vw, 40px);
+            }
+
+            .thumbstick-label {
+                font-size: 8px;
+            }
+
+            .thumbstick-reading {
+                font-size: 8px;
+            }
+        }
+            .dpad-btn, .action-btn {
+                width: 48px;
+                height: 48px;
+            }
+
+            .row {
+                gap: 10px;
+            }
+        }
+
+        @media (orientation: landscape) {
+            .controller {
+                flex-direction: row;
+                padding: 8px 12px;
+                gap: 16px;
+            }
+
+            .row.top {
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 0;
+                min-width: max-content;
+            }
+
+            .row.middle {
+                flex-direction: row;
+                gap: 8px;
+            }
+
+            .dpad-container {
+                gap: 4px;
+            }
+
+            .action-buttons {
+                gap: 4px;
+            }
+
+            .shoulder-buttons {
+                gap: 6px;
+            }
+
+            .shoulder-btn {
+                width: clamp(50px, 14vw, 70px);
+                height: clamp(28px, 7vw, 36px);
+                font-size: clamp(10px, 2.8vw, 12px);
+            }
+
+            .menu-btn {
+                width: clamp(32px, 8vw, 40px);
+                height: clamp(32px, 8vw, 40px);
+                font-size: clamp(8px, 2vw, 10px);
+            }
+
+            .status-bar, .connector {
+                max-width: 200px;
+                margin-top: 0;
+            }
+
+            .menu-btns {
+                gap: 10px;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 400px) {
+            .controller {
+                padding: 4px 8px;
+                gap: 8px;
+            }
+
+            .row.top {
+                gap: 4px;
+            }
+
+            .row.middle {
+                gap: 6px;
+            }
+
+            .dpad-btn, .action-btn {
+                width: clamp(40px, 10vw, 52px);
+                height: clamp(40px, 10vw, 52px);
+            }
+
+            .status-bar {
+                display: none;
+            }
+
+            .connector {
+                display: none;
+            }
+        }
+
+        .fullscreen-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 14, 39, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: opacity 0.4s ease;
+        }
+
+        .fullscreen-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .fullscreen-overlay-content {
+            text-align: center;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .fullscreen-overlay-icon {
+            font-size: clamp(48px, 10vw, 72px);
+            margin-bottom: 16px;
+            display: block;
+            filter: drop-shadow(0 0 20px rgba(90, 138, 255, 0.6));
+        }
+
+        .fullscreen-overlay-text {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(14px, 3.5vw, 18px);
+            color: #8a9bba;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(90, 138, 255, 0.5);
+        }
+
+        .fullscreen-overlay-sub {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(10px, 2.5vw, 12px);
+            color: #5a6a9a;
+            margin-top: 8px;
+            opacity: 0.7;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.85; }
+        }
+
+        @media screen and (orientation: portrait) {
+
+            .controller {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body>
+    <div class="fullscreen-overlay" id="fullscreen-overlay">
+        <div class="fullscreen-overlay-content">
+            <span class="fullscreen-overlay-icon">&#x26F6;</span>
+            <div class="fullscreen-overlay-text">Tap to enter fullscreen</div>
+            <div class="fullscreen-overlay-sub">Tap anywhere to begin</div>
+        </div>
+    </div>
+
+    <div class="controller">
+        <div class="row top">
+            <div class="shoulder-buttons">
+                <button class="shoulder-btn" data-btn="L1">L1</button>
+                <button class="shoulder-btn" data-btn="R1">R1</button>
+            </div>
+            <div class="shoulder-buttons">
+                <button class="shoulder-btn" data-btn="L2">L2</button>
+                <button class="shoulder-btn" data-btn="R2">R2</button>
+            </div>
+        </div>
+
+        <div class="row middle">
+            <div class="dpad-container">
+                <div class="dpad-row">
+                    <button class="dpad-btn" data-btn="up">&#9650;</button>
+                </div>
+                <div class="dpad-row">
+                    <button class="dpad-btn" data-btn="left">&#9664;</button>
+                    <div class="dpad-center"></div>
+                    <button class="dpad-btn" data-btn="right">&#9654;</button>
+                </div>
+                <div class="dpad-row">
+                    <button class="dpad-btn" data-btn="down">&#9660;</button>
+                </div>
+            </div>
+
+            <div class="thumbstick-zone" id="left-stick" data-stick="left">
+                <div class="thumbstick-label">L</div>
+                <div class="thumbstick-outer">
+                    <div class="thumbstick-inner"></div>
+                </div>
+                <div class="thumbstick-reading" id="left-reading">0.00, 0.00</div>
+            </div>
+
+            <div class="thumbstick-zone" id="right-stick" data-stick="right">
+                <div class="thumbstick-label">R</div>
+                <div class="thumbstick-outer">
+                    <div class="thumbstick-inner"></div>
+                </div>
+                <div class="thumbstick-reading" id="right-reading">0.00, 0.00</div>
+            </div>
+
+            <div class="middle-row">
+                <div class="action-buttons">
+                    <button class="action-btn btn-y" data-btn="Y">Y</button>
+                    <button class="action-btn btn-x" data-btn="X">X</button>
+                    <button class="action-btn btn-b" data-btn="B">B</button>
+                    <button class="action-btn btn-a" data-btn="A">A</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-btns">
+            <button class="menu-btn" data-btn="Select">SEL</button>
+            <button class="menu-btn" data-btn="Home">HOME</button>
+            <button class="menu-btn" data-btn="Start">START</button>
+        </div>
+
+        <div class="status-bar" id="status">
+            <p>Ready - Tap controls to begin</p>
+        </div>
+
+        <div class="connector" id="drop-zone">
+            <input type="file" class="connector-input" id="file-input" accept=".json">
+            <p>Drop JSON config here</p>
+            <p style="font-size:10px;margin-top:4px;">or click to browse</p>
+        </div>
+    </div>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const peerId = urlParams.get('peerId');
+
+        // Create a new PeerJS instance
+        const peer = new Peer();
+        const playerId = Math.floor(Math.random()*9999);
+
+        peer.on('open', ()=>{
+            // Connect to the peer
+            const conn = peer.connect(peerId);
+
+            // Handle the connection event
+            conn.on('open', function() {
+                // Connection established, you can now send and receive data
+                window.sendControllerInput = function(obj) {
+                    conn.send({playerId, ...obj});
+                }
+            });
+        });
+    </script>
+    <script>
+        const statusEl = document.getElementById('status');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const allButtons = document.querySelectorAll('button[data-btn]');
+        const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+        let lastConfig = null;
+        let hasActivated = false;
+
+        function showOverlay() {
+            fullscreenOverlay.classList.remove('hidden');
+        }
+
+        function hideOverlay() {
+            fullscreenOverlay.classList.add('hidden');
+        }
+
+        function updateOverlayState() {
+            if (hasActivated && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                showOverlay();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateOverlayState);
+        document.addEventListener('webkitfullscreenchange', updateOverlayState);
+
+        fullscreenOverlay.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            activateFullscreen();
+        });
+
+        fullscreenOverlay.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            activateFullscreen();
+        }, { passive: false });
+
+        function requestFullScreen() {
+            const el = document.documentElement;
+            if (el.requestFullscreen) {
+                el.requestFullscreen()
+                .then(() => { hasActivated = true; hideOverlay(); })
+                .catch(() => {});
+            } else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen();
+            }
+        }
+
+        function lockLandscape() {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(() => {});
+            }
+        }
+
+        function activateFullscreen() {
+            if (!hasActivated) {
+                requestFullScreen();
+                lockLandscape();
+                updateStatus('Fullscreen landscape activated');
+            }
+
+        }
+
+        function updateStatus(text) {
+            statusEl.innerHTML = `<p>${text}</p>`;
+        }
+
+        function logBtn(name, action) {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            return `[${time}] ${name} ${action}`;
+        }
+
+        function pulseBtn(btn, duration = 100) {
+            btn.classList.add('active');
+            setTimeout(() => btn.classList.remove('active'), duration);
+        }
+
+        const pointerState = new Map();
+
+        function handlePointerDown(btn, e) {
+            e.preventDefault();
+            btn.setPointerCapture(e.pointerId);
+            pointerState.set(e.pointerId, true);
+
+            const name = btn.dataset.btn;
+            pulseBtn(btn);
+            updateStatus(logBtn(name, 'pressed'));
+
+            if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
+                window.parent.receiveControllerInput({ button: name, action: 'press' });
+            }
+            sendControllerInput({ button: name, action: 'press' });
+
+            if (!hasActivated) {
+                setTimeout(() => activateFullscreen(), 50);
+            }
+        }
+
+        function handlePointerUp(btn, e) {
+            e.preventDefault();
+            pointerState.delete(e.pointerId);
+
+            const name = btn.dataset.btn;
+            updateStatus(logBtn(name, 'released'));
+
+            if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
+                window.parent.receiveControllerInput({ button: name, action: 'release' });
+            }
+            sendControllerInput({ button: name, action: 'release' });
+        }
+
+        function handlePointerCancel(btn, e) {
+            pointerState.delete(e.pointerId);
+
+            const name = btn.dataset.btn;
+            updateStatus(logBtn(name, 'released'));
+
+            if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
+                window.parent.receiveControllerInput({ button: name, action: 'release' });
+            }
+            sendControllerInput({ button: name, action: 'release' });
+        }
+
+        allButtons.forEach(btn => {
+            btn.addEventListener('pointerdown', (e) => handlePointerDown(btn, e));
+            btn.addEventListener('pointerup', (e) => handlePointerUp(btn, e));
+            btn.addEventListener('pointercancel', (e) => handlePointerCancel(btn, e));
+            btn.addEventListener('pointerleave', (e) => {
+                if (pointerState.has(e.pointerId)) {
+                    handlePointerCancel(btn, e);
+                }
+            });
+            btn.addEventListener('lostpointercapture', (e) => {
+                if (pointerState.has(e.pointerId)) {
+                    handlePointerCancel(btn, e);
+                }
+            });
+        });
+
+        const config = {};
+
+        config.keyMap = {
+            'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right',
+            'w': 'up', 's': 'down', 'a': 'left', 'd': 'right',
+            'y': 'Y', 'x': 'X', 'b': 'B', 'a': 'A',
+            'q': 'L1', 'e': 'R1', '1': 'L2', '3': 'R2',
+            'Enter': 'Start', 'Escape': 'Select', 'h': 'Home'
+        };
+
+        document.addEventListener('keydown', (e) => {
+            const btnName = config.keyMap[e.key];
+            if (btnName) {
+                e.preventDefault();
+                const btn = document.querySelector(`button[data-btn="${btnName}"]`);
+                if (btn) {
+                    pulseBtn(btn);
+                    updateStatus(logBtn(btnName, 'pressed'));
+                    if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
+                        window.parent.receiveControllerInput({ button: btnName, action: 'press' });
+                    }
+                    sendControllerInput({ button: btnName, action: 'press' });
+                    if (!hasActivated) {
+                        activateFullscreen();
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const btnName = config.keyMap[e.key];
+            if (btnName) {
+                updateStatus(logBtn(btnName, 'released'));
+                if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
+                    window.parent.receiveControllerInput({ button: btnName, action: 'release' });
+                }
+                sendControllerInput({ button: btnName, action: 'release' });
+            }
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) loadConfig(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) loadConfig(file);
+        });
+
+        function loadConfig(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    lastConfig = config;
+                    updateStatus(`Loaded: ${file.name}<br>Keys: ${Object.keys(config).join(', ')}`);
+                    applyConfig(config);
+                } catch (err) {
+                    updateStatus(`Error parsing JSON: ${err.message}`);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function applyConfig(config) {
+            if (config.keyMap) {
+                Object.entries(config.keyMap).forEach(([btn, key]) => {
+                    updateStatus(`Mapped ${btn} -> ${key}`);
+                });
+            }
+        }
+
+        document.addEventListener('devicemotion', (e) => {
+            if (e.accelerationIncludingGravity) {
+                const acc = e.accelerationIncludingGravity;
+                updateStatus(`Gyro: X=${acc.x?.toFixed(1)} Y=${acc.y?.toFixed(1)} Z=${acc.z?.toFixed(1)}`);
+            }
+        });
+
+        if (window.parent && typeof window.parent.receiveControllerInfo === 'function') {
+            window.parent.receiveControllerInfo({
+                type: 'mobile-landscape',
+                buttons: ['up', 'down', 'left', 'right', 'A', 'B', 'X', 'Y', 'L1', 'R1', 'L2', 'R2', 'Start', 'Select', 'Home'],
+                thumbsticks: ['left', 'right']
+            });
+        }
+
+        const stickZones = document.querySelectorAll('.thumbstick-zone');
+        const stickState = new Map();
+        const STICK_MAP = { 'left-stick': 'left', 'right-stick': 'right' };
+
+        function announceStick(side, x, y, action) {
+            if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
+                window.parent.receiveControllerInput({ type: 'thumbstick', side, x, y, action });
+            }
+            sendControllerInput({ type: 'thumbstick', side, x, y, action });
+        }
+
+        function applyStickVisual(zone, innerEl, readingEl, dx, dy, maxR) {
+            const clampedX = Math.max(-maxR, Math.min(maxR, dx));
+            const clampedY = Math.max(-maxR, Math.min(maxR, dy));
+            const nx = clampedX / maxR;
+            const ny = clampedY / maxR;
+            innerEl.style.transform = `translate(calc(-50% + ${clampedX}px), calc(-50% + ${clampedY}px))`;
+            innerEl.style.transition = 'none';
+            if (readingEl) readingEl.textContent = `${nx.toFixed(2)}, ${ny.toFixed(2)}`;
+            return { nx, ny };
+        }
+
+        function resetStickVisual(zone, innerEl, readingEl) {
+            innerEl.style.transition = 'transform 0.15s ease-out';
+            innerEl.style.transform = 'translate(-50%, -50%)';
+            if (readingEl) readingEl.textContent = '0.00, 0.00';
+        }
+
+        stickZones.forEach(zone => {
+            const outer = zone.querySelector('.thumbstick-outer');
+            const inner = zone.querySelector('.thumbstick-inner');
+            const readingEl = zone.querySelector('.thumbstick-reading');
+            const side = STICK_MAP[zone.id];
+            let active = false;
+            let maxRadius = 0;
+
+            function measureRadius() {
+                maxRadius = outer.offsetWidth / 2 - inner.offsetWidth / 2;
+            }
+
+            measureRadius();
+            window.addEventListener('resize', measureRadius);
+
+            zone.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                measureRadius();
+                active = true;
+                outer.classList.add('active');
+                zone.setPointerCapture(e.pointerId);
+                stickState.set(e.pointerId, { zone, outer, inner, readingEl, side, active: true });
+                updateStatus(`${side === 'left' ? 'L' : 'R'} stick engaged`);
+                if (!hasActivated) activateFullscreen();
+            });
+
+            zone.addEventListener('pointermove', (e) => {
+                if (!active) return;
+                e.preventDefault();
+                const rect = outer.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const dx = e.clientX - cx;
+                const dy = e.clientY - cy;
+                const { nx, ny } = applyStickVisual(zone, inner, readingEl, dx, dy, maxRadius);
+                announceStick(side, nx, ny, 'move');
+            });
+
+            function releaseStick(e) {
+                if (!active) return;
+                active = false;
+                outer.classList.remove('active');
+                resetStickVisual(zone, inner, readingEl);
+                announceStick(side, 0, 0, 'release');
+                updateStatus(`${side === 'left' ? 'L' : 'R'} stick released`);
+                stickState.delete(e.pointerId);
+            }
+
+            zone.addEventListener('pointerup', (e) => {
+                e.preventDefault();
+                releaseStick(e);
+            });
+
+            zone.addEventListener('pointercancel', (e) => {
+                releaseStick(e);
+            });
+
+            zone.addEventListener('pointerleave', (e) => {
+                if (active && stickState.has(e.pointerId)) {
+                    releaseStick(e);
+                }
+            });
+
+            zone.addEventListener('lostpointercapture', (e) => {
+                if (active) {
+                    active = false;
+                    outer.classList.remove('active');
+                    resetStickVisual(zone, inner, readingEl);
+                    announceStick(side, 0, 0, 'release');
+                    updateStatus(`${side === 'left' ? 'L' : 'R'} stick lost`);
+                    stickState.delete(e.pointerId);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
