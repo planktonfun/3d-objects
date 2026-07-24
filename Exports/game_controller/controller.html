@@ -213,6 +213,32 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
         }
 
+        .player-name-input {
+            width: clamp(80px, 20vw, 150px);
+            height: clamp(28px, 6vw, 36px);
+            /*background: linear-gradient(145deg, #2a2f4a, #1e2235);*/
+            border: 2px solid #3a3f5a;
+            border-radius: 10px;
+            /*color: #8a8baa;*/
+            font-size: clamp(10px, 2.5vw, 13px);
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            padding: 0 8px;
+            outline: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .player-name-input:focus {
+            border-color: #5a8aff;
+            /*color: #ffffff;*/
+            box-shadow: 0 0 10px rgba(90, 138, 255, 0.3);
+        }
+
+        .player-name-input::placeholder {
+            color: #5a6a9a;
+        }
+
         .menu-btns {
             display: flex;
             gap: 16px;
@@ -582,6 +608,7 @@
                 <button class="shoulder-btn" data-btn="L1">L1</button>
                 <button class="shoulder-btn" data-btn="R1">R1</button>
             </div>
+            <input type="text" id="player-name" class="player-name-input" placeholder="Enter Player Name" maxlength="8" autocomplete="off" autocapitalize="none" spellcheck="false">
             <div class="shoulder-buttons">
                 <button class="shoulder-btn" data-btn="L2">L2</button>
                 <button class="shoulder-btn" data-btn="R2">R2</button>
@@ -646,24 +673,72 @@
         </div>
     </div>
     <script>
+
+        function getColorFromId(id) {
+            if (!id) return '#6bb6ff';
+            const str = String(id);
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const h = Math.abs(hash) % 360;
+            return `hsl(${h}, 85%, 55%)`;
+        }
+
+        function hapticFeedback() {
+            if ("vibrate" in navigator) {
+                // Vibrates for 200 milliseconds
+                navigator.vibrate(200);
+            } else {
+                console.log("Vibration API is not supported on this browser.");
+            }
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const peerId = urlParams.get('peerId');
 
         // Create a new PeerJS instance
         const peer = new Peer();
         const playerId = Math.floor(Math.random()*9999);
+        let conn;
 
         peer.on('open', ()=>{
-            // Connect to the peer
-            const conn = peer.connect(peerId);
+            conn = peer.connect(peerId);
 
-            // Handle the connection event
+            conn.on('close', function() {
+                updateStatus('Disconnected');
+                window.close();
+            });
+
+            conn.on('error', function(err) {
+                updateStatus('Error: ' + err.type);
+            });
+
             conn.on('open', function() {
-                // Connection established, you can now send and receive data
+                document.querySelector('.controller').style.background = getColorFromId(peer.id);
                 window.sendControllerInput = function(obj) {
                     conn.send({playerId, ...obj});
                 }
+
+                // --- ADD THIS TO RECEIVE DATA FROM THE REMOTE PEER ---
+                conn.on('data', function(data) {
+                    console.log("Received data from remote peer:", data);
+
+                    if(data.vibrate) {
+                        hapticFeedback();
+                    }
+                    // Handle your inbound payload object here
+                });
             });
+        });
+
+        peer.on('disconnected', function() {
+            updateStatus('Server disconnected');
+            window.close();
+        });
+
+        peer.on('close', function() {
+            window.close();
         });
     </script>
     <script>
@@ -672,8 +747,17 @@
         const fileInput = document.getElementById('file-input');
         const allButtons = document.querySelectorAll('button[data-btn]');
         const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+        const playerNameInput = document.getElementById('player-name');
         let lastConfig = null;
         let hasActivated = false;
+
+        playerNameInput.addEventListener('input', (e) => {
+            const name = e.target.value.trim();
+            if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
+                window.parent.receiveControllerInput({ type: 'playerName', name });
+            }
+            sendControllerInput({ type: 'playerName', name });
+        });
 
         function showOverlay() {
             fullscreenOverlay.classList.remove('hidden');
@@ -685,7 +769,7 @@
 
         function updateOverlayState() {
             if (hasActivated && !document.fullscreenElement && !document.webkitFullscreenElement) {
-                showOverlay();
+                // showOverlay();
             }
         }
 
@@ -702,11 +786,13 @@
             activateFullscreen();
         }, { passive: false });
 
+
+
         function requestFullScreen() {
             const el = document.documentElement;
             if (el.requestFullscreen) {
                 el.requestFullscreen()
-                .then(() => { hasActivated = true; hideOverlay(); })
+                .then(() => { hasActivated = true; hideOverlay(); hapticFeedback();})
                 .catch(() => {});
             } else if (el.webkitRequestFullscreen) {
                 el.webkitRequestFullscreen();
@@ -804,7 +890,7 @@
             });
         });
 
-        const config = {};
+/*        const config = {};
 
         config.keyMap = {
             'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right',
@@ -842,7 +928,7 @@
                 }
                 sendControllerInput({ button: btnName, action: 'release' });
             }
-        });
+        });*/
 
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
