@@ -738,7 +738,7 @@
                     const data = BitPacker.decode(raw);
                     console.log("Received data from remote peer:", data);
 
-                    if(data.vibrate) {
+                    if(data.type=='vibrate') {
                         hapticFeedback();
                     }
 

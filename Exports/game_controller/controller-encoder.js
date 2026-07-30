@@ -9,6 +9,7 @@ class BitPacker {
     PLAYER_NAME: 2,
     THUMBSTICK: 3,
     BUTTON: 4,
+    VIBRATE: 5,          // <-- new type
   };
 
   static BUTTON_ID = {
@@ -143,10 +144,16 @@ class BitPacker {
         return buf;
       }
 
-      default: {
-        console.error(message);
-        throw new Error(`Unknown message type: ${type}`);
+      case 'vibrate': {
+        // Single byte: type only
+        const buf = new Uint8Array(1);
+        const view = new DataView(buf.buffer);
+        BitPacker._writeUint8(view, 0, TYPE.VIBRATE);
+        return buf;
       }
+
+      default:
+        throw new Error(`Unknown message type: ${type}`);
     }
   }
 
@@ -227,18 +234,23 @@ class BitPacker {
         return { type: 'button', playerId, button, action };
       }
 
+      case TYPE.VIBRATE: {
+        // No extra data
+        return { type: 'vibrate' };
+      }
+
       default:
         throw new Error(`Unknown type code: ${type}`);
     }
   }
 }
 
-
 // ============================================================
 //  Example usage (test with sample messages)
 // ============================================================
 /*
 const samples = [
+  { type: 'vibrate' },
   { type: 'ping', timestamp: 240423.20000004768 },
   { type: 'pong', timestamp: 240423.20000004768 },
   { type: 'playerName', playerId: 863, name: 'John' },
