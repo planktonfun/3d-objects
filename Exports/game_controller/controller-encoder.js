@@ -253,7 +253,7 @@ class BitPacker {
 // ============================================================
 //  Example usage (test with sample messages)
 // ============================================================
-
+/*
 const samples = [
   { type: 'vibrate' },
   { type: 'ping', timestamp: 240423.20000004768 },
@@ -303,4 +303,4 @@ samples.forEach((msg, i) => {
   const ok = JSON.stringify(msg) === JSON.stringify(unpacked);
   console.log(`Sample ${i+1}: ${ok ? '✅' : '❌'}`);
     if(!ok) console.log(msg, unpacked);
-});
+});*/
