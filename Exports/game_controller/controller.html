@@ -590,8 +590,11 @@
                 flex-direction: column;
             }
         }
+
+        #latency {color:white;}
     </style>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script src="./controller-encoder.js"></script>
 </head>
 <body>
     <div class="fullscreen-overlay" id="fullscreen-overlay">
@@ -613,6 +616,8 @@
                 <button class="shoulder-btn" data-btn="L2">L2</button>
                 <button class="shoulder-btn" data-btn="R2">R2</button>
             </div>
+            <br>
+            <span id="latency"></span>
         </div>
 
         <div class="row middle">
@@ -699,7 +704,7 @@
 
         // Create a new PeerJS instance
         const peer = new Peer();
-        const playerId = Math.floor(Math.random()*9999);
+        const playerId = Math.floor(Math.random()*999);
         let conn;
 
         peer.on('open', ()=>{
@@ -717,18 +722,38 @@
             conn.on('open', function() {
                 document.querySelector('.controller').style.background = getColorFromId(peer.id);
                 window.sendControllerInput = function(obj) {
-                    conn.send({playerId, ...obj});
+                    conn.send(BitPacker.encode({playerId, ...obj}));
                 }
 
+                // Send ping every 3 seconds
+                setInterval(()=>{
+                    sendControllerInput({
+                        type: 'ping',
+                        timestamp: performance.now()
+                    });
+                }, 3000);
+
                 // --- ADD THIS TO RECEIVE DATA FROM THE REMOTE PEER ---
-                conn.on('data', function(data) {
+                conn.on('data', function(raw) {
+                    const data = BitPacker.decode(raw);
                     console.log("Received data from remote peer:", data);
 
                     if(data.vibrate) {
                         hapticFeedback();
                     }
+
+                    // Handle the returning 'pong' message on the Sender side
+                    if (data.type=='pong') {
+                        const now = performance.now();
+                        const rtt = now - data.timestamp;
+                        const pingResult = rtt.toFixed(2);
+                        document.getElementById('latency').textContent=`ping ${pingResult} ms`;
+
+                    }
+
                     // Handle your inbound payload object here
                 });
+
             });
         });
 
@@ -842,7 +867,7 @@
             if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
                 window.parent.receiveControllerInput({ button: name, action: 'press' });
             }
-            sendControllerInput({ button: name, action: 'press' });
+            sendControllerInput({ type: 'button', button: name, action: 'press' });
 
             if (!hasActivated) {
                 setTimeout(() => activateFullscreen(), 50);
@@ -859,7 +884,7 @@
             if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
                 window.parent.receiveControllerInput({ button: name, action: 'release' });
             }
-            sendControllerInput({ button: name, action: 'release' });
+            sendControllerInput({ type: 'button', button: name, action: 'release' });
         }
 
         function handlePointerCancel(btn, e) {
@@ -871,7 +896,7 @@
             if (window.parent && typeof window.parent.receiveControllerInput === 'function') {
                 window.parent.receiveControllerInput({ button: name, action: 'release' });
             }
-            sendControllerInput({ button: name, action: 'release' });
+            sendControllerInput({ type: 'button', button: name, action: 'release' });
         }
 
         allButtons.forEach(btn => {
