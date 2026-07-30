@@ -1,16 +1,7 @@
 class BitPacker {
   // ============================================================
-  //  Constants
+  //  Enums
   // ============================================================
-
-  static TYPE = {
-    PING: 0,
-    PONG: 1,
-    PLAYER_NAME: 2,
-    THUMBSTICK: 3,
-    BUTTON: 4,
-    VIBRATE: 5,          // <-- new type
-  };
 
   static BUTTON_ID = {
     right: 0,
@@ -30,42 +21,88 @@ class BitPacker {
     L1: 14,
   };
 
+  static SIDE = { left: 0, right: 1 };
+  static ACTION = { press: 0, move: 1, release: 2 };
+
   static BUTTON_NAME = Object.fromEntries(
     Object.entries(BitPacker.BUTTON_ID).map(([k, v]) => [v, k])
   );
-
-  static SIDE = { left: 0, right: 1 };
-  static SIDE_NAME = { 0: 'left', 1: 'right' };
-
-  // Action: press=0, move=1, release=2
-  static ACTION = { press: 0, move: 1, release: 2 };
-  static ACTION_NAME = { 0: 'press', 1: 'move', 2: 'release' };
+  static SIDE_NAME = Object.fromEntries(
+    Object.entries(BitPacker.SIDE).map(([k, v]) => [v, k])
+  );
+  static ACTION_NAME = Object.fromEntries(
+    Object.entries(BitPacker.ACTION).map(([k, v]) => [v, k])
+  );
 
   // ============================================================
-  //  Low‑level read/write helpers (little‑endian)
+  //  Schema
+  // ============================================================
+
+  static SCHEMA = {
+    ping: {
+      type: 0,
+      fields: [{ name: 'timestamp', type: 'float64' }],
+    },
+    pong: {
+      type: 1,
+      fields: [{ name: 'timestamp', type: 'float64' }],
+    },
+    playerName: {
+      type: 2,
+      fields: [
+        { name: 'playerId', type: 'uint16' },
+        { name: 'name', type: 'string' },
+      ],
+    },
+    thumbstick: {
+      type: 3,
+      fields: [
+        { name: 'playerId', type: 'uint16' },
+        { name: 'side', type: 'enum', enumMap: BitPacker.SIDE },
+        { name: 'x', type: 'float64' },
+        { name: 'y', type: 'float64' },
+        { name: 'action', type: 'enum', enumMap: BitPacker.ACTION },
+      ],
+    },
+    button: {
+      type: 4,
+      fields: [
+        { name: 'playerId', type: 'uint16' },
+        { name: 'button', type: 'enum', enumMap: BitPacker.BUTTON_ID },
+        { name: 'action', type: 'enum', enumMap: BitPacker.ACTION },
+      ],
+    },
+    vibrate: {
+      type: 5,
+      fields: [],
+    },
+  };
+
+  static TYPE_NAME = Object.fromEntries(
+    Object.entries(BitPacker.SCHEMA).map(([name, def]) => [def.type, name])
+  );
+
+  // ============================================================
+  //  Write / Read helpers
   // ============================================================
 
   static _writeUint8(view, offset, value) {
     view.setUint8(offset, value);
   }
-
   static _writeUint16LE(view, offset, value) {
     view.setUint16(offset, value, true);
   }
-
-  static _writeDoubleLE(view, offset, value) {
+  static _writeFloat64LE(view, offset, value) {
     view.setFloat64(offset, value, true);
   }
 
   static _readUint8(view, offset) {
     return view.getUint8(offset);
   }
-
   static _readUint16LE(view, offset) {
     return view.getUint16(offset, true);
   }
-
-  static _readDoubleLE(view, offset) {
+  static _readFloat64LE(view, offset) {
     return view.getFloat64(offset, true);
   }
 
@@ -74,87 +111,74 @@ class BitPacker {
   // ============================================================
 
   static encode(message) {
-    const type = message.type;
-    const TYPE = BitPacker.TYPE;
+    const typeName = message.type;
+    const schema = BitPacker.SCHEMA[typeName];
+    if (!schema) throw new Error(`Unknown message type: ${typeName}`);
 
-    switch (type) {
-      case 'ping':
-      case 'pong': {
-        const buf = new Uint8Array(1 + 8);
-        const view = new DataView(buf.buffer);
-        BitPacker._writeUint8(view, 0, type === 'ping' ? TYPE.PING : TYPE.PONG);
-        BitPacker._writeDoubleLE(view, 1, message.timestamp);
-        return buf;
+    const fieldWriters = [];
+    let totalSize = 1; // type byte
+
+    for (const field of schema.fields) {
+      const value = message[field.name];
+      if (value === undefined && field.type !== 'string') {
+        throw new Error(`Missing field ${field.name} in ${typeName}`);
       }
 
-      case 'playerName': {
-        const nameBytes = new TextEncoder().encode(message.name);
-        if (nameBytes.length > 255) throw new Error('Name too long (max 255 bytes)');
-        const buf = new Uint8Array(1 + 2 + 1 + nameBytes.length);
-        const view = new DataView(buf.buffer);
-        let offset = 0;
-        BitPacker._writeUint8(view, offset, TYPE.PLAYER_NAME);
-        offset += 1;
-        BitPacker._writeUint16LE(view, offset, message.playerId);
-        offset += 2;
-        BitPacker._writeUint8(view, offset, nameBytes.length);
-        offset += 1;
-        buf.set(nameBytes, offset);
-        return buf;
+      switch (field.type) {
+        case 'uint16': {
+          totalSize += 2;
+          fieldWriters.push({ size: 2, write: (view, off) => BitPacker._writeUint16LE(view, off, value) });
+          break;
+        }
+        case 'float64': {
+          totalSize += 8;
+          fieldWriters.push({ size: 8, write: (view, off) => BitPacker._writeFloat64LE(view, off, value) });
+          break;
+        }
+        case 'enum': {
+          const enumMap = field.enumMap;
+          const enumVal = enumMap[value];
+          if (enumVal === undefined) throw new Error(`Invalid enum value "${value}" for field ${field.name}`);
+          totalSize += 1;
+          fieldWriters.push({ size: 1, write: (view, off) => BitPacker._writeUint8(view, off, enumVal) });
+          break;
+        }
+        case 'string': {
+          const bytes = new TextEncoder().encode(value);
+          if (bytes.length > 255) throw new Error(`String too long (max 255 bytes): ${field.name}`);
+          totalSize += 1 + bytes.length;
+          fieldWriters.push({
+            size: 1 + bytes.length,
+            write: (view, off) => {
+              BitPacker._writeUint8(view, off, bytes.length);
+              off += 1;
+              for (let i = 0; i < bytes.length; i++) {
+                view.setUint8(off + i, bytes[i]);
+              }
+            },
+          });
+          break;
+        }
+        default:
+          throw new Error(`Unsupported field type: ${field.type}`);
       }
-
-      case 'thumbstick': {
-        const side = BitPacker.SIDE[message.side];
-        if (side === undefined) throw new Error('Invalid side');
-        const action = BitPacker.ACTION[message.action];
-        if (action === undefined) throw new Error('Invalid thumbstick action');
-        // type + playerId + side + action + x(8) + y(8) = 21 bytes
-        const buf = new Uint8Array(1 + 2 + 1 + 1 + 8 + 8);
-        const view = new DataView(buf.buffer);
-        let offset = 0;
-        BitPacker._writeUint8(view, offset, TYPE.THUMBSTICK);
-        offset += 1;
-        BitPacker._writeUint16LE(view, offset, message.playerId);
-        offset += 2;
-        BitPacker._writeUint8(view, offset, side);
-        offset += 1;
-        BitPacker._writeUint8(view, offset, action);
-        offset += 1;
-        BitPacker._writeDoubleLE(view, offset, message.x);
-        offset += 8;
-        BitPacker._writeDoubleLE(view, offset, message.y);
-        return buf;
-      }
-
-      case 'button': {
-        const buttonId = BitPacker.BUTTON_ID[message.button];
-        if (buttonId === undefined) throw new Error('Unknown button');
-        const action = BitPacker.ACTION[message.action];
-        if (action === undefined) throw new Error('Invalid button action');
-        const buf = new Uint8Array(1 + 2 + 1 + 1);
-        const view = new DataView(buf.buffer);
-        let offset = 0;
-        BitPacker._writeUint8(view, offset, TYPE.BUTTON);
-        offset += 1;
-        BitPacker._writeUint16LE(view, offset, message.playerId);
-        offset += 2;
-        BitPacker._writeUint8(view, offset, buttonId);
-        offset += 1;
-        BitPacker._writeUint8(view, offset, action);
-        return buf;
-      }
-
-      case 'vibrate': {
-        // Single byte: type only
-        const buf = new Uint8Array(1);
-        const view = new DataView(buf.buffer);
-        BitPacker._writeUint8(view, 0, TYPE.VIBRATE);
-        return buf;
-      }
-
-      default:
-        throw new Error(`Unknown message type: ${type}`);
     }
+
+    const buf = new Uint8Array(totalSize);
+    const view = new DataView(buf.buffer);
+    let offset = 0;
+
+    // Write type
+    BitPacker._writeUint8(view, offset, schema.type);
+    offset += 1;
+
+    // Write fields
+    for (const w of fieldWriters) {
+      w.write(view, offset);
+      offset += w.size;
+    }
+
+    return buf;
   }
 
   // ============================================================
@@ -173,82 +197,63 @@ class BitPacker {
     const totalLen = view.byteLength;
     if (totalLen < 1) throw new Error('Buffer too short');
 
-    const type = BitPacker._readUint8(view, 0);
+    const typeNum = BitPacker._readUint8(view, 0);
+    const typeName = BitPacker.TYPE_NAME[typeNum];
+    if (!typeName) throw new Error(`Unknown type code: ${typeNum}`);
+
+    const schema = BitPacker.SCHEMA[typeName];
     let offset = 1;
-    const TYPE = BitPacker.TYPE;
+    const result = { type: typeName };
 
-    switch (type) {
-      case TYPE.PING:
-      case TYPE.PONG: {
-        if (totalLen < 1 + 8) throw new Error('Invalid ping/pong buffer');
-        const timestamp = BitPacker._readDoubleLE(view, offset);
-        return {
-          type: type === TYPE.PING ? 'ping' : 'pong',
-          timestamp,
-        };
-      }
-
-      case TYPE.PLAYER_NAME: {
-        if (totalLen < 1 + 2 + 1) throw new Error('Invalid playerName buffer');
-        const playerId = BitPacker._readUint16LE(view, offset);
-        offset += 2;
-        const nameLen = BitPacker._readUint8(view, offset);
-        offset += 1;
-        if (totalLen < offset + nameLen) throw new Error('Name data truncated');
-        const nameBytes = new Uint8Array(view.buffer, view.byteOffset + offset, nameLen);
-        const name = new TextDecoder().decode(nameBytes);
-        return { type: 'playerName', playerId, name };
-      }
-
-      case TYPE.THUMBSTICK: {
-        if (totalLen < 1 + 2 + 1 + 1 + 8 + 8) throw new Error('Invalid thumbstick buffer');
-        const playerId = BitPacker._readUint16LE(view, offset);
-        offset += 2;
-        const sideVal = BitPacker._readUint8(view, offset);
-        offset += 1;
-        const actionVal = BitPacker._readUint8(view, offset);
-        offset += 1;
-        const x = BitPacker._readDoubleLE(view, offset);
-        offset += 8;
-        const y = BitPacker._readDoubleLE(view, offset);
-        const side = BitPacker.SIDE_NAME[sideVal];
-        const action = BitPacker.ACTION_NAME[actionVal];
-        if (side === undefined || action === undefined) {
-          throw new Error('Invalid thumbstick values');
+    for (const field of schema.fields) {
+      switch (field.type) {
+        case 'uint16': {
+          if (offset + 2 > totalLen) throw new Error('Buffer too short for uint16');
+          result[field.name] = BitPacker._readUint16LE(view, offset);
+          offset += 2;
+          break;
         }
-        return { type: 'thumbstick', playerId, side, x, y, action };
-      }
-
-      case TYPE.BUTTON: {
-        if (totalLen < 1 + 2 + 1 + 1) throw new Error('Invalid button buffer');
-        const playerId = BitPacker._readUint16LE(view, offset);
-        offset += 2;
-        const buttonId = BitPacker._readUint8(view, offset);
-        offset += 1;
-        const actionVal = BitPacker._readUint8(view, offset);
-        const button = BitPacker.BUTTON_NAME[buttonId];
-        const action = BitPacker.ACTION_NAME[actionVal];
-        if (button === undefined || action === undefined) {
-          throw new Error('Invalid button values');
+        case 'float64': {
+          if (offset + 8 > totalLen) throw new Error('Buffer too short for float64');
+          result[field.name] = BitPacker._readFloat64LE(view, offset);
+          offset += 8;
+          break;
         }
-        return { type: 'button', playerId, button, action };
+        case 'enum': {
+          if (offset + 1 > totalLen) throw new Error('Buffer too short for enum');
+          const val = BitPacker._readUint8(view, offset);
+          offset += 1;
+          const enumMap = field.enumMap;
+          // Reverse map for this enum
+          const revMap = Object.fromEntries(Object.entries(enumMap).map(([k, v]) => [v, k]));
+          const name = revMap[val];
+          if (name === undefined) throw new Error(`Invalid enum value ${val} for field ${field.name}`);
+          result[field.name] = name;
+          break;
+        }
+        case 'string': {
+          if (offset + 1 > totalLen) throw new Error('Buffer too short for string length');
+          const len = BitPacker._readUint8(view, offset);
+          offset += 1;
+          if (offset + len > totalLen) throw new Error('Buffer too short for string data');
+          const bytes = new Uint8Array(view.buffer, view.byteOffset + offset, len);
+          result[field.name] = new TextDecoder().decode(bytes);
+          offset += len;
+          break;
+        }
+        default:
+          throw new Error(`Unsupported field type: ${field.type}`);
       }
-
-      case TYPE.VIBRATE: {
-        // No extra data
-        return { type: 'vibrate' };
-      }
-
-      default:
-        throw new Error(`Unknown type code: ${type}`);
     }
+
+    return result;
   }
 }
 
 // ============================================================
 //  Example usage (test with sample messages)
 // ============================================================
-/*
+
 const samples = [
   { type: 'vibrate' },
   { type: 'ping', timestamp: 240423.20000004768 },
@@ -298,4 +303,4 @@ samples.forEach((msg, i) => {
   const ok = JSON.stringify(msg) === JSON.stringify(unpacked);
   console.log(`Sample ${i+1}: ${ok ? '✅' : '❌'}`);
     if(!ok) console.log(msg, unpacked);
-});*/
+});
