@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerJS - Sender (Client)</title>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background: #f0f2f5; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input { padding: 10px; width: 300px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 15px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:disabled { background: #ccc; }
+        .status { margin-top: 15px; font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+
+    <h2>Computer B: Sender Client</h2>
+    
+    <div class="box">
+        <h3>Connect to Target</h3>
+        <input type="text" id="targetIdInput" value='server-udp-hello' placeholder="Paste Computer A's Connection ID here">
+        <button id="connectBtn">1. Connect Channels</button>
+        <button id="streamBtn" disabled style="margin-left: 10px;">2. Start 60Hz Stream</button>
+        <div id="statusText" class="status">Status: Offline (Ready)</div>
+    </div>
+
+    <div class="box">
+        <h3>Live Streaming Status</h3>
+        <p>Unreliable Packets Sent: <strong id="unreliableDisplay">0</strong></p>
+        <p>Reliable Packets Sent: <strong id="reliableDisplay">0</strong></p>
+    </div>
+
+    <script>
+        const targetIdInput = document.getElementById('targetIdInput');
+        const connectBtn = document.getElementById('connectBtn');
+        const streamBtn = document.getElementById('streamBtn');
+        const statusText = document.getElementById('statusText');
+        const unreliableDisplay = document.getElementById('unreliableDisplay');
+        const reliableDisplay = document.getElementById('reliableDisplay');
+
+        let peer;
+        let unreliableConn, reliableConn;
+        let unreliableSeq = 0;
+        let reliableSeq = 0;
+        let streamInterval;
+
+        peer = new Peer(); // Initialize sender peer instance
+
+        connectBtn.addEventListener('click', () => {
+            const targetId = targetIdInput.value.trim();
+            if (!targetId) return alert("Please enter the ID from Computer A first!");
+
+            statusText.innerText = "Connecting across cloud servers...";
+            connectBtn.disabled = true;
+
+            // Connect Unreliable Channel
+            unreliableConn = peer.connect(targetId, {
+                reliable: false,
+                metadata: { type: 'unreliable' }
+            });
+
+            // Connect Reliable Channel
+            reliableConn = peer.connect(targetId, {
+                reliable: true,
+                metadata: { type: 'reliable' }
+            });
+
+            let openChannels = 0;
+            const checkConnection = () => {
+                openChannels++;
+                if (openChannels === 2) {
+                    statusText.innerText = "Status: Linked to Computer A over internet!";
+                    streamBtn.disabled = false;
+                }
+            };
+
+            unreliableConn.on('open', checkConnection);
+            reliableConn.on('open', checkConnection);
+            
+            unreliableConn.on('error', (err) => { statusText.innerText = "Error: " + err; });
+        });
+
+        streamBtn.addEventListener('click', () => {
+            if (streamInterval) {
+                clearInterval(streamInterval);
+                streamBtn.innerText = "2. Start 60Hz Stream";
+                streamInterval = null;
+                statusText.innerText = "Status: Stream Paused";
+            } else {
+                streamBtn.innerText = "Stop Stream";
+                statusText.innerText = "Status: Transmitting at 60Hz...";
+
+                streamInterval = setInterval(() => {
+                    // Send to Unreliable pipeline (Drops if Wi-Fi degrades)
+                    if (unreliableConn && unreliableConn.open) {
+                        if (unreliableConn.dataChannel.bufferedAmount < 16384) {
+                            unreliableConn.send({ seq: unreliableSeq });
+                            unreliableDisplay.innerText = unreliableSeq;
+                            unreliableSeq++;
+                        }
+                    }
+
+                    // Send to Reliable pipeline (Stalls stream if Wi-Fi degrades)
+                    if (reliableConn && reliableConn.open) {
+                        if (reliableConn.dataChannel.bufferedAmount < 16384) {
+                            reliableConn.send({ seq: reliableSeq });
+                            reliableDisplay.innerText = reliableSeq;
+                            reliableSeq++;
+                        }
+                    }
+                }, 16); // ~60fps
+            }
+        });
+    </script>
+</body>
+</html>

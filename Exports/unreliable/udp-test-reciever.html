@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerJS - Receiver (Server Hub)</title>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background: #f0f2f5; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .log { font-family: monospace; background: #222; color: #fff; padding: 10px; height: 400px; overflow-y: scroll; border-radius: 4px; white-space: pre-wrap; font-size: 12px; }
+        .id-badge { font-size: 20px; font-weight: bold; color: #007bff; background: #e6f0ff; padding: 10px; border-radius: 4px; display: inline-block; margin: 10px 0; letter-spacing: 1px;}
+        .unreliable { color: #dc3545; }
+        .reliable { color: #28a745; }
+    </style>
+</head>
+<body>
+
+    <h2>Computer A: Receiver Server</h2>
+    
+    <div class="box">
+        <div>Your Public Connection ID:</div>
+        <div id="peerIdDisplay" class="id-badge">Connecting to cloud...</div>
+        <p style="margin: 0; color: #555;">👉 Copy this exact ID and enter it on Computer B (the Sender).</p>
+    </div>
+
+    <div class="grid">
+        <div class="box">
+            <h3 class="unreliable">Unreliable Channel Log</h3>
+            <div id="unreliableLog" class="log">Waiting for connection...</div>
+        </div>
+        <div class="box">
+            <h3 class="reliable">Reliable Channel Log</h3>
+            <div id="reliableLog" class="log">Waiting for connection...</div>
+        </div>
+    </div>
+
+    <script>
+        const idDisplay = document.getElementById('peerIdDisplay');
+        const unreliableLog = document.getElementById('unreliableLog');
+        const reliableLog = document.getElementById('reliableLog');
+
+        let unreliableLastSeq = -1;
+        let reliableLastSeq = -1;
+
+        function logMessage(element, text, isError = false) {
+            const color = isError ? '#ff6b6b' : '#fff';
+            element.innerHTML += `<span style="color: ${color}">${text}</span>\n`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        // Initialize Peer using the public cloud signaling server
+        const peer = new Peer('server-udp-hello');
+
+        peer.on('open', (id) => {
+            idDisplay.innerText = id;
+        });
+
+        peer.on('connection', (conn) => {
+            const isReliable = conn.metadata && conn.metadata.type === 'reliable';
+            const activeLog = isReliable ? reliableLog : unreliableLog;
+            let lastSeqRef = isReliable ? reliableLastSeq : unreliableLastSeq;
+
+            logMessage(activeLog, `Connected to sender via ${isReliable ? 'RELIABLE' : 'UNRELIABLE'} pipe.`);
+
+            conn.on('data', (data) => {
+                const currentSeq = data.seq;
+
+                if (lastSeqRef !== -1 && currentSeq !== lastSeqRef + 1) {
+                    if (!isReliable) {
+                        const missed = currentSeq - lastSeqRef - 1;
+                        logMessage(activeLog, `💥 GAP! Jumped from ${lastSeqRef} to ${currentSeq} (Lost ${missed} frames)`, true);
+                    } else {
+                        logMessage(activeLog, `⚠️ Out of order! Received ${currentSeq}, expected ${lastSeqRef + 1}`, true);
+                    }
+                } else if (currentSeq % 10 === 0) {
+                    logMessage(activeLog, `Received seq: ${currentSeq}`);
+                }
+
+                // Update the correct tracking reference
+                if (isReliable) { reliableLastSeq = currentSeq; } 
+                else { unreliableLastSeq = currentSeq; }
+                lastSeqRef = currentSeq;
+            });
+
+            conn.on('close', () => {
+                logMessage(activeLog, `❌ Connection closed by peer.`, true);
+            });
+        });
+    </script>
+</body>
+</html>
