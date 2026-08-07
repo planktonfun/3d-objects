@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 Object Physics Sandbox</title>
+
+<style>
+html, body {
+    margin: 0;
+    overflow: hidden;
+    background: #20242a;
+}
+
+canvas {
+    display: block;
+    background: #2f7fd8;
+}
+
+#info{
+    position:absolute;
+    left:10px;
+    top:10px;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+    background:rgba(0,0,0,.45);
+    padding:8px 12px;
+    border-radius:8px;
+}
+</style>
+<script src="./fastBitPacker.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+</head>
+<body>
+
+<div id="info">
+10 Objects • Moving Forever
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function seedRandom(seed) {
+  var x = Math.sin(seed++) * 10000;
+  return x - Math.floor(x);
+}
+
+function lerp(start, end, t) {
+    return (1 - t) * start + t * end;
+}
+
+function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+const balls = [];
+const ballSet = {};
+const COUNT = 10;
+let ballId = 0;
+
+class Ball{
+
+    constructor(x,y,r){
+
+        this.id = ++ballId;
+        this.seed = Math.floor(Math.random()*255);
+        this.x = x;
+        this.y = y;
+        this.radius = r;
+
+        // Random velocity
+        this.vx = (seedRandom(this.seed)-0.5)*8;
+        this.vy = (seedRandom(this.seed)-0.5)*8;
+
+        // Prevent nearly stationary balls
+        if(Math.abs(this.vx)<2) this.vx = this.vx<0?-2:2;
+        if(Math.abs(this.vy)<2) this.vy = this.vy<0?-2:2;
+
+        this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
+    }
+
+    update(){
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Left
+        if(this.x-this.radius<0){
+            this.x=this.radius;
+            this.vx*=-1;
+        }
+
+        // Right
+        if(this.x+this.radius>canvas.width){
+            this.x=canvas.width-this.radius;
+            this.vx*=-1;
+        }
+
+        // Top
+        if(this.y-this.radius<0){
+            this.y=this.radius;
+            this.vy*=-1;
+        }
+
+        // Bottom
+        if(this.y+this.radius>canvas.height){
+            this.y=canvas.height-this.radius;
+            this.vy*=-1;
+        }
+    }
+
+    draw(){
+
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);
+        ctx.fillStyle=this.color;
+        ctx.fill();
+
+        ctx.strokeStyle="white";
+        ctx.lineWidth=2;
+        ctx.stroke();
+    }
+
+    serialize() {
+      return {
+        id: Math.floor(this.id),
+        seed: Math.floor(this.seed),
+        radius: Math.floor(this.radius),
+        x: Math.floor(this.x),
+        y: Math.floor(this.y),
+      }
+    }
+
+    deserialize(ball) {
+        this.seed = ball.seed;
+        this.radius = ball.radius;
+        this.x = lerp(this.x, ball.x, 0.9);
+        this.y = lerp(this.y, ball.y, 0.9);
+        this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
+    }
+}
+
+// Create exactly 10 balls
+for(let i=0;i<COUNT;i++){
+
+    balls.push(
+        new Ball(
+            40+Math.random()*(canvas.width-80),
+            40+Math.random()*(canvas.height-80),
+            15+Math.random()*15
+        )
+    );
+}
+
+for (var i = 0; i < balls.length; i++) {
+    ballSet[balls[i].id] = balls[i];
+}
+
+function animate(){
+
+    requestAnimationFrame(animate);
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    for(const b of balls)
+        b.draw();
+
+    ctx.fillStyle="white";
+    ctx.font="16px Arial";
+    ctx.fillText("Objects: "+balls.length,10,canvas.height-15);
+}
+
+animate();
+
+</script>
+<script>
+
+function buildCharacterSchema() {
+  var slots = 0;
+  var schema = [];
+
+  // Core vitals keep bits ≤ 31
+  var fields = [
+    ['id', 8],
+    ['radius', 8],
+    ['seed', 8],
+    ['x', 16],
+    ['y', 16],
+  ];
+
+  fields.forEach(function(f) {
+    var id = f[0];
+    var bits = f[1];
+    if(bits > 31) throw new Error('keep bits ≤ 31');
+    schema.push({
+      id: id,
+      bits: bits,
+      path: 's.' + id,
+      getValue: function(s) { return s[id]; },
+      setValue: function(s, v) { s[id] = v; }
+    });
+  });
+
+  // Inventory
+  for (var i = 0; i < slots; i++) {
+    schema.push({
+      id: 'inv_id_' + i,
+      bits: 6,
+      path: 's.inventory[' + i + '].itemId',
+      getValue: function(s) { return s.inventory[i].itemId; },
+      setValue: function(s, v) { s.inventory[i].itemId = v; }
+    });
+    schema.push({
+      id: 'inv_cnt_' + i,
+      bits: 4,
+      path: 's.inventory[' + i + '].count',
+      getValue: function(s) { return s.inventory[i].count; },
+      setValue: function(s, v) { s.inventory[i].count = v; }
+    });
+  }
+  return schema;
+}
+
+// Create default state
+function defaultCharacterState() {
+  var inv = [];
+  var slots = 0;
+  for (var i = 0; i < slots; i++) inv.push({ itemId: 0, count: 0 });
+
+  return {
+    id:0, radius: 0, seed:0, x:0, y:0
+  };
+}
+
+// ── Pack an array of states into one Uint8Array ──
+function packMany(states, packerFn) {
+  packerFn = packerFn || packer.packFast || packer.packTable;
+  var totalBytes = states.length * packer.totalBytes; // 25 bytes each
+  // console.log(totalBytes, packer)
+  var result = new Uint8Array(totalBytes);
+  var offset = 0;
+  for (var i = 0; i < states.length; i++) {
+    var packed = packerFn(states[i]);
+    result.set(packed, offset);
+    offset += packed.length;
+  }
+  return result;
+}
+
+// ── Unpack a combined buffer back into an array of states ──
+function unpackMany(buffer, count, unpackerFn) {
+  unpackerFn = unpackerFn || packer.unpackFast || packer.unpackTable;
+  var states = [];
+  var bytesPerState = packer.totalBytes; // 25
+  for (var i = 0; i < count; i++) {
+    var slice = buffer.slice(i * bytesPerState, (i + 1) * bytesPerState);
+    states.push(unpackerFn(slice));
+  }
+  return states;
+}
+
+// Usage
+var schema = buildCharacterSchema();
+var packer = createFastPacker(schema, defaultCharacterState);
+
+const userCount = balls.length;
+
+ // 1. Create 1000 random states
+var states = [];
+for (var i = 0; i < balls.length; i++) {
+  states.push(balls[i].serialize());
+}
+const buffer = packMany(states, packer.packFast);
+const budget = (5_000_000/60); // 5 mbps upload connection
+const resultbits = buffer.byteLength*8;
+const budgetPass = resultbits <= (Math.floor(budget/(userCount-1))-560);
+
+console.table({
+    userCount,
+    snapshotBits: buffer.byteLength*8,
+    plausible5mbps: budgetPass
+});
+</script>
+<script>
+
+const peer = new Peer();
+
+function connectToPeer(targetId) {
+  // Connect Unreliable Channel
+  const unreliableConn = peer.connect(targetId, {
+      reliable: false,
+      metadata: { type: 'unreliable' }
+  });
+
+  unreliableConn.on('error', (err) => { console.error("Error: " + err); });
+  unreliableConn.on('data', (buffer) => {
+        const states = unpackMany(new Uint8Array(buffer), 10, packer.unpackFast);
+        // console.log(states);
+
+        states.forEach(ball=>{
+            ballSet[ball.id].deserialize(ball);
+        });
+    });
+
+    unreliableConn.on('close', () => {
+        console.log(`❌ Connection closed by peer.`);
+    });
+}
+
+peer.on('open', (id) => {
+  connectToPeer('server-udp-hi');
+});
+
+</script>
