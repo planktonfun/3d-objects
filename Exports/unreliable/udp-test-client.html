@@ -49,6 +49,14 @@ function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     for(const b of balls)
+        b.updateClient();
+
+    for(const b of triangles)
+        b.updateClient();
+
+    handleCollisions();
+
+    for(const b of balls)
         b.draw();
 
     for(const b of triangles)
@@ -78,8 +86,8 @@ canvas.addEventListener('mousemove', (event) => {
   const y = event.clientY;
 
   if(window.sendRequest) sendRequest({x,y});
-  // triangles[0].x = x;
-  // triangles[0].y = y;
+  triangles[0].x = x;
+  triangles[0].y = y;
 });
 
 </script>
@@ -95,15 +103,29 @@ function connectToPeerInbound(targetId) {
   });
 
   unreliableConn.on('error', (err) => { console.error("Error: " + err); });
+  let recievedTick = -1;
+
   unreliableConn.on('data', (buffer) => {
-        const states = unpackMany(new Uint8Array(buffer), balls.length+triangles.length, packer.unpackFast);
+        const {
+            timestamp,
+            count,
+            states: unpackedStates
+        } = unpackManyWithHeader(
+            new Uint8Array(buffer), packer.unpackFast);
+        // only accept latest data from unordered data
+        if(recievedTick > timestamp) return;
+        recievedTick = timestamp;
+        // const unpackedStates = unpackMany(
+        //     new Uint8Array(buffer), balls.length + triangles.length, packer.unpackFast);
         // console.log(states);
 
-        states.forEach(obj=>{
+
+        unpackedStates.forEach(obj=>{
             // console.log(objectSet[obj.id])
             objectSet[obj.id].deserialize(obj);
         });
     });
+
 
     unreliableConn.on('close', () => {
         console.log(`❌ Connection closed by peer.`);

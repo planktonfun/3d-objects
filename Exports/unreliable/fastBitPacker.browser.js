@@ -22,6 +22,7 @@ const balls = [];
 const triangles = [];
 const COUNT = 30;
 let ballId = 0;
+const fps = 60;
 
 class Ball {
 
@@ -43,6 +44,10 @@ class Ball {
         if(Math.abs(this.vy)<2) this.vy = this.vy<0?-2:2;
 
         this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
+
+        this.targetX = -1;
+        this.targetY = -1;
+        this.easingPercent = 0.99/60 * fps;
     }
 
     update(){
@@ -75,6 +80,11 @@ class Ball {
         }
     }
 
+    updateClient(){
+      this.x = lerp(this.x, this.targetX, this.easingPercent);
+      this.y = lerp(this.y, this.targetY, this.easingPercent);
+    }
+
     draw(){
 
         ctx.beginPath();
@@ -105,8 +115,8 @@ class Ball {
     deserialize(ball) {
         this.seed = ball.seed;
         this.radius = ball.radius;
-        this.x = lerp(this.x, ball.x, 0.45);
-        this.y = lerp(this.y, ball.y, 0.45);
+        this.targetX = lerp(this.x, ball.x, 0.45);
+        this.targetY = lerp(this.y, ball.y, 0.45);
         this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
     }
 }
@@ -116,6 +126,7 @@ class Triangle extends Ball {
     super(x,y,r);
 
     this.type = 2;
+    this.easingPercent = 0.5;
   }
 
   draw() {
@@ -265,11 +276,63 @@ function defaultCharacterState() {
   };
 }
 
+// ── Pack with header ──
+function packManyWithHeader(states, packerFn, timestamp = Date.now()) {
+  packerFn = packerFn || packer.packFast || packer.packTable;
+  const HEADER_BYTES = 12;          // 8 bytes timestamp (two 32-bit halves) + 4 bytes count
+  const bytesPerState = packer.totalBytes; // e.g., 25
+  const count = states.length;
+
+  const totalBytes = HEADER_BYTES + count * bytesPerState;
+  const result = new Uint8Array(totalBytes);
+  const view = new DataView(result.buffer);
+
+  // Write timestamp as two 32-bit unsigned integers (low, high) – no BigInt needed
+  const ts = typeof timestamp === 'number' ? timestamp : Date.now();
+  view.setUint32(0, ts & 0xFFFFFFFF, true);        // low 32 bits
+  view.setUint32(4, Math.floor(ts / 0x100000000), true); // high 32 bits
+  view.setUint32(8, count, true);                  // count
+
+  // Write packed states
+  let offset = HEADER_BYTES;
+  for (let i = 0; i < count; i++) {
+    const packed = packerFn(states[i]);
+    result.set(packed, offset);
+    offset += packed.length;
+  }
+  return result;
+}
+
+// ── Unpack with header, returning both metadata and states ──
+function unpackManyWithHeader(buffer, unpackerFn) {
+  unpackerFn = unpackerFn || packer.unpackFast || packer.unpackTable;
+  const HEADER_BYTES = 12;
+  const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+
+  // Read timestamp (combine low and high 32-bit)
+  const low = view.getUint32(0, true);
+  const high = view.getUint32(4, true);
+  const timestamp = low + high * 0x100000000; // produces a number (safe up to 2^53)
+
+  const count = view.getUint32(8, true);
+  const bytesPerState = packer.totalBytes;
+
+  const states = [];
+  let offset = HEADER_BYTES;
+  for (let i = 0; i < count; i++) {
+    const slice = buffer.slice(offset, offset + bytesPerState);
+    states.push(unpackerFn(slice));
+    offset += bytesPerState;
+  }
+
+  return { timestamp, count, states };
+}
+
+
 // ── Pack an array of states into one Uint8Array ──
 function packMany(states, packerFn) {
   packerFn = packerFn || packer.packFast || packer.packTable;
   var totalBytes = states.length * packer.totalBytes; // 25 bytes each
-  // console.log(totalBytes, packer)
   var result = new Uint8Array(totalBytes);
   var offset = 0;
   for (var i = 0; i < states.length; i++) {
@@ -292,22 +355,8 @@ function unpackMany(buffer, count, unpackerFn) {
   return states;
 }
 
-// Usage
-var schema = buildCharacterSchema();
-var packer = createFastPacker(schema, defaultCharacterState);
-
-const userCount = balls.length;
-
- // 1. Create 1000 random states
-var states = [];
-for (var i = 0; i < balls.length; i++) {
-  states.push(balls[i].serialize());
-}
-const buffer = packMany(states, packer.packFast);
-const budget = (5_000_000/60); // 5 mbps upload connection
-const resultbits = buffer.byteLength*8;
-function getMaxUserCount(bufferByteLength) {
-    const budget = 5_000_000 / 60; // 83333.33
+function getMaxUserCount(bufferByteLength, mbps = 5_000_000, hz=60) {
+    const budget = mbps / hz; // 83333.33
 
     // Quadratic coefficients: au^2 + bu + c = 0
     const a = 8 * bufferByteLength;
@@ -325,8 +374,27 @@ function getMaxUserCount(bufferByteLength) {
     return Math.floor(maxUsers);
 }
 
+
+// Usage
+var schema = buildCharacterSchema();
+var packer = createFastPacker(schema, defaultCharacterState);
+
+const userCount = balls.length;
+
+ // 1. Create 1000 random states
+var states = [];
+for (var i = 0; i < balls.length; i++) {
+  states.push(balls[i].serialize());
+}
+for (var i = 0; i < triangles.length; i++) {
+  states.push(triangles[i].serialize());
+}
+
+const buffer = packManyWithHeader(states, packer.packFast);
+
+
 console.table({
     userCount,
-    maxUserCount: getMaxUserCount(buffer.byteLength/balls.length),
+    maxUserCount: getMaxUserCount(buffer.byteLength/(balls.length+triangles.length), 5_000_000, fps),
     snapshotBits: buffer.byteLength*8,
 });

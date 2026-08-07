@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 Object Physics Sandbox</title>
+
+<style>
+html, body {
+    margin: 0;
+    overflow: hidden;
+    background: #20242a;
+}
+
+canvas {
+    display: block;
+    background: #2f7fd8;
+}
+
+#info{
+    position:absolute;
+    left:10px;
+    top:10px;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+    background:rgba(0,0,0,.45);
+    padding:8px 12px;
+    border-radius:8px;
+}
+</style>
+<script src="./fastBitPacker.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+</head>
+<body>
+
+<div id="info">
+10 Objects • Moving Forever
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script src='./fastBitPacker.browser.js'></script>
+<script>
+
+function animate(){
+
+    requestAnimationFrame(animate);
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    for(const b of balls) {
+        b.update();
+    }
+
+    handleCollisions();
+
+    for(const b of balls)
+        b.draw();
+
+    for(const b of triangles)
+        b.draw();
+
+    ctx.fillStyle="white";
+    ctx.font="16px Arial";
+    ctx.fillText("Objects: "+balls.length,10,canvas.height-15);
+
+    // if(window.broadcast) broadcast();
+}
+
+animate();
+
+canvas.addEventListener('mousemove', (event) => {
+  const x = event.clientX;
+  const y = event.clientY;
+
+  triangles[0].x = x;
+  triangles[0].y = y;
+});
+
+</script>
+<script>
+
+const peer = new Peer('server-udp-hi');
+
+peer.on('open', (id) => {
+    console.log('waiting for connection', id);
+});
+
+const clients = [];
+
+peer.on('connection', (conn) => {
+  console.log('connected');
+  clients.push(conn);
+
+  conn.on('data', (data)=>{
+    triangles[0].x = data.x;
+    triangles[0].y = data.y;
+  });
+});
+
+function broadcast() {
+  const states = [];
+  for (var i = 0; i < balls.length; i++) {
+    states.push(balls[i].serialize());
+  }
+  for (var i = 0; i < triangles.length; i++) {
+    states.push(triangles[i].serialize());
+  }
+
+  const buffer = packManyWithHeader(states, packer.packFast);
+  const resultbits = buffer.byteLength*8;
+
+  clients.forEach(conn=>{
+    if (conn && conn.open) {
+      if (conn.dataChannel.bufferedAmount < 16384) {
+        conn.send(buffer)
+      }
+    }
+  });
+}
+
+setInterval(broadcast, 1000/fps);
+
+
+</script>
