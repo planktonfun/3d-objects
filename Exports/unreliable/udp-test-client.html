@@ -370,6 +370,17 @@ function connectToPeerInbound(targetId) {
     unreliableConn.on('close', () => {
         console.log(`❌ Connection closed by peer.`);
     });
+
+     window.sendRequest = (data) => {
+    if (unreliableConn && unreliableConn.open) {
+      if (unreliableConn.dataChannel.bufferedAmount < 16384) {
+            unreliableConn.send(data);
+        }}
+    }
+
+    unreliableConn.on('close', () => {
+        console.log(`❌ Connection closed by peer.`);
+    });
 }
 
 function connectToPeerOutbound(targetId) {
@@ -382,7 +393,10 @@ function connectToPeerOutbound(targetId) {
   reliableConn.on('error', (err) => { console.error("Error: " + err); });
 
   window.sendRequest = (data) => {
-    reliableConn.send(data);
+    if (reliableConn && reliableConn.open) {
+      if (reliableConn.dataChannel.bufferedAmount < 16384) {
+            reliableConn.send(data);
+        }}
     }
 
     reliableConn.on('close', () => {
@@ -393,7 +407,7 @@ function connectToPeerOutbound(targetId) {
 
 peer.on('open', (id) => {
   connectToPeerInbound('server-udp-hi');
-  connectToPeerOutbound('server-udp-hi');
+  // connectToPeerOutbound('server-udp-hi');
 });
 
 </script>
