@@ -77,6 +77,19 @@ canvas.addEventListener('mousemove', (event) => {
   triangles[0].y = y;
 });
 
+canvas.addEventListener('touchmove', (e) => {
+  // Prevent scrolling while moving/dragging
+  e.preventDefault();
+
+  // Get coordinates for the first finger
+  const touch = e.touches[0];
+  const x = touch.clientX;
+  const y = touch.clientY;
+
+  triangles[0].x = x;
+  triangles[0].y = y;
+});
+
 </script>
 <script>
 
