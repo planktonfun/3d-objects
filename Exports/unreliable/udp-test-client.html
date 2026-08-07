@@ -226,6 +226,15 @@ function animate(){
 
 animate();
 
+canvas.addEventListener('mousemove', (event) => {
+  const x = event.clientX;
+  const y = event.clientY;
+
+  sendRequest({x,y});
+  // triangles[0].x = x;
+  // triangles[0].y = y;
+});
+
 </script>
 <script>
 
@@ -340,7 +349,7 @@ console.table({
 
 const peer = new Peer();
 
-function connectToPeer(targetId) {
+function connectToPeerInbound(targetId) {
   // Connect Unreliable Channel
   const unreliableConn = peer.connect(targetId, {
       reliable: false,
@@ -363,8 +372,28 @@ function connectToPeer(targetId) {
     });
 }
 
+function connectToPeerOutbound(targetId) {
+  // Connect Unreliable Channel
+  const reliableConn = peer.connect(targetId, {
+        reliable: true,
+        metadata: { type: 'reliable' }
+    });
+
+  reliableConn.on('error', (err) => { console.error("Error: " + err); });
+
+  window.sendRequest = (data) => {
+    reliableConn.send(data);
+    }
+
+    reliableConn.on('close', () => {
+        console.log(`❌ Connection closed by peer.`);
+    });
+}
+
+
 peer.on('open', (id) => {
-  connectToPeer('server-udp-hi');
+  connectToPeerInbound('server-udp-hi');
+  connectToPeerOutbound('server-udp-hi');
 });
 
 </script>
