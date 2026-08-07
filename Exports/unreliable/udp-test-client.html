@@ -140,8 +140,8 @@ class Ball{
     deserialize(ball) {
         this.seed = ball.seed;
         this.radius = ball.radius;
-        this.x = lerp(this.x, ball.x, 0.9);
-        this.y = lerp(this.y, ball.y, 0.9);
+        this.x = lerp(this.x, ball.x, 0.45);
+        this.y = lerp(this.y, ball.y, 0.45);
         this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
     }
 }
