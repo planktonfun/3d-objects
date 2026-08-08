@@ -198,9 +198,35 @@ function applyDeltaOptimized(data, delta) {
     return result;
 }
 
+// Helper functions for delta handling
+// ── Packet format: [ tick (uint32) ][ type (uint8) ][ payload (bytes) ] ──
+const PACKET_HEADER_SIZE = 5;
+
+function packPacket(tick, type, payload) {
+  const header = new Uint8Array(PACKET_HEADER_SIZE);
+  const view = new DataView(header.buffer);
+  view.setUint32(0, tick, true);
+  view.setUint8(4, type);
+  const packet = new Uint8Array(PACKET_HEADER_SIZE + payload.length);
+  packet.set(header, 0);
+  packet.set(payload, PACKET_HEADER_SIZE);
+  return packet;
+}
+
+function unpackPacket(buffer) {
+  // Accepts ArrayBuffer or Uint8Array
+  const data = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+  const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+  const tick = view.getUint32(0, true);
+  const type = data[4];
+  const payload = data.slice(PACKET_HEADER_SIZE); // copy; use subarray if you prefer no copy
+  return { tick, type, payload };
+}
 
 globalThis.createDelta = createDeltaOptimized;
 globalThis.applyDelta = applyDeltaOptimized;
+globalThis.packPacket = packPacket;
+globalThis.unpackPacket = unpackPacket;
 
 /*const before = new Uint8Array([
   255,255,254,1,254,1,255,255,255,255,254,192,191,84,255,255,254,1,254,1,255,255,255,255,254,192,191,84,255,255,254,1,254,

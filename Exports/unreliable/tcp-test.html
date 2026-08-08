@@ -30,6 +30,7 @@ canvas {
 </style>
 <script src="./fastBitPacker.js"></script>
 <script src="./delta-fixed-size.js"></script>
+<script src="./tiny-binary-schema.js"></script>
 <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
 </head>
 <body>
@@ -132,148 +133,99 @@ canvas.addEventListener('touchmove', (e) => {
 </script>
 <script>
 
+// ── Shared schema for input (e.g., mouse/touch) ──
+const inputSchema = new BinarySchema({ x: 'float32', y: 'float32' });
 
-if(isHost) {
+// ── State helpers (your existing pack/unpack functions) ──
+function applyPackedState(buffer, unpackFn) {
+  const { states } = unpackManyWithHeader(buffer, unpackFn);
+  states.forEach(s => objectSet[s.id].deserialize(s));
+  return buffer;
+}
 
-    const peer = new Peer('server-tcp-hi');
+// ── SERVER ──
+if (isHost) {
+  const peer = new Peer('server-tcp-hi');
+  const clients = [];
+  let tick = 0, prevState = null, current = null;
 
-    peer.on('open', (id) => {
-        console.log('waiting for connection', id);
+  peer.on('open', id => console.log('Waiting for connections', id));
+
+  peer.on('connection', conn => {
+    clients.push(conn);
+
+    conn.on('data', raw => {
+      const input = inputSchema.decode(new Uint8Array(raw));
+      triangles[0].x = input.x;
+      triangles[0].y = input.y;
     });
 
-    const clients = [];
-    let tick = 0;
-    let previousState = null;
-    let current = null;
-    let delta = null;
-
-    peer.on('connection', (conn) => {
-      console.log('connected');
-      clients.push(conn);
-
-      conn.on('data', (data)=>{
-        triangles[0].x = data.x;
-        triangles[0].y = data.y;
-      });
-
-      conn.on('open', ()=>{
-        // send initial state
-        conn.send({tick:tick, type:1, bin:current});
-      });
+    conn.on('open', () => {
+      if (current) conn.send(packPacket(tick, 1, current).buffer);
     });
+  });
+  let lastPayload = null;
+  function broadcast() {
+    if (!clients.length) return;
 
-    function broadcast() {
-      const states = [];
-      for (var i = 0; i < balls.length; i++) {
-        states.push(balls[i].serialize());
+    const states = [
+      ...balls.map(b => b.serialize()),
+      ...triangles.map(t => t.serialize())
+    ];
+    current = packManyWithHeader(states, packer.packFast);
+    const payload = prevState ? createDeltaOptimized(prevState, current) : current;
+    prevState = current;
+    lastPayload = payload;
+    const packet = packPacket(tick, 2, payload);
+    clients.forEach(conn => {
+      if (conn?.open && conn.dataChannel.bufferedAmount < 16384) {
+        conn.send(packet.buffer);
       }
-      for (var i = 0; i < triangles.length; i++) {
-        states.push(triangles[i].serialize());
-      }
+    });
+    tick++;
+  }
 
-      current = packManyWithHeader(states, packer.packFast);
-      const resultbits = current.byteLength*8;
-
-      if(previousState) {
-        delta = createDeltaOptimized(previousState, current);
-      }
-
-      previousState = current;
-
-      clients.forEach(conn=>{
-        if (conn && conn.open) {
-          if (conn.dataChannel.bufferedAmount < 16384) {
-            conn.send({tick:tick, type:2, bin:delta});
-          }
-        }
-      });
-
-      tick++;
-    }
-
-    setInterval(broadcast, 1000/fps);
-    setInterval(()=>{
-        if(!delta) return;
+  setInterval(broadcast, 1000 / fps);
+  setInterval(()=>{
+        if(!lastPayload) return;
         console.log(
-            getMaxUserCount(delta.byteLength/states.length, 5_000_000, fps)
+            getMaxUserCount(lastPayload.byteLength/states.length, 5_000_000, fps)
         )
     }, 1000);
-} else {
-    const peer = new Peer();
+}
 
-    function connectToPeerInbound(targetId) {
-      // Connect Unreliable Channel
-      const reliableConn = peer.connect(targetId, {
-            reliable: true,
-            metadata: { type: 'reliable' }
-      });
+// ── CLIENT ──
+else {
+  const peer = new Peer();
+  let previous = null, receivedTick = -1, receivedInitial = false;
 
-      reliableConn.on('error', (err) => { console.error("Error: " + err); });
+  peer.on('open', () => {
+    const conn = peer.connect('server-tcp-hi', { reliable: true });
+    conn.on('error', console.error);
 
-      let recievedTick = -1;
-      let previousState = null;
-      let recievedInitial = false;
+    conn.on('data', raw => {
+      const { tick, type, payload } = unpackPacket(raw);
 
-      reliableConn.on('data', (obj) => {
+      if (receivedTick > tick) return;
+      receivedTick = tick;
 
-            // only accept latest data
-            if(recievedTick > obj.tick) return;
-            recievedTick = obj.tick;
-
-            if(obj.type==1) {
-                const {
-                    timestamp,
-                    count,
-                    states: unpackedStates
-                } = unpackManyWithHeader(
-                    new Uint8Array(obj.bin), packer.unpackFast);
-
-                unpackedStates.forEach(obj=>{
-                    objectSet[obj.id].deserialize(obj);
-                });
-
-                previous = new Uint8Array(obj.bin);
-                recievedInitial = true;
-            } else if(obj.type==2 && recievedInitial) {
-                delta = new Uint8Array(obj.bin);
-                const rebuilt = applyDeltaOptimized(previous, delta);
-
-                const {
-                    timestamp,
-                    count,
-                    states: unpackedStates
-                } = unpackManyWithHeader(
-                    rebuilt, packer.unpackFast);
-
-                unpackedStates.forEach(obj=>{
-                    objectSet[obj.id].deserialize(obj);
-                });
-
-                previous = rebuilt;
-            }
-        });
-
-
-        reliableConn.on('close', () => {
-            console.log(`❌ Connection closed by peer.`);
-        });
-
-        window.sendRequest = (data) => {
-            if (reliableConn && reliableConn.open) {
-              if (reliableConn.dataChannel.bufferedAmount < 16384) {
-                    reliableConn.send(data);
-                }
-            }
-        }
-
-        reliableConn.on('close', () => {
-            console.log(`❌ Connection closed by peer.`);
-        });
-    }
-
-    peer.on('open', (id) => {
-      connectToPeerInbound('server-tcp-hi');
+      if (type === 1) {
+        previous = applyPackedState(payload, packer.unpackFast);
+        receivedInitial = true;
+      } else if (type === 2 && receivedInitial) {
+        const rebuilt = applyDeltaOptimized(previous, payload);
+        previous = applyPackedState(rebuilt, packer.unpackFast);
+      }
     });
+
+    conn.on('close', () => console.log('❌ Connection closed.'));
+
+    window.sendRequest = data => {
+      if (conn?.open && conn.dataChannel.bufferedAmount < 16384) {
+        conn.send(inputSchema.encode(data).buffer);
+      }
+    };
+  });
 }
 
 </script>
