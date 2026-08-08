@@ -29,6 +29,7 @@ canvas {
 }
 </style>
 <script src="./fastBitPacker.js"></script>
+<script src="./delta-fixed-size.js"></script>
 <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
 </head>
 <body>
@@ -111,6 +112,9 @@ peer.on('connection', (conn) => {
   });
 });
 
+let previousState = null;
+let delta = null;
+
 function broadcast() {
   const states = [];
   for (var i = 0; i < balls.length; i++) {
@@ -123,6 +127,12 @@ function broadcast() {
   const buffer = packManyWithHeader(states, packer.packFast);
   const resultbits = buffer.byteLength*8;
 
+  if(previousState) {
+    delta = createDeltaOptimized(previousState, buffer);
+  }
+
+  previousState = buffer;
+
   clients.forEach(conn=>{
     if (conn && conn.open) {
       if (conn.dataChannel.bufferedAmount < 16384) {
@@ -133,6 +143,11 @@ function broadcast() {
 }
 
 setInterval(broadcast, 1000/fps);
-
+setInterval(()=>{
+    // console.log(((1-(delta.byteLength/previousState.byteLength))*100).toFixed(2));
+    console.log(
+        getMaxUserCount(delta.byteLength/states.length, 5_000_000, fps)
+    )
+}, 1000);
 
 </script>
