@@ -307,8 +307,7 @@ function draw() {
 
 </script>
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const isHost = urlParams.get('host');
+    let isHost = true;
 
     // ── Constants ──────────────────────────────────────────────
     const UNIQUE_SERVER_NAME = 'server-ping-pong-tcp';
@@ -375,15 +374,12 @@ function draw() {
     loop();
 
     // ── Networking ─────────────────────────────────────────────
-    if (isHost) {
-        const peer = new Peer(UNIQUE_SERVER_NAME);
+    function startAsHost(peer) {
         const clients = [];
         let tick = 0;
         let prevState = null;
         let current = null;
         let lastPayload = null;
-
-        peer.on('open', id => console.log('Waiting for connections', id));
 
         peer.on('connection', conn => {
             clients.push(conn);
@@ -420,8 +416,9 @@ function draw() {
             if (!lastPayload) return;
             console.log(getMaxUserCount(lastPayload.byteLength / 3, 5_000_000, FPS));
         }, 1000);
-    } else {
-        const peer = new Peer();
+    }
+
+    function startAsClient(peer) {
         let previous = null;
         let receivedTick = -1;
         let receivedInitial = false;
@@ -454,6 +451,22 @@ function draw() {
             };
         });
     }
+
+    function autoHost() {
+        const peer = new Peer(UNIQUE_SERVER_NAME);
+        peer.on('open', id => {
+            isHost=true;
+            console.log('Waiting for connections', id);
+            startAsHost(peer);
+        });
+        peer.on('error', err => {
+            isHost=false;
+            console.log('Host is already connected');
+            startAsClient(new Peer());
+        });
+    }
+
+    autoHost();
 </script>
 </body>
 </html>
