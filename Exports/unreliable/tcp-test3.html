@@ -390,6 +390,13 @@ function draw() {
             });
         });
 
+        // Clean up when the tab or window is closing / refreshing
+        window.addEventListener('beforeunload', () => {
+          if (peer && !peer.destroyed) {
+            peer.destroy();
+          }
+        });
+
         function broadcast() {
             if (!clients.length) return;
 
@@ -442,7 +449,11 @@ function draw() {
                 }
             });
 
-            conn.on('close', () => console.log('❌ Connection closed.'));
+            conn.on('close', () => {
+                console.log('❌ Connection closed.');
+                console.log('Refreshing the page.');
+                location.href=location.href;
+            });
 
             window.sendRequest = () => {
                 if (conn?.open && conn.dataChannel.bufferedAmount < 16384) {
