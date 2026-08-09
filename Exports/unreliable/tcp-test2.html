@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netcode Sandbox: Vector Puck</title>
+    <style>
+        body {
+            background: #111;
+            color: #fff;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            border: 2px solid #444;
+            background: #1a1a1a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        #ui {
+            margin-bottom: 10px;
+            font-size: 16px;
+            text-align: center;
+            width: 600px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+    <script src="./fastBitPacker.js"></script>
+    <script src="./delta-fixed-size.js"></script>
+    <script src="./tiny-binary-schema.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+</head>
+<body>
+
+    <div id="ui">
+        <div>Volleys: <span id="ui-volleys">0</span> (x<span id="ui-multiplier">1.0</span>)</div>
+        <div>SCORE: <span id="ui-score">0</span></div>
+        <div>Speed: <span id="ui-speed">0</span></div>
+    </div>
+
+    <canvas id="gameCanvas" width="600" height="700"></canvas>
+
+<script>
+    function buildCharacterSchema() {
+      var slots = 0;
+      var schema = [];
+
+      // Core vitals keep bits ≤ 31
+      var fields = [
+        ['id', 8],
+        ['x', 16],
+        ['y', 16],
+        ['type', 8],
+      ];
+
+      fields.forEach(function(f) {
+        var id = f[0];
+        var bits = f[1];
+        if(bits > 31) throw new Error('keep bits ≤ 31');
+        schema.push({
+          id: id,
+          bits: bits,
+          path: 's.' + id,
+          getValue: function(s) { return s[id]; },
+          setValue: function(s, v) { s[id] = v; }
+        });
+      });
+
+      // Inventory
+      for (var i = 0; i < slots; i++) {
+        schema.push({
+          id: 'inv_id_' + i,
+          bits: 6,
+          path: 's.inventory[' + i + '].itemId',
+          getValue: function(s) { return s.inventory[i].itemId; },
+          setValue: function(s, v) { s.inventory[i].itemId = v; }
+        });
+        schema.push({
+          id: 'inv_cnt_' + i,
+          bits: 4,
+          path: 's.inventory[' + i + '].count',
+          getValue: function(s) { return s.inventory[i].count; },
+          setValue: function(s, v) { s.inventory[i].count = v; }
+        });
+      }
+      return schema;
+    }
+
+    // Create default state
+    function defaultCharacterState() {
+      var inv = [];
+      var slots = 0;
+      for (var i = 0; i < slots; i++) inv.push({ itemId: 0, count: 0 });
+
+      return {
+        id:0, x:0, y:0, type:0
+      };
+    }
+
+    // Usage
+    var schema = buildCharacterSchema();
+    var packer = createFastPacker(schema, defaultCharacterState);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isHost = urlParams.get('host');
+</script>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// --- GAME CONFIG / TUNING ---
+const PADDLE_WIDTH = 100;
+const PADDLE_HEIGHT = 15;
+const PADDLE_SPEED = 8;
+const PUCK_RADIUS = 10;
+const INITIAL_PUCK_SPEED = 4;
+const SPEED_MULTIPLIER_INC = 1.08; // 8% speed up per volley
+
+// --- GAME STATE ---
+let volleys = 0;
+let score = 0;
+let multiplier = 1.0;
+let gameOver = false;
+let countdownTimer = null;
+let countdownValue = 3;
+
+// Local Player (Bottom)
+const localPlayer = {
+    id: 1,
+    x: canvas.width / 2 - PADDLE_WIDTH / 2,
+    y: canvas.height - 40,
+    score: 0,
+    targetX:-1,
+    targetY:-1,
+};
+
+// Remote Player (Top) - Hook your network synchronization up to this object!
+const remotePlayer = {
+    id: 2,
+    x: canvas.width / 2 - PADDLE_WIDTH / 2,
+    y: 40,
+    score: 0,
+    targetX:-1,
+    targetY:-1,
+};
+
+const puck = {
+    id: 3,
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    vx: INITIAL_PUCK_SPEED,
+    vy: INITIAL_PUCK_SPEED,
+    speed: INITIAL_PUCK_SPEED,
+    targetX:-1,
+    targetY:-1,
+};
+
+// Input Tracking
+const keys = { ArrowLeft: false, ArrowRight: false };
+
+// window.addEventListener('keydown', (e) => { if (e.key in keys) keys[e.key] = true; });
+// window.addEventListener('keyup', (e) => { if (e.key in keys) keys[e.key] = false; });
+
+// --- NETCODE INTERFACE HOOKS (For You To Implement) ---
+function getLocalInputs() {
+    return {
+        x: localPlayer.x,
+        leftPressed: keys.ArrowLeft,
+        rightPressed: keys.ArrowRight
+    };
+}
+
+function onReceiveRemoteState(remoteX, remoteY) {
+    remotePlayer.x = remoteX;
+}
+
+function onReceivePuckState(serverX, serverY, serverVx, serverVy) {
+    puck.x = serverX;
+    puck.y = serverY;
+    puck.vx = serverVx;
+    puck.vy = serverVy;
+}
+
+const fps = 60;
+const easingPercent = 0.99/60*fps;
+
+function updateClient() {
+    localPlayer.x = lerp(localPlayer.x, localPlayer.targetX, easingPercent);
+    localPlayer.y = lerp(localPlayer.y, localPlayer.targetY, easingPercent);
+
+    remotePlayer.x = lerp(remotePlayer.x, remotePlayer.targetX, easingPercent);
+    remotePlayer.y = lerp(remotePlayer.y, remotePlayer.targetY, easingPercent);
+
+    puck.x = lerp(puck.x, puck.targetX, easingPercent);
+    puck.y = lerp(puck.y, puck.targetY, easingPercent);
+
+    handleCollisions();
+}
+
+function handleCollisions() {
+    if (puck.x - PUCK_RADIUS <= 0) {
+        puck.x = PUCK_RADIUS;
+        puck.vx *= -1;
+    } else if (puck.x + PUCK_RADIUS >= canvas.width) {
+        puck.x = canvas.width - PUCK_RADIUS;
+        puck.vx *= -1;
+    }
+
+    // 4. Paddle Collisions
+    if (puck.vy > 0 && puck.y + PUCK_RADIUS >= localPlayer.y && puck.y - PUCK_RADIUS <= localPlayer.y + PADDLE_HEIGHT) {
+        if (puck.x >= localPlayer.x && puck.x <= localPlayer.x + PADDLE_WIDTH) {
+            handlePaddleBounce(localPlayer);
+        }
+    }
+
+    if (puck.vy < 0 && puck.y - PUCK_RADIUS <= remotePlayer.y + PADDLE_HEIGHT && puck.y + PUCK_RADIUS >= remotePlayer.y) {
+        if (puck.x >= remotePlayer.x && puck.x <= remotePlayer.x + PADDLE_WIDTH) {
+            handlePaddleBounce(remotePlayer);
+        }
+    }
+}
+
+// --- CORE GAME LOOP ---
+function update() {
+    if (gameOver) return;
+
+    // 1. Move Local Player (Client-Side Simulation)
+    if (keys.ArrowLeft)  localPlayer.x -= PADDLE_SPEED;
+    if (keys.ArrowRight) localPlayer.x += PADDLE_SPEED;
+
+    // Clamp local paddle to screen bounds
+    localPlayer.x = Math.max(0, Math.min(canvas.width - PADDLE_WIDTH, localPlayer.x));
+
+    // Basic AI fallback for testing
+    remotePlayer.x += (puck.x - (remotePlayer.x + PADDLE_WIDTH/2)) * 0.1;
+    remotePlayer.x = Math.max(0, Math.min(canvas.width - PADDLE_WIDTH, remotePlayer.x));
+
+    // 2. Move Puck
+    puck.x += puck.vx;
+    puck.y += puck.vy;
+
+    // 3. Wall Collisions (Left / Right)
+    handleCollisions();
+
+    // 5. Win / Loss Condition (Trigger Automatic Restart)
+    if (puck.y < 0 || puck.y > canvas.height) {
+        gameOver = true;
+        startRestartCountdown();
+    }
+
+    // Update UI elements
+    document.getElementById('ui-volleys').innerText = volleys;
+    document.getElementById('ui-multiplier').innerText = multiplier.toFixed(1);
+    document.getElementById('ui-score').innerText = Math.floor(score);
+    document.getElementById('ui-speed').innerText = puck.speed.toFixed(1);
+}
+
+function handlePaddleBounce(paddle) {
+    let hitPoint = (puck.x - (paddle.x + PADDLE_WIDTH / 2)) / PADDLE_WIDTH;
+    puck.speed *= SPEED_MULTIPLIER_INC;
+    volleys++;
+    multiplier += 0.2;
+    score += 100 * multiplier;
+    puck.vy = (puck.vy > 0) ? -puck.speed : puck.speed;
+    puck.vx = hitPoint * puck.speed * 1.2;
+}
+
+function startRestartCountdown() {
+    countdownValue = 3;
+
+    // Safety check to clear any active intervals
+    if (countdownTimer) clearInterval(countdownTimer);
+
+    countdownTimer = setInterval(() => {
+        countdownValue--;
+        if (countdownValue <= 0) {
+            clearInterval(countdownTimer);
+            resetGame();
+        }
+    }, 1000);
+}
+
+function resetGame() {
+    volleys = 0;
+    score = 0;
+    multiplier = 1.0;
+    puck.speed = INITIAL_PUCK_SPEED;
+    puck.x = canvas.width / 2;
+    puck.y = canvas.height / 2;
+    puck.vx = INITIAL_PUCK_SPEED * (Math.random() > 0.5 ? 1 : -1);
+    puck.vy = INITIAL_PUCK_SPEED * (Math.random() > 0.5 ? 1 : -1);
+
+    // Center paddles back to origin
+    localPlayer.x = canvas.width / 2 - PADDLE_WIDTH / 2;
+    remotePlayer.x = canvas.width / 2 - PADDLE_WIDTH / 2;
+
+    gameOver = false;
+}
+
+// --- RENDER PIPELINE ---
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height / 2);
+    ctx.lineTo(canvas.width, canvas.height / 2);
+    ctx.stroke();
+
+    ctx.fillStyle = '#00ffcc';
+    ctx.fillRect(localPlayer.x, localPlayer.y, PADDLE_WIDTH, PADDLE_HEIGHT);
+
+    ctx.fillStyle = '#ff00ff';
+    ctx.fillRect(remotePlayer.x, remotePlayer.y, PADDLE_WIDTH, PADDLE_HEIGHT);
+
+    // Only draw the puck if game is running
+    if (!gameOver) {
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(puck.x, puck.y, PUCK_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    } else {
+        // Draw the Overlay Countdown Text over the canvas
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.font = 'bold 24px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 30);
+        ctx.fillText(`Restarting in ${countdownValue}...`, canvas.width / 2, canvas.height / 2 + 20);
+    }
+}
+
+</script>
+<script>
+
+function loop() {
+    if(isHost) {
+        update();
+    } else {
+        updateClient();
+    }
+
+    draw();
+    requestAnimationFrame(loop);
+}
+
+loop();
+
+const objectSet = {};
+
+if(!isHost) {
+    objectSet[localPlayer.id] = localPlayer;
+    objectSet[remotePlayer.id] = remotePlayer;
+    objectSet[puck.id] = puck;
+}
+
+// ── Shared schema for input (e.g., mouse/touch) ──
+const inputSchema = new BinarySchema({ ArrowLeft: 'uint8', ArrowRight: 'uint8' });
+
+function updateKeyState(key, state) {
+    if (!(key in keys)) return;
+
+    // Only trigger if the state actually changed
+    if (keys[key] === state) return;
+
+    keys[key] = state;
+
+    if (!isHost && window.sendRequest) {
+        sendRequest({ ...keys });
+    }
+}
+
+window.addEventListener('keydown', (e) => {
+    updateKeyState(e.key, true);
+});
+
+window.addEventListener('keyup', (e) => {
+    updateKeyState(e.key, false);
+});
+
+// ── State helpers (your existing pack/unpack functions) ──
+function applyPackedState(buffer, unpackFn) {
+  const { states } = unpackManyWithHeader(buffer, unpackFn);
+
+  // console.log(states);
+  states.forEach(s => {
+        objectSet[s.id].targetX = s.x;
+        objectSet[s.id].targetY = s.y;
+    });
+
+  return buffer;
+}
+
+function applyInput(raw) {
+  const input = inputSchema.decode(new Uint8Array(raw));
+
+  keys.ArrowLeft = input.ArrowLeft;
+  keys.ArrowRight = input.ArrowRight;
+}
+
+function getStates() {
+  return [
+        { id: localPlayer.id,  x: localPlayer.x,  y: localPlayer.y,  type: 1, },
+        { id: remotePlayer.id, x: remotePlayer.x, y: remotePlayer.y, type: 1, },
+        { id: puck.id,         x: puck.x,         y: puck.y,         type: 2, },
+    ];
+}
+
+const uniqueServerName = 'server-ping-pong-tcp';
+
+</script><script>
+// ── SERVER ──
+if (isHost) {
+  const peer = new Peer(uniqueServerName);
+  const clients = [];
+  let tick = 0, prevState = null, current = null;
+
+  peer.on('open', id => console.log('Waiting for connections', id));
+
+  peer.on('connection', conn => {
+    clients.push(conn);
+
+    conn.on('data', raw => applyInput(raw));
+    conn.on('open', () => {
+      if (current) conn.send(packPacket(tick, 1, current).buffer);
+    });
+  });
+  let lastPayload = null;
+  function broadcast() {
+    if (!clients.length) return;
+
+    const states = getStates();
+
+    current = packManyWithHeader(states, packer.packFast);
+    const payload = prevState ? createDeltaOptimized(prevState, current) : current;
+    prevState = current;
+    lastPayload = payload;
+    const packet = packPacket(tick, 2, payload);
+    clients.forEach(conn => {
+      if (conn?.open && conn.dataChannel.bufferedAmount < 16384) {
+        conn.send(packet.buffer);
+      }
+    });
+    tick++;
+  }
+
+  setInterval(broadcast, 1000 / fps);
+  setInterval(()=>{
+        if(!lastPayload) return;
+        console.log(
+            getMaxUserCount(lastPayload.byteLength/getStates().length, 5_000_000, fps)
+        )
+    }, 1000);
+}
+
+// ── CLIENT ──
+else {
+  const peer = new Peer();
+  let previous = null, receivedTick = -1, receivedInitial = false;
+
+  peer.on('open', () => {
+    const conn = peer.connect(uniqueServerName, { reliable: true });
+    conn.on('error', console.error);
+
+    conn.on('data', raw => {
+      const { tick, type, payload } = unpackPacket(raw);
+
+      if (receivedTick > tick) return;
+      receivedTick = tick;
+
+      if (type === 1) {
+        previous = applyPackedState(payload, packer.unpackFast);
+        receivedInitial = true;
+      } else if (type === 2 && receivedInitial) {
+        const rebuilt = applyDeltaOptimized(previous, payload);
+        previous = applyPackedState(rebuilt, packer.unpackFast);
+      }
+    });
+
+    conn.on('close', () => console.log('❌ Connection closed.'));
+
+    window.sendRequest = data => {
+      if (conn?.open && conn.dataChannel.bufferedAmount < 16384) {
+        conn.send(inputSchema.encode(data).buffer);
+      }
+    };
+  });
+
+}
+
+</script>
+</body>
+</html>

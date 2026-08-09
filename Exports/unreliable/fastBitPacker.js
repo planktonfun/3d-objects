@@ -345,3 +345,111 @@
     globalThis.createFastPacker = createFastPacker;
 
 })(typeof window !== 'undefined' ? window : this);
+
+
+function seedRandom(seed) {
+  var x = Math.sin(seed++) * 10000;
+  return x - Math.floor(x);
+}
+
+function lerp(start, end, t) {
+    return (1 - t) * start + t * end;
+}
+
+// ── Pack with header ──
+function packManyWithHeader(states, packerFn, timestamp = Date.now()) {
+  packerFn = packerFn || packer.packFast || packer.packTable;
+  const HEADER_BYTES = 12;          // 8 bytes timestamp (two 32-bit halves) + 4 bytes count
+  const bytesPerState = packer.totalBytes; // e.g., 25
+  const count = states.length;
+
+  const totalBytes = HEADER_BYTES + count * bytesPerState;
+  const result = new Uint8Array(totalBytes);
+  const view = new DataView(result.buffer);
+
+  // Write timestamp as two 32-bit unsigned integers (low, high) – no BigInt needed
+  const ts = typeof timestamp === 'number' ? timestamp : Date.now();
+  view.setUint32(0, ts & 0xFFFFFFFF, true);        // low 32 bits
+  view.setUint32(4, Math.floor(ts / 0x100000000), true); // high 32 bits
+  view.setUint32(8, count, true);                  // count
+
+  // Write packed states
+  let offset = HEADER_BYTES;
+  for (let i = 0; i < count; i++) {
+    const packed = packerFn(states[i]);
+    result.set(packed, offset);
+    offset += packed.length;
+  }
+  return result;
+}
+
+// ── Unpack with header, returning both metadata and states ──
+function unpackManyWithHeader(buffer, unpackerFn) {
+  unpackerFn = unpackerFn || packer.unpackFast || packer.unpackTable;
+  const HEADER_BYTES = 12;
+  const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+
+  // Read timestamp (combine low and high 32-bit)
+  const low = view.getUint32(0, true);
+  const high = view.getUint32(4, true);
+  const timestamp = low + high * 0x100000000; // produces a number (safe up to 2^53)
+
+  const count = view.getUint32(8, true);
+  const bytesPerState = packer.totalBytes;
+
+  const states = [];
+  let offset = HEADER_BYTES;
+  for (let i = 0; i < count; i++) {
+    const slice = buffer.slice(offset, offset + bytesPerState);
+    states.push(unpackerFn(slice));
+    offset += bytesPerState;
+  }
+
+  return { timestamp, count, states };
+}
+
+
+// ── Pack an array of states into one Uint8Array ──
+function packMany(states, packerFn) {
+  packerFn = packerFn || packer.packFast || packer.packTable;
+  var totalBytes = states.length * packer.totalBytes; // 25 bytes each
+  var result = new Uint8Array(totalBytes);
+  var offset = 0;
+  for (var i = 0; i < states.length; i++) {
+    var packed = packerFn(states[i]);
+    result.set(packed, offset);
+    offset += packed.length;
+  }
+  return result;
+}
+
+// ── Unpack a combined buffer back into an array of states ──
+function unpackMany(buffer, count, unpackerFn) {
+  unpackerFn = unpackerFn || packer.unpackFast || packer.unpackTable;
+  var states = [];
+  var bytesPerState = packer.totalBytes; // 25
+  for (var i = 0; i < count; i++) {
+    var slice = buffer.slice(i * bytesPerState, (i + 1) * bytesPerState);
+    states.push(unpackerFn(slice));
+  }
+  return states;
+}
+
+function getMaxUserCount(bufferByteLength, mbps = 5_000_000, hz=60) {
+    const budget = mbps / hz; // 83333.33
+
+    // Quadratic coefficients: au^2 + bu + c = 0
+    const a = 8 * bufferByteLength;
+    const b = 560 - a;
+    const c = -(budget + 560);
+
+    // Apply quadratic formula: (-b + sqrt(b^2 - 4ac)) / 2a
+    const discriminant = (b * b) - (4 * a * c);
+
+    if (discriminant < 0) return 0; // No valid user count possible
+
+    const maxUsers = (-b + Math.sqrt(discriminant)) / (2 * a);
+
+    // Use Math.floor because userCount must be a whole number
+    return Math.floor(maxUsers);
+}
