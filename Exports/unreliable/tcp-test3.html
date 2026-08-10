@@ -44,6 +44,7 @@
     </div>
 
     <canvas id="gameCanvas" width="600" height="700"></canvas>
+    <pre id="connectionName"></pre>
 <script>
     const inputPools = new PoolManager();
 
@@ -310,7 +311,7 @@ function draw() {
     let isHost = true;
 
     // ── Constants ──────────────────────────────────────────────
-    const UNIQUE_SERVER_NAME = 'server-ping-pong-tcp';
+    const UNIQUE_SERVER_NAME = 'ping-pong-tcp';
     const FPS = 60;  // adjust as needed
 
     // ── State helpers ──────────────────────────────────────────
@@ -425,13 +426,13 @@ function draw() {
         }, 1000);
     }
 
-    function startAsClient(peer) {
+    function startAsClient(peer, hostname) {
         let previous = null;
         let receivedTick = -1;
         let receivedInitial = false;
 
         peer.on('open', () => {
-            const conn = peer.connect(UNIQUE_SERVER_NAME, { reliable: true });
+            const conn = peer.connect(hostname, { reliable: true });
             conn.on('error', console.error);
 
             conn.on('data', raw => {
@@ -463,21 +464,55 @@ function draw() {
         });
     }
 
-    function autoHost() {
-        const peer = new Peer(UNIQUE_SERVER_NAME);
-        peer.on('open', id => {
-            isHost=true;
-            console.log('Waiting for connections', id);
-            startAsHost(peer);
-        });
-        peer.on('error', err => {
-            isHost=false;
-            console.log('Host is already connected');
-            startAsClient(new Peer());
+    // Auto host handling
+    const connectionList = [
+        { value: `${UNIQUE_SERVER_NAME}-host1`,         host: null },
+        { value: `${UNIQUE_SERVER_NAME}-host1-client1`, host: `${UNIQUE_SERVER_NAME}-host1` },
+        { value: `${UNIQUE_SERVER_NAME}-host1-client2`, host: `${UNIQUE_SERVER_NAME}-host1` },
+        { value: `${UNIQUE_SERVER_NAME}-host2`,         host: null },
+        { value: `${UNIQUE_SERVER_NAME}-host2-client1`, host: `${UNIQUE_SERVER_NAME}-host2` },
+        { value: `${UNIQUE_SERVER_NAME}-host2-client2`, host: `${UNIQUE_SERVER_NAME}-host2` },
+        { value: `${UNIQUE_SERVER_NAME}-host3`,         host: null },
+        { value: `${UNIQUE_SERVER_NAME}-host3-client1`, host: `${UNIQUE_SERVER_NAME}-host3` },
+        { value: `${UNIQUE_SERVER_NAME}-host3-client2`, host: `${UNIQUE_SERVER_NAME}-host3` },
+    ];
+
+    // Helper function converting event-based Obj into a Promise
+    function connect(name, type) {
+        return new Promise((resolve, reject) => {
+            const peer = new Peer(name);
+
+            peer.on('open', id => resolve(peer));
+            peer.on('error', err => reject(err));
         });
     }
 
-    autoHost();
+    async function tryConnections() {
+        for (const connection of connectionList) {
+            try {
+                const peer = await connect(connection.value);
+
+                // If connection succeeds, execute your callback and stop trying others
+                if(connection.host) {
+                    isHost = false;
+                    startAsClient(new Peer(), connection.host);
+                } else {
+                    isHost = true;
+                    startAsHost(peer);
+                }
+
+                connectionName.innerText = connection.value;
+                return;
+            } catch (err) {
+                // Loop automatically continues to the next connection
+                console.warn(`Failed for connection: ${connection.value}`, err);
+            }
+        }
+
+        console.error('All attempts failed.');
+    }
+
+    tryConnections();
 </script>
 </body>
 </html>
