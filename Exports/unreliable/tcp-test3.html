@@ -311,8 +311,11 @@ function draw() {
     let isHost = true;
 
     // ── Constants ──────────────────────────────────────────────
-    const UNIQUE_SERVER_NAME = 'ping-pong-tcp';
     const FPS = 60;  // adjust as needed
+    const UNIQUE_SERVER_NAME = 'ping-pong-tcp';
+    const numberOfHosts = 10;
+    const numberOfClientsPerHost = 10;
+
 
     // ── State helpers ──────────────────────────────────────────
     function applyPackedState(raw) {
@@ -465,17 +468,13 @@ function draw() {
     }
 
     // Auto host handling
-    const connectionList = [
-        { value: `${UNIQUE_SERVER_NAME}-host1`,         host: null },
-        { value: `${UNIQUE_SERVER_NAME}-host1-client1`, host: `${UNIQUE_SERVER_NAME}-host1` },
-        { value: `${UNIQUE_SERVER_NAME}-host1-client2`, host: `${UNIQUE_SERVER_NAME}-host1` },
-        { value: `${UNIQUE_SERVER_NAME}-host2`,         host: null },
-        { value: `${UNIQUE_SERVER_NAME}-host2-client1`, host: `${UNIQUE_SERVER_NAME}-host2` },
-        { value: `${UNIQUE_SERVER_NAME}-host2-client2`, host: `${UNIQUE_SERVER_NAME}-host2` },
-        { value: `${UNIQUE_SERVER_NAME}-host3`,         host: null },
-        { value: `${UNIQUE_SERVER_NAME}-host3-client1`, host: `${UNIQUE_SERVER_NAME}-host3` },
-        { value: `${UNIQUE_SERVER_NAME}-host3-client2`, host: `${UNIQUE_SERVER_NAME}-host3` },
-    ];
+    const connectionList = [];
+    for (var i = numberOfHosts; i >= 1; i--) {
+        for (var j = numberOfClientsPerHost; j >= 1; j--) {
+            connectionList.unshift({ value: `${UNIQUE_SERVER_NAME}-host${i}-client${j}`, host: `${UNIQUE_SERVER_NAME}-host${i}` });
+        }
+        connectionList.unshift({ value: `${UNIQUE_SERVER_NAME}-host${i}`, host: null });
+    }
 
     // Helper function converting event-based Obj into a Promise
     function connect(name, type) {
