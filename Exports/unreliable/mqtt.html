@@ -415,6 +415,259 @@
             border-top: 1px solid #1a2533;
             padding-top: 12px;
         }
+
+        ```css
+/* =========================
+   Mobile Responsive Styles
+   ========================= */
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 8px;
+        align-items: flex-start;
+    }
+
+    .app {
+        width: 100%;
+        max-width: 100%;
+        padding: 16px 12px 14px;
+        border-radius: 18px;
+    }
+
+    .header {
+        margin-bottom: 12px;
+        gap: 8px;
+    }
+
+    .header h1 {
+        font-size: 1.1rem;
+    }
+
+    .badge {
+        font-size: 0.65rem;
+        padding: 4px 10px;
+    }
+
+    .status-bar {
+        padding: 10px 12px;
+        border-radius: 12px;
+        gap: 6px;
+        align-items: flex-start;
+    }
+
+    .status-bar .label {
+        width: 100%;
+    }
+
+    .status-bar .msg {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .status-bar .peer-id {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chat-container {
+        padding-top: 10px;
+    }
+
+    .peer-list {
+        gap: 5px;
+        margin-bottom: 6px;
+    }
+
+    .peer-chip {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .messages {
+        max-height: 42vh;
+        min-height: 80px;
+        padding-right: 2px;
+    }
+
+    .msg-bubble {
+        max-width: 90%;
+        font-size: 0.84rem;
+        padding: 7px 12px;
+    }
+
+    .msg-bubble.system,
+    .msg-bubble.file-status {
+        max-width: 96%;
+    }
+
+    .file-transfer-area {
+        padding: 10px;
+        border-radius: 12px;
+        gap: 10px;
+    }
+
+    .mode-selector {
+        flex-direction: column;
+        gap: 7px;
+        font-size: 0.72rem;
+    }
+
+    .file-row {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .file-row .file-label {
+        width: 100%;
+        justify-content: center;
+        padding: 8px 12px;
+    }
+
+    .file-row .file-name {
+        width: 100%;
+        min-width: 0;
+        text-align: center;
+    }
+
+    .file-row .send-file-btn {
+        width: 100%;
+        padding: 9px 14px;
+    }
+
+    .progress-wrapper {
+        width: 100%;
+        gap: 7px;
+    }
+
+    .progress-wrapper progress {
+        min-width: 0;
+    }
+
+    .progress-wrapper .progress-label {
+        min-width: 42px;
+        font-size: 0.7rem;
+    }
+
+    .progress-wrapper .verify-badge {
+        min-width: 25px;
+        font-size: 0.65rem;
+    }
+
+    .input-row {
+        width: 100%;
+        gap: 7px;
+    }
+
+    .plus-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+
+    .input-row input[type="text"] {
+        min-width: 0;
+        width: 100%;
+        padding: 9px 13px;
+        font-size: 0.82rem;
+    }
+
+    .input-row button.send-btn {
+        padding: 9px 14px;
+        font-size: 0.8rem;
+    }
+
+    .download-area {
+        width: 100%;
+        border-radius: 14px;
+        padding: 9px 10px;
+        gap: 8px;
+    }
+
+    .download-area .file-info {
+        min-width: 0;
+        flex: 1 1 100%;
+    }
+
+    .download-area .download-btn {
+        width: 100%;
+        padding: 9px 14px;
+    }
+
+    .footer {
+        margin-top: 12px;
+        line-height: 1.5;
+    }
+}
+
+/* Extra-small phones */
+@media (max-width: 380px) {
+    body {
+        padding: 4px;
+    }
+
+    .app {
+        padding: 14px 10px 12px;
+        border-radius: 15px;
+    }
+
+    .header h1 {
+        font-size: 1rem;
+    }
+
+    .badge {
+        padding: 3px 8px;
+        font-size: 0.6rem;
+    }
+
+    .status-bar {
+        font-size: 0.78rem;
+    }
+
+    .input-row {
+        gap: 5px;
+    }
+
+    .plus-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .input-row button.send-btn {
+        padding: 8px 11px;
+    }
+
+    .input-row input[type="text"] {
+        padding: 8px 10px;
+    }
+}
+
+/* Landscape phones */
+@media (max-height: 500px) and (max-width: 900px) {
+    body {
+        align-items: flex-start;
+    }
+
+    .app {
+        margin: 6px 0;
+    }
+
+    .messages {
+        max-height: 30vh;
+    }
+}
+```
+
     </style>
 </head>
 <body>
