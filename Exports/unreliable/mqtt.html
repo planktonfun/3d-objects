@@ -935,12 +935,31 @@ body {
             showChat(true);
         }
 
-        function closeConnection(peerId) {
+        /*function closeConnection(peerId) {
             state.connections.delete(peerId);
             appendMessage('🔌 Disconnected from ' + peerId.slice(0, 10), 'system');
             renderPeerList();
             publishPresence();
             if (state.connections.size === 0) setStatus('searching', 'No peers connected');
+        }*/
+
+        function closeConnection(peerId) {
+            const entry = state.connections.get(peerId);
+            if (entry) {
+                try { entry.conn.close(); } catch (_) {}
+                state.connections.delete(peerId);
+                appendMessage('🔌 Disconnected from ' + peerId.slice(0, 10) + '…', 'system');
+                renderPeerList();
+                publishPresence();
+                if (state.connections.size === 0) {
+                    ui.sendBtn.disabled = true;
+                    ui.sendFileBtn.disabled = true;
+                    setStatus('searching', 'No peers connected · waiting …');
+                    ui.app.classList.remove('active');
+                } else {
+                    setStatus('connected', state.connections.size + ' peer(s) connected');
+                }
+            }
         }
 
         function handlePeerData(senderId, data) {
@@ -1181,6 +1200,10 @@ body {
             for (const [id, p] of state.knownPeers) {
                 if (now - p.lastSeen > PEER_TIMEOUT_MS) {
                     state.knownPeers.delete(id);
+                    // Also close connection if exists
+                    if (state.connections.has(id)) {
+                        closeConnection(id);
+                    }
                 }
             }
             renderPeerList();
