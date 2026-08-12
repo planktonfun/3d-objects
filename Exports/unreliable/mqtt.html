@@ -1152,7 +1152,7 @@ body {
         initPeerJS();
 
         // Cleanup
-        window.addEventListener('beforeunload', () => {
+        function cleanUp() {
             if (state.heartbeatTimer) clearInterval(state.heartbeatTimer);
             if (state.mqtt) {
                 if (state.myPeerId) {
@@ -1170,7 +1170,10 @@ body {
             for (const [id, entry] of state.connections) {
                 try { entry.conn.close(); } catch (_) {}
             }
-        });
+        };
+
+        window.addEventListener("pagehide", () => { cleanUp(); });
+        window.addEventListener('beforeunload', () => { cleanUp(); });
 
         // Periodic cleanup
         setInterval(() => {
