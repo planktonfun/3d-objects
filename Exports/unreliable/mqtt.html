@@ -935,14 +935,6 @@ body {
             showChat(true);
         }
 
-        /*function closeConnection(peerId) {
-            state.connections.delete(peerId);
-            appendMessage('🔌 Disconnected from ' + peerId.slice(0, 10), 'system');
-            renderPeerList();
-            publishPresence();
-            if (state.connections.size === 0) setStatus('searching', 'No peers connected');
-        }*/
-
         function closeConnection(peerId) {
             const entry = state.connections.get(peerId);
             if (entry) {
