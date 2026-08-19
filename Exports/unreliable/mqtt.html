@@ -1008,7 +1008,7 @@ body {
         }
 
         function initPeerJS() {
-            const peer = new Peer(null, { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] } });
+            const peer = new Peer(null);
             peer.on('open', (id) => {
                 state.myPeerId = id;
                 state.peer = peer;
