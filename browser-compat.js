@@ -378,31 +378,33 @@ function chunkManager(pplayer) {
 class PeerPlayer {
   constructor(peerConnectedCallback, readyCallback) {
     this.peer = new Peer({
-  iceServers: [
+  config: {
+    iceServers: [
       {
-        urls: "stun:stun.relay.metered.ca:80",
+        urls: "stun:stun.relay.metered.ca:80"
       },
       {
-        urls: "turn:global.relay.metered.ca:80",
-        username: "5edf2faec508d5d2ecb45781",
-        credential: "34zY2vZ0wZbFjSWX",
+        urls: "turn:standard.relay.metered.ca:80",
+        username: "d0012d764320711d20e32cb5",
+        credential: "NJ8OImbAEeJTEu4H"
       },
       {
-        urls: "turn:global.relay.metered.ca:80?transport=tcp",
-        username: "5edf2faec508d5d2ecb45781",
-        credential: "34zY2vZ0wZbFjSWX",
+        urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+        username: "d0012d764320711d20e32cb5",
+        credential: "NJ8OImbAEeJTEu4H"
       },
       {
-        urls: "turn:global.relay.metered.ca:443",
-        username: "5edf2faec508d5d2ecb45781",
-        credential: "34zY2vZ0wZbFjSWX",
+        urls: "turn:standard.relay.metered.ca:443",
+        username: "d0012d764320711d20e32cb5",
+        credential: "NJ8OImbAEeJTEu4H"
       },
       {
-        urls: "turns:global.relay.metered.ca:443?transport=tcp",
-        username: "5edf2faec508d5d2ecb45781",
-        credential: "34zY2vZ0wZbFjSWX",
-      },
-  ],
+        urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+        username: "d0012d764320711d20e32cb5",
+        credential: "NJ8OImbAEeJTEu4H"
+      }
+    ]
+  }
 });
     this.connectedPeers = {};
     this.cm = chunkManager(this);
