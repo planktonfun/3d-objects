@@ -377,7 +377,35 @@ function chunkManager(pplayer) {
 
 class PeerPlayer {
   constructor(peerConnectedCallback, readyCallback) {
-    this.peer = new Peer();
+    this.peer = new Peer({
+  config: {
+    iceServers: [
+      {
+        urls: "stun:stun.relay.metered.ca:80"
+      },
+      {
+        urls: "turn:standard.relay.metered.ca:80",
+        username: "d0012d764320711d20e32cb5",
+        credential: "NJ8OImbAEeJTEu4H"
+      },
+      {
+        urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+        username: "d0012d764320711d20e32cb5",
+        credential: "NJ8OImbAEeJTEu4H"
+      },
+      {
+        urls: "turn:standard.relay.metered.ca:443",
+        username: "d0012d764320711d20e32cb5",
+        credential: "NJ8OImbAEeJTEu4H"
+      },
+      {
+        urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+        username: "d0012d764320711d20e32cb5",
+        credential: "NJ8OImbAEeJTEu4H"
+      }
+    ]
+  }
+});
     this.connectedPeers = {};
     this.cm = chunkManager(this);
     this.history = [];
