@@ -4,700 +4,1383 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>P2P Mesh · WebSocket Signaling + PeerJS</title>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">
+    </script>
     <style>
-        /* (same as your original – omitted for brevity, but included in full code below) */
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:system-ui; background:#0b0e14; color:#e8edf5; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px; }
-        .app { max-width:780px; width:100%; background:#151e2a; border-radius:28px; padding:24px; box-shadow:0 20px 48px rgba(0,0,0,0.7); border:1px solid #2a3748; }
-        .app.active { border-color:#4ade80; }
-        .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:6px; }
-        .header h1 { font-size:1.25rem; font-weight:600; background:linear-gradient(135deg,#a78bfa,#60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-        .badge { font-size:0.7rem; background:#1e2a3a; padding:4px 14px; border-radius:40px; color:#94a3b8; border:1px solid #2a3748; display:inline-flex; align-items:center; gap:6px; }
-        .badge .dot { width:8px; height:8px; border-radius:50%; display:inline-block; transition:background 0.3s; }
-        .badge .dot.idle { background:#facc15; }
-        .badge .dot.searching { background:#60a5fa; animation:pulse-dot 0.9s infinite; }
-        .badge .dot.connected { background:#4ade80; }
-        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.8);} }
-        .status-bar { background:#0f1722; border-radius:14px; padding:10px 16px; margin-bottom:14px; font-size:0.85rem; color:#c8d2e0; display:flex; align-items:center; gap:10px; flex-wrap:wrap; border:1px solid #1e2a3a; min-height:48px; }
-        .status-bar .label { opacity:0.5; font-size:0.7rem; text-transform:uppercase; }
-        .status-bar .msg { flex:1; word-break:break-word; }
-        .status-bar .peer-id { font-family:monospace; font-size:0.65rem; background:#1e2a3a; padding:2px 12px; border-radius:40px; color:#94a3b8; border:1px solid #2a3748; white-space:nowrap; }
-        .chat-container { display:none; flex-direction:column; margin-top:4px; border-top:1px solid #1e2a3a; padding-top:14px; }
-        .chat-container.active { display:flex; }
-        .messages { max-height:200px; overflow-y:auto; padding-right:4px; margin-bottom:8px; display:flex; flex-direction:column; gap:5px; }
-        .messages::-webkit-scrollbar { width:4px; }
-        .messages::-webkit-scrollbar-thumb { background:#2a3748; border-radius:8px; }
-        .msg-bubble { max-width:80%; padding:6px 14px; border-radius:18px; font-size:0.88rem; line-height:1.4; word-break:break-word; }
-        .msg-bubble.self { align-self:flex-end; background:#3b82f6; color:#fff; border-bottom-right-radius:4px; }
-        .msg-bubble.other { align-self:flex-start; background:#1e2a3a; color:#e8edf5; border-bottom-left-radius:4px; }
-        .msg-bubble.system { align-self:center; background:transparent; color:#6b7f94; font-size:0.75rem; padding:3px 12px; border-radius:40px; border:1px solid #1e2a3a; max-width:92%; }
-        .msg-bubble.file-status { align-self:center; background:#1a2535; color:#a0b8d0; font-size:0.8rem; padding:6px 16px; border-radius:12px; border-left:3px solid #3b82f6; max-width:92%; font-family:monospace; }
-        .msg-bubble.file-status.success { border-left-color:#4ade80; color:#b0e0c0; }
-        .msg-bubble.file-status.error { border-left-color:#f87171; color:#f0b0b0; }
-        .file-transfer-area { background:#0f1722; border-radius:14px; padding:12px 16px; margin:8px 0 12px 0; border:1px solid #1e2a3a; display:none; flex-direction:column; gap:10px; }
-        .file-transfer-area.active { display:flex; }
-        .mode-selector { display:flex; gap:12px; font-size:0.75rem; color:#94a3b8; }
-        .file-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-        .file-row .file-label { background:#1e2a3a; padding:6px 16px; border-radius:40px; font-size:0.8rem; color:#94a3b8; border:1px solid #2a3748; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
-        .file-row .file-label:hover { background:#2a3a4e; border-color:#3b82f6; }
-        .file-row .file-label input[type="file"] { display:none; }
-        .file-row .file-name { flex:1; font-size:0.8rem; color:#94a3b8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:60px; }
-        .file-row .file-name.has-file { color:#e8edf5; }
-        .file-row .send-file-btn { background:#3b82f6; border:none; color:#fff; font-weight:500; padding:6px 18px; border-radius:40px; cursor:pointer; font-size:0.8rem; white-space:nowrap; }
-        .file-row .send-file-btn:disabled { opacity:0.4; pointer-events:none; }
-        .progress-wrapper { display:none; align-items:center; gap:12px; }
-        .progress-wrapper.active { display:flex; }
-        .progress-wrapper progress { flex:1; height:6px; border-radius:10px; border:none; background:#1e2a3a; appearance:none; }
-        .progress-wrapper progress::-webkit-progress-bar { background:#1e2a3a; border-radius:10px; }
-        .progress-wrapper progress::-webkit-progress-value { background:linear-gradient(90deg,#3b82f6,#60a5fa); border-radius:10px; }
-        .progress-wrapper .progress-label { font-size:0.75rem; color:#94a3b8; min-width:60px; text-align:right; font-variant-numeric:tabular-nums; }
-        .progress-wrapper .verify-badge { font-size:0.7rem; color:#4ade80; min-width:30px; }
-        .download-area { display:none; align-items:center; gap:12px; background:#1a2535; padding:8px 14px; border-radius:40px; border:1px solid #2a3748; margin-top:4px; flex-wrap:wrap; }
-        .download-area.active { display:flex; }
-        .download-area .file-info { flex:1; font-size:0.8rem; color:#94a3b8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .download-area .download-btn { background:#4ade80; border:none; color:#0b0e14; font-weight:600; padding:6px 18px; border-radius:40px; cursor:pointer; font-size:0.8rem; white-space:nowrap; }
-        .input-row { display:flex; gap:10px; align-items:center; margin-top:2px; }
-        .plus-btn { background:#1e2a3a; border:1px solid #2a3748; color:#94a3b8; width:38px; height:38px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition:background 0.2s; flex-shrink:0; }
-        .plus-btn:hover { background:#2a3a4e; color:#e8edf5; border-color:#3b82f6; }
-        .input-row input[type="text"] { flex:1; background:#0f1722; border:1px solid #1e2a3a; border-radius:40px; padding:9px 16px; color:#e8edf5; font-size:0.85rem; outline:none; }
-        .input-row input[type="text"]:disabled { opacity:0.4; }
-        .input-row button.send-btn { background:#3b82f6; border:none; color:#fff; font-weight:500; padding:9px 20px; border-radius:40px; cursor:pointer; font-size:0.85rem; white-space:nowrap; }
-        .input-row button.send-btn:disabled { opacity:0.4; pointer-events:none; }
-        .peer-list { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 8px; padding:4px 0; min-height:28px; align-items:center; }
-        .peer-chip { background:#1e2a3a; padding:2px 12px; border-radius:40px; font-size:0.65rem; color:#94a3b8; border:1px solid #2a3748; display:inline-flex; align-items:center; gap:4px; }
-        .peer-chip.online { border-color:#4ade80; color:#b0e0c0; }
-        .footer { margin-top:14px; font-size:0.6rem; color:#3a4a5e; text-align:center; border-top:1px solid #1a2533; padding-top:12px; }
-        /* Responsive – same as original, omitted for brevity but included in full code */
-        @media (max-width:600px){ body{padding:8px;align-items:flex-start;} .app{width:100%;max-width:100%;padding:16px 12px 14px;border-radius:18px;} .header{margin-bottom:12px;gap:8px;} .header h1{font-size:1.1rem;} .badge{font-size:0.65rem;padding:4px 10px;} .status-bar{padding:10px 12px;border-radius:12px;gap:6px;align-items:flex-start;} .status-bar .label{width:100%;} .status-bar .msg{flex:1 1 100%;min-width:0;} .status-bar .peer-id{max-width:100%;overflow:hidden;text-overflow:ellipsis;} .chat-container{padding-top:10px;} .peer-list{gap:5px;margin-bottom:6px;} .peer-chip{max-width:100%;overflow:hidden;text-overflow:ellipsis;} .messages{max-height:42vh;min-height:80px;padding-right:2px;} .msg-bubble{max-width:90%;font-size:0.84rem;padding:7px 12px;} .msg-bubble.system,.msg-bubble.file-status{max-width:96%;} .file-transfer-area{padding:10px;border-radius:12px;gap:10px;} .mode-selector{flex-direction:column;gap:7px;font-size:0.72rem;} .file-row{width:100%;display:grid;grid-template-columns:1fr;gap:8px;} .file-row .file-label{width:100%;justify-content:center;padding:8px 12px;} .file-row .file-name{width:100%;min-width:0;text-align:center;} .file-row .send-file-btn{width:100%;padding:9px 14px;} .progress-wrapper{width:100%;gap:7px;} .progress-wrapper progress{min-width:0;} .progress-wrapper .progress-label{min-width:42px;font-size:0.7rem;} .progress-wrapper .verify-badge{min-width:25px;font-size:0.65rem;} .input-row{width:100%;gap:7px;} .plus-btn{width:36px;height:36px;font-size:1.1rem;} .input-row input[type="text"]{min-width:0;width:100%;padding:9px 13px;font-size:0.82rem;} .input-row button.send-btn{padding:9px 14px;font-size:0.8rem;} .download-area{width:100%;border-radius:14px;padding:9px 10px;gap:8px;} .download-area .file-info{min-width:0;flex:1 1 100%;} .download-area .download-btn{width:100%;padding:9px 14px;} .footer{margin-top:12px;line-height:1.5;} }
-        @media (max-width:380px){ body{padding:4px;} .app{padding:14px 10px 12px;border-radius:15px;} .header h1{font-size:1rem;} .badge{padding:3px 8px;font-size:0.6rem;} .status-bar{font-size:0.78rem;} .input-row{gap:5px;} .plus-btn{width:34px;height:34px;} .input-row button.send-btn{padding:8px 11px;} .input-row input[type="text"]{padding:8px 10px;} }
-        @media (max-height:500px) and (max-width:900px){ body{align-items:flex-start;} .app{margin:6px 0;} .messages{max-height:30vh;} }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #0b0e14;
+            color: #e8edf5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .app {
+            max-width: 780px;
+            width: 100%;
+            background: #151e2a;
+            border-radius: 28px;
+            padding: 24px 24px 20px;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7);
+            border: 1px solid #2a3748;
+        }
+        .app.active {
+            border-color: #4ade80;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.3px;
+        }
+        .badge {
+            font-size: 0.7rem;
+            background: #1e2a3a;
+            padding: 4px 14px;
+            border-radius: 40px;
+            color: #94a3b8;
+            border: 1px solid #2a3748;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .badge .dot.idle {
+            background: #facc15;
+        }
+        .badge .dot.searching {
+            background: #60a5fa;
+            animation: pulse-dot 0.9s infinite;
+        }
+        .badge .dot.connected {
+            background: #4ade80;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(0.8);
+            }
+        }
+        .status-bar {
+            background: #0f1722;
+            border-radius: 14px;
+            padding: 10px 16px;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+            color: #c8d2e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            border: 1px solid #1e2a3a;
+            min-height: 48px;
+        }
+        .status-bar .label {
+            opacity: 0.5;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-bar .msg {
+            flex: 1;
+            word-break: break-word;
+        }
+        .status-bar .peer-id {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.65rem;
+            background: #1e2a3a;
+            padding: 2px 12px;
+            border-radius: 40px;
+            color: #94a3b8;
+            border: 1px solid #2a3748;
+            white-space: nowrap;
+        }
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            margin-top: 4px;
+            border-top: 1px solid #1e2a3a;
+            padding-top: 14px;
+        }
+        .chat-container.active {
+            display: flex;
+        }
+        .messages {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 4px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .messages::-webkit-scrollbar {
+            width: 4px;
+        }
+        .messages::-webkit-scrollbar-thumb {
+            background: #2a3748;
+            border-radius: 8px;
+        }
+        .msg-bubble {
+            max-width: 80%;
+            padding: 6px 14px;
+            border-radius: 18px;
+            font-size: 0.88rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .msg-bubble.self {
+            align-self: flex-end;
+            background: #3b82f6;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-bubble.other {
+            align-self: flex-start;
+            background: #1e2a3a;
+            color: #e8edf5;
+            border-bottom-left-radius: 4px;
+        }
+        .msg-bubble.system {
+            align-self: center;
+            background: transparent;
+            color: #6b7f94;
+            font-size: 0.75rem;
+            padding: 3px 12px;
+            border-radius: 40px;
+            border: 1px solid #1e2a3a;
+            max-width: 92%;
+        }
+        .msg-bubble.file-status {
+            align-self: center;
+            background: #1a2535;
+            color: #a0b8d0;
+            font-size: 0.8rem;
+            padding: 6px 16px;
+            border-radius: 12px;
+            border-left: 3px solid #3b82f6;
+            max-width: 92%;
+            font-family: 'SF Mono', monospace;
+        }
+        .msg-bubble.file-status.success {
+            border-left-color: #4ade80;
+            color: #b0e0c0;
+        }
+        .msg-bubble.file-status.error {
+            border-left-color: #f87171;
+            color: #f0b0b0;
+        }
+        .file-transfer-area {
+            background: #0f1722;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin: 8px 0 12px 0;
+            border: 1px solid #1e2a3a;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .file-transfer-area.active {
+            display: flex;
+        }
+        .mode-selector {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: -2px;
+        }
+        .file-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .file-row .file-label {
+            background: #1e2a3a;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            border: 1px solid #2a3748;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .file-row .file-label:hover {
+            background: #2a3a4e;
+            border-color: #3b82f6;
+        }
+        .file-row .file-label input[type="file"] {
+            display: none;
+        }
+        .file-row .file-name {
+            flex: 1;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-width: 60px;
+        }
+        .file-row .file-name.has-file {
+            color: #e8edf5;
+        }
+        .file-row .send-file-btn {
+            background: #3b82f6;
+            border: none;
+            color: #fff;
+            font-weight: 500;
+            padding: 6px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .file-row .send-file-btn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .progress-wrapper {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: #0b0e14;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #1e2a3a;
+        }
+        .progress-wrapper.active {
+            display: flex;
+        }
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .progress-top .transfer-label {
+            font-weight: 500;
+            color: #b0c8e0;
+        }
+        .progress-top .chunk-info {
+            font-family: 'SF Mono', monospace;
+            color: #60a5fa;
+        }
+        .progress-track {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .progress-track progress {
+            flex: 1;
+            height: 6px;
+            border-radius: 10px;
+            border: none;
+            background: #1e2a3a;
+            appearance: none;
+        }
+        .progress-track progress::-webkit-progress-bar {
+            background: #1e2a3a;
+            border-radius: 10px;
+        }
+        .progress-track progress::-webkit-progress-value {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 10px;
+            transition: width 0.15s ease;
+        }
+        .progress-track progress::-moz-progress-bar {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 10px;
+        }
+        .progress-track .progress-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            min-width: 48px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            font-family: 'SF Mono', monospace;
+        }
+        .progress-track .verify-badge {
+            font-size: 0.7rem;
+            color: #4ade80;
+            min-width: 30px;
+        }
+        .download-area {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: #1a2535;
+            padding: 8px 14px;
+            border-radius: 40px;
+            border: 1px solid #2a3748;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+        .download-area.active {
+            display: flex;
+        }
+        .download-area .file-info {
+            flex: 1;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .download-area .download-btn {
+            background: #4ade80;
+            border: none;
+            color: #0b0e14;
+            font-weight: 600;
+            padding: 6px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 2px;
+        }
+        .plus-btn {
+            background: #1e2a3a;
+            border: 1px solid #2a3748;
+            color: #94a3b8;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            flex-shrink: 0;
+        }
+        .plus-btn:hover {
+            background: #2a3a4e;
+            color: #e8edf5;
+            border-color: #3b82f6;
+        }
+        .input-row input[type="text"] {
+            flex: 1;
+            background: #0f1722;
+            border: 1px solid #1e2a3a;
+            border-radius: 40px;
+            padding: 9px 16px;
+            color: #e8edf5;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .input-row button.send-btn {
+            background: #3b82f6;
+            border: none;
+            color: #fff;
+            font-weight: 500;
+            padding: 9px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .peer-list {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 4px 0 8px 0;
+            padding: 4px 0;
+            min-height: 28px;
+            align-items: center;
+        }
+        .peer-chip {
+            background: #1e2a3a;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            border: 1px solid #2a3748;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .peer-chip.online {
+            border-color: #4ade80;
+            color: #b0e0c0;
+        }
+        .footer {
+            margin-top: 14px;
+            font-size: 0.6rem;
+            color: #3a4a5e;
+            text-align: center;
+            border-top: 1px solid #1a2533;
+            padding-top: 12px;
+        }
+
+        /* =========================
+           Mobile Responsive Styles
+           ========================= */
+        html,
+        body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+                align-items: flex-start;
+            }
+            .app {
+                width: 100%;
+                max-width: 100%;
+                padding: 16px 12px 14px;
+                border-radius: 18px;
+            }
+            .header {
+                margin-bottom: 12px;
+                gap: 8px;
+            }
+            .header h1 {
+                font-size: 1.1rem;
+            }
+            .badge {
+                font-size: 0.65rem;
+                padding: 4px 10px;
+            }
+            .status-bar {
+                padding: 10px 12px;
+                border-radius: 12px;
+                gap: 6px;
+                align-items: flex-start;
+            }
+            .status-bar .label {
+                width: 100%;
+            }
+            .status-bar .msg {
+                flex: 1 1 100%;
+                min-width: 0;
+            }
+            .status-bar .peer-id {
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .chat-container {
+                padding-top: 10px;
+            }
+            .peer-list {
+                gap: 5px;
+                margin-bottom: 6px;
+            }
+            .peer-chip {
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .messages {
+                max-height: 42vh;
+                min-height: 80px;
+                padding-right: 2px;
+            }
+            .msg-bubble {
+                max-width: 90%;
+                font-size: 0.84rem;
+                padding: 7px 12px;
+            }
+            .msg-bubble.system,
+            .msg-bubble.file-status {
+                max-width: 96%;
+            }
+            .file-transfer-area {
+                padding: 10px;
+                border-radius: 12px;
+                gap: 10px;
+            }
+            .mode-selector {
+                flex-direction: column;
+                gap: 7px;
+                font-size: 0.72rem;
+            }
+            .file-row {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .file-row .file-label {
+                width: 100%;
+                justify-content: center;
+                padding: 8px 12px;
+            }
+            .file-row .file-name {
+                width: 100%;
+                min-width: 0;
+                text-align: center;
+            }
+            .file-row .send-file-btn {
+                width: 100%;
+                padding: 9px 14px;
+            }
+            .progress-wrapper {
+                width: 100%;
+                gap: 6px;
+                padding: 8px 10px;
+            }
+            .progress-top {
+                font-size: 0.65rem;
+            }
+            .progress-track {
+                width: 100%;
+                gap: 7px;
+            }
+            .progress-track progress {
+                min-width: 0;
+            }
+            .progress-track .progress-label {
+                min-width: 38px;
+                font-size: 0.7rem;
+            }
+            .progress-track .verify-badge {
+                min-width: 25px;
+                font-size: 0.65rem;
+            }
+            .input-row {
+                width: 100%;
+                gap: 7px;
+            }
+            .plus-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1.1rem;
+            }
+            .input-row input[type="text"] {
+                min-width: 0;
+                width: 100%;
+                padding: 9px 13px;
+                font-size: 0.82rem;
+            }
+            .input-row button.send-btn {
+                padding: 9px 14px;
+                font-size: 0.8rem;
+            }
+            .download-area {
+                width: 100%;
+                border-radius: 14px;
+                padding: 9px 10px;
+                gap: 8px;
+            }
+            .download-area .file-info {
+                min-width: 0;
+                flex: 1 1 100%;
+            }
+            .download-area .download-btn {
+                width: 100%;
+                padding: 9px 14px;
+            }
+            .footer {
+                margin-top: 12px;
+                line-height: 1.5;
+            }
+        }
+        @media (max-width: 380px) {
+            body {
+                padding: 4px;
+            }
+            .app {
+                padding: 14px 10px 12px;
+                border-radius: 15px;
+            }
+            .header h1 {
+                font-size: 1rem;
+            }
+            .badge {
+                padding: 3px 8px;
+                font-size: 0.6rem;
+            }
+            .status-bar {
+                font-size: 0.78rem;
+            }
+            .input-row {
+                gap: 5px;
+            }
+            .plus-btn {
+                width: 34px;
+                height: 34px;
+            }
+            .input-row button.send-btn {
+                padding: 8px 11px;
+            }
+            .input-row input[type="text"] {
+                padding: 8px 10px;
+            }
+        }
+        @media (max-height: 500px) and (max-width: 900px) {
+            body {
+                align-items: flex-start;
+            }
+            .app {
+                margin: 6px 0;
+            }
+            .messages {
+                max-height: 30vh;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="app" id="app">
-    <div class="header">
-        <h1>🌐 P2P Mesh</h1>
-        <span class="badge">
-            <span class="dot idle" id="statusDot"></span>
-            <span id="statusLabel">Initializing</span>
-        </span>
-    </div>
-
-    <div class="status-bar" id="statusBar">
-        <span class="label">Status</span>
-        <span class="msg" id="statusMsg">Connecting to signaling …</span>
-        <span class="peer-id" id="peerIdDisplay">—</span>
-    </div>
-
-    <div class="chat-container" id="chatContainer">
-        <div class="peer-list" id="peerList">
-            <span style="font-size:0.7rem;color:#4a5a70;margin-right:4px;">👥 Peers:</span>
-            <span class="peer-chip" style="border-color:#3b82f6;color:#60a5fa;">You</span>
+    <div class="app" id="app">
+        <div class="header">
+            <h1>🌐 P2P Mesh</h1>
+            <span class="badge">
+                <span class="dot idle" id="statusDot"></span>
+                <span id="statusLabel">Initializing</span>
+            </span>
         </div>
 
-        <div class="messages" id="messages"></div>
+        <div class="status-bar" id="statusBar">
+            <span class="label">Status</span>
+            <span class="msg" id="statusMsg">Connecting to signaling …</span>
+            <span class="peer-id" id="peerIdDisplay">—</span>
+        </div>
 
-        <div class="file-transfer-area" id="fileTransferArea">
-            <div class="mode-selector">
-                <label><input type="radio" name="transferMode" value="files" checked> Select Files (Multi-auto-zip)</label>
-                <label><input type="radio" name="transferMode" value="folder"> Select Folder</label>
+        <div class="chat-container" id="chatContainer">
+            <div class="peer-list" id="peerList">
+                <span style="font-size:0.7rem;color:#4a5a70;margin-right:4px;">👥 Peers:</span>
+                <span class="peer-chip" style="border-color:#3b82f6;color:#60a5fa;">You</span>
             </div>
-            <div class="file-row">
-                <label class="file-label" id="fileLabel">
-                    📎 Choose Source
-                    <input type="file" id="fileInput" multiple />
-                </label>
-                <span class="file-name" id="fileName">No files selected</span>
-                <button class="send-file-btn" id="sendFileBtn" disabled>Send to All</button>
+
+            <div class="messages" id="messages"></div>
+
+            <div class="file-transfer-area" id="fileTransferArea">
+                <div class="mode-selector">
+                    <label><input type="radio" name="transferMode" value="files" checked> Select Files (Multi-auto-zip)</label>
+                    <label><input type="radio" name="transferMode" value="folder"> Select Folder</label>
+                </div>
+                <div class="file-row">
+                    <label class="file-label" id="fileLabel">
+                        📎 Choose Source
+                        <input type="file" id="fileInput" multiple />
+                    </label>
+                    <span class="file-name" id="fileName">No files selected</span>
+                    <button class="send-file-btn" id="sendFileBtn" disabled>Send to All</button>
+                </div>
+
+                <!-- Enhanced progress wrapper with chunk info -->
+                <div class="progress-wrapper" id="progressWrapper">
+                    <div class="progress-top">
+                        <span class="transfer-label" id="transferLabel">⏳ Transferring …</span>
+                        <span class="chunk-info" id="chunkInfo">0 / 0 chunks</span>
+                    </div>
+                    <div class="progress-track">
+                        <progress id="transferProgress" value="0" max="100"></progress>
+                        <span class="progress-label" id="progressLabel">0%</span>
+                        <span class="verify-badge" id="verifyBadge"></span>
+                    </div>
+                </div>
             </div>
-            <div class="progress-wrapper" id="progressWrapper">
-                <progress id="transferProgress" value="0" max="100"></progress>
-                <span class="progress-label" id="progressLabel">0%</span>
-                <span class="verify-badge" id="verifyBadge"></span>
+
+            <div class="input-row">
+                <button class="plus-btn" id="toggleFileAreaBtn" title="Toggle file sharing">+</button>
+                <input type="text" id="chatInput" placeholder="Type a message … (broadcast to all)" disabled />
+                <button class="send-btn" id="sendBtn" disabled>Send</button>
+            </div>
+
+            <div class="download-area" id="downloadArea">
+                <span class="file-info" id="downloadFileInfo">File received</span>
+                <button class="download-btn" id="downloadBtn">⬇ Download</button>
             </div>
         </div>
 
-        <div class="input-row">
-            <button class="plus-btn" id="toggleFileAreaBtn" title="Toggle file sharing">+</button>
-            <input type="text" id="chatInput" placeholder="Type a message … (broadcast to all)" disabled />
-            <button class="send-btn" id="sendBtn" disabled>Send</button>
-        </div>
-
-        <div class="download-area" id="downloadArea">
-            <span class="file-info" id="downloadFileInfo">File received</span>
-            <button class="download-btn" id="downloadBtn">⬇ Download</button>
+        <div class="footer">
+            <span>🔹 WebSocket signaling · PeerJS mesh · auto‑zips</span>
         </div>
     </div>
 
-    <div class="footer">
-        <span>🔹 WebSocket signaling · PeerJS mesh · auto‑zips</span>
-    </div>
-</div>
+    <script>
+        // ─────────────────────────────────────────────────────────────
+        // CONFIGURATION
+        // ─────────────────────────────────────────────────────────────
+        const WS_URL =
+            'wss://free.blr2.piesocket.com/v3/1?api_key=CRN7F7smCaG7xbbQC9o6mjMhyrdy9aRmaId5BMl0&notify_self=0';
+        const HEARTBEAT_INTERVAL_MS = 4000;
+        const PEER_TIMEOUT_MS = 10000;
+        const CHUNK_SIZE = 16 * 1024; // 16 KB
 
-<script>
-    // ─────────────────────────────────────────────────────────────
-    // CONFIGURATION
-    // ─────────────────────────────────────────────────────────────
-    const WS_URL = 'wss://free.blr2.piesocket.com/v3/1?api_key=CRN7F7smCaG7xbbQC9o6mjMhyrdy9aRmaId5BMl0&notify_self=0';
-    const CHANNEL = 'v2'; // not used for WebSocket, but kept for clarity
-    const HEARTBEAT_INTERVAL_MS = 4000;
-    const PEER_TIMEOUT_MS = 10000;
-    const CHUNK_SIZE = 60 * 1024;
-
-    // ─────────────────────────────────────────────────────────────
-    // UTILITY: Adler‑32
-    // ─────────────────────────────────────────────────────────────
-    function calculateAdler32(uint8Array) {
-        let a = 1, b = 0;
-        for (let i = 0; i < uint8Array.length; i++) {
-            a = (a + uint8Array[i]) % 65521;
-            b = (b + a) % 65521;
+        // ─────────────────────────────────────────────────────────────
+        // UTILITY: Adler‑32
+        // ─────────────────────────────────────────────────────────────
+        function calculateAdler32(uint8Array) {
+            let a = 1,
+                b = 0;
+            for (let i = 0; i < uint8Array.length; i++) {
+                a = (a + uint8Array[i]) % 65521;
+                b = (b + a) % 65521;
+            }
+            return ((b << 16) | a) >>> 0;
         }
-        return ((b << 16) | a) >>> 0;
-    }
 
-    // ─────────────────────────────────────────────────────────────
-    // STATE (replaces MQTT with WebSocket)
-    // ─────────────────────────────────────────────────────────────
-    const state = {
-        ws: null,                 // WebSocket connection
-        peer: null,               // PeerJS instance
-        myPeerId: null,
-        connections: new Map(),   // peerId -> { conn, peerId, open }
-        knownPeers: new Map(),    // peerId -> { lastSeen, status }
-        heartbeatTimer: null,
-        fileTransfer: {
-            active: false,
-            totalChunks: 0,
-            receivedCount: 0,
-            expectedChecksum: 0,
-            chunks: [],
-            fileName: '',
-            fileData: null,
-            sending: false,
-            senderId: '',
-        },
-        receivedFileData: null,
-        receivedFileName: '',
-        receivedFileSender: '',
-        isReady: false,
-    };
+        // ─────────────────────────────────────────────────────────────
+        // STATE – per‑sender transfer contexts
+        // ─────────────────────────────────────────────────────────────
+        const state = {
+            ws: null,
+            peer: null,
+            myPeerId: null,
+            connections: new Map(),
+            knownPeers: new Map(),
+            heartbeatTimer: null,
+            transfers: new Map(), // senderId -> transfer object
+            receivedFileData: null,
+            receivedFileName: '',
+            receivedFileSender: '',
+            isReady: false,
+            hideProgressTimeout: null,
+            // Global progress state (only one active transfer at a time)
+            progress: {
+                direction: '', // 'send' or 'receive'
+                active: false,
+            }
+        };
 
-    // ─────────────────────────────────────────────────────────────
-    // DOM HELPERS
-    // ─────────────────────────────────────────────────────────────
-    const $ = (id) => document.getElementById(id);
-    const ui = {
-        app: $('app'),
-        statusDot: $('statusDot'),
-        statusLabel: $('statusLabel'),
-        statusMsg: $('statusMsg'),
-        peerIdDisplay: $('peerIdDisplay'),
-        chatContainer: $('chatContainer'),
-        messages: $('messages'),
-        chatInput: $('chatInput'),
-        sendBtn: $('sendBtn'),
-        toggleFileAreaBtn: $('toggleFileAreaBtn'),
-        fileTransferArea: $('fileTransferArea'),
-        fileInput: $('fileInput'),
-        fileName: $('fileName'),
-        sendFileBtn: $('sendFileBtn'),
-        progressWrapper: $('progressWrapper'),
-        transferProgress: $('transferProgress'),
-        progressLabel: $('progressLabel'),
-        verifyBadge: $('verifyBadge'),
-        downloadArea: $('downloadArea'),
-        downloadFileInfo: $('downloadFileInfo'),
-        downloadBtn: $('downloadBtn'),
-        peerList: $('peerList'),
-        modeRadios: document.querySelectorAll('input[name="transferMode"]'),
-    };
-
-    function setStatus(level, msg) {
-        ui.statusDot.className = 'dot ' + level;
-        const map = { idle: 'Idle', searching: 'Searching…', connected: 'Connected' };
-        ui.statusLabel.textContent = map[level] || level;
-        ui.statusMsg.textContent = msg;
-    }
-
-    function appendMessage(text, type) {
-        const div = document.createElement('div');
-        div.className = 'msg-bubble ' + type;
-        div.textContent = text;
-        ui.messages.appendChild(div);
-        ui.messages.scrollTop = ui.messages.scrollHeight;
-    }
-
-    function showChat(show) {
-        ui.chatContainer.classList.toggle('active', show);
-        ui.chatInput.disabled = !show;
-        ui.sendBtn.disabled = !show || state.connections.size === 0;
-        if (show) ui.chatInput.focus();
-    }
-
-    function updatePeerIdDisplay(id) {
-        ui.peerIdDisplay.textContent = id ? id.slice(0, 12) + '…' : '—';
-    }
-
-    function showDownload(fileName, data, senderId) {
-        state.receivedFileData = data;
-        state.receivedFileName = fileName || 'received_file.bin';
-        ui.downloadFileInfo.textContent =
-            `📄 ${state.receivedFileName} (${(data.length / 1024).toFixed(1)} KB) from ${senderId.slice(0, 10)}`;
-        ui.downloadArea.classList.add('active');
-    }
-
-    function renderPeerList() {
-        const container = ui.peerList;
-        while (container.children.length > 1) {
-            container.removeChild(container.lastChild);
+        function getTransferContext(senderId) {
+            if (!state.transfers.has(senderId)) {
+                state.transfers.set(senderId, {
+                    active: false,
+                    totalChunks: 0,
+                    receivedCount: 0,
+                    expectedChecksum: 0,
+                    chunks: [],
+                    fileName: '',
+                    completed: false,
+                });
+            }
+            return state.transfers.get(senderId);
         }
-        const connectedIds = Array.from(state.connections.keys());
-        const knownIds = Array.from(state.knownPeers.keys()).filter(id => id !== state.myPeerId);
-        const allPeerIds = new Set([...connectedIds, ...knownIds]);
 
-        for (const id of allPeerIds) {
-            if (id === state.myPeerId) continue;
-            const isConnected = state.connections.has(id);
-            const chip = document.createElement('span');
-            chip.className = 'peer-chip' + (isConnected ? ' online' : '');
-            chip.textContent = id.slice(0, 10) + (isConnected ? ' ●' : ' ○');
-            container.appendChild(chip);
+        // ─────────────────────────────────────────────────────────────
+        // DOM HELPERS
+        // ─────────────────────────────────────────────────────────────
+        const $ = (id) => document.getElementById(id);
+        const ui = {
+            app: $('app'),
+            statusDot: $('statusDot'),
+            statusLabel: $('statusLabel'),
+            statusMsg: $('statusMsg'),
+            peerIdDisplay: $('peerIdDisplay'),
+            chatContainer: $('chatContainer'),
+            messages: $('messages'),
+            chatInput: $('chatInput'),
+            sendBtn: $('sendBtn'),
+            toggleFileAreaBtn: $('toggleFileAreaBtn'),
+            fileTransferArea: $('fileTransferArea'),
+            fileInput: $('fileInput'),
+            fileName: $('fileName'),
+            sendFileBtn: $('sendFileBtn'),
+            progressWrapper: $('progressWrapper'),
+            transferProgress: $('transferProgress'),
+            progressLabel: $('progressLabel'),
+            transferLabel: $('transferLabel'),
+            chunkInfo: $('chunkInfo'),
+            verifyBadge: $('verifyBadge'),
+            downloadArea: $('downloadArea'),
+            downloadFileInfo: $('downloadFileInfo'),
+            downloadBtn: $('downloadBtn'),
+            peerList: $('peerList'),
+            modeRadios: document.querySelectorAll('input[name="transferMode"]'),
+        };
+
+        function setStatus(level, msg) {
+            ui.statusDot.className = 'dot ' + level;
+            const map = { idle: 'Idle', searching: 'Searching…', connected: 'Connected' };
+            ui.statusLabel.textContent = map[level] || level;
+            ui.statusMsg.textContent = msg;
         }
-        const hasPeers = state.connections.size > 0;
-        ui.sendBtn.disabled = !hasPeers;
-        ui.sendFileBtn.disabled = !ui.fileInput.files || ui.fileInput.files.length === 0 || !hasPeers;
-        ui.app.classList.toggle('active', hasPeers);
-    }
 
-    // ─────────────────────────────────────────────────────────────
-    // WEB SOCKET SIGNALING (replaces MQTT)
-    // ─────────────────────────────────────────────────────────────
-    function connectWebSocket() {
-        try {
-            const ws = new WebSocket(WS_URL);
-            ws.binaryType = 'arraybuffer'; // not used for JSON, but safe
+        function appendMessage(text, type) {
+            const div = document.createElement('div');
+            div.className = 'msg-bubble ' + type;
+            div.textContent = text;
+            ui.messages.appendChild(div);
+            ui.messages.scrollTop = ui.messages.scrollHeight;
+        }
 
-            ws.onopen = () => {
-                state.ws = ws;
-                // Send initial presence
-                publishPresence();
-                // Start heartbeat
-                if (state.heartbeatTimer) clearInterval(state.heartbeatTimer);
-                state.heartbeatTimer = setInterval(() => {
+        function showChat(show) {
+            ui.chatContainer.classList.toggle('active', show);
+            ui.chatInput.disabled = !show;
+            ui.sendBtn.disabled = !show || state.connections.size === 0;
+            if (show) ui.chatInput.focus();
+        }
+
+        function updatePeerIdDisplay(id) {
+            ui.peerIdDisplay.textContent = id ? id.slice(0, 12) + '…' : '—';
+        }
+
+        function showDownload(fileName, data, senderId) {
+            state.receivedFileData = data;
+            state.receivedFileName = fileName || 'received_file.bin';
+            ui.downloadFileInfo.textContent =
+                `📄 ${state.receivedFileName} (${(data.length / 1024).toFixed(1)} KB) from ${senderId.slice(0, 10)}`;
+            ui.downloadArea.classList.add('active');
+        }
+
+        function renderPeerList() {
+            const container = ui.peerList;
+            while (container.children.length > 1) {
+                container.removeChild(container.lastChild);
+            }
+            const connectedIds = Array.from(state.connections.keys());
+            const knownIds = Array.from(state.knownPeers.keys()).filter(id => id !== state.myPeerId);
+            const allPeerIds = new Set([...connectedIds, ...knownIds]);
+
+            for (const id of allPeerIds) {
+                if (id === state.myPeerId) continue;
+                const isConnected = state.connections.has(id);
+                const chip = document.createElement('span');
+                chip.className = 'peer-chip' + (isConnected ? ' online' : '');
+                chip.textContent = id.slice(0, 10) + (isConnected ? ' ●' : ' ○');
+                container.appendChild(chip);
+            }
+            const hasPeers = state.connections.size > 0;
+            ui.sendBtn.disabled = !hasPeers;
+            ui.sendFileBtn.disabled = !ui.fileInput.files || ui.fileInput.files.length === 0 || !hasPeers;
+            ui.app.classList.toggle('active', hasPeers);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // ★ PROGRESS HELPERS (explicit, as requested) ★
+        // ─────────────────────────────────────────────────────────────
+        function showProgress(direction, fileName, totalChunks) {
+            // direction: 'send' or 'receive'
+            ui.fileTransferArea.classList.add('active');
+            ui.progressWrapper.classList.add('active');
+            const label = direction === 'send' ? '📤 Sending' : '📥 Receiving';
+            ui.transferLabel.textContent = `${label} ${fileName || 'file'} …`;
+            ui.chunkInfo.textContent = `0 / ${totalChunks} chunks`;
+            ui.transferProgress.value = 0;
+            ui.progressLabel.textContent = '0%';
+            ui.verifyBadge.textContent = '';
+            state.progress.direction = direction;
+            state.progress.active = true;
+            // Clear any pending hide timeout
+            if (state.hideProgressTimeout) {
+                clearTimeout(state.hideProgressTimeout);
+                state.hideProgressTimeout = null;
+            }
+        }
+
+        function updateProgress(received, total) {
+            const pct = Math.min(100, Math.round((received / total) * 100));
+            ui.transferProgress.value = pct;
+            ui.progressLabel.textContent = pct + '%';
+            ui.chunkInfo.textContent = `${received} / ${total} chunks`;
+        }
+
+        function hideProgress() {
+            ui.progressWrapper.classList.remove('active');
+            state.progress.active = false;
+            // keep fileTransferArea visible if user wants
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // WEB SOCKET SIGNALING
+        // ─────────────────────────────────────────────────────────────
+        function connectWebSocket() {
+            try {
+                const ws = new WebSocket(WS_URL);
+                ws.binaryType = 'arraybuffer';
+
+                ws.onopen = () => {
+                    state.ws = ws;
                     publishPresence();
-                }, HEARTBEAT_INTERVAL_MS);
+                    if (state.heartbeatTimer) clearInterval(state.heartbeatTimer);
+                    state.heartbeatTimer = setInterval(publishPresence, HEARTBEAT_INTERVAL_MS);
+                    setStatus('searching', 'Signaling connected · waiting for peers …');
+                    appendMessage('🟢 Signaling ready', 'system');
+                };
 
-                setStatus('searching', 'Signaling connected · waiting for peers …');
-                appendMessage('🟢 Signaling ready', 'system');
-                // If PeerJS is already ready, we can now start connecting
-                if (state.isReady) {
-                    // Maybe attempt to connect to already known peers
-                }
-            };
+                ws.onmessage = (event) => {
+                    if (typeof event.data === 'string') {
+                        try {
+                            const data = JSON.parse(event.data);
+                            handleSignalingMessage(data);
+                        } catch (_) { /* ignore */ }
+                    }
+                };
 
-            ws.onmessage = (event) => {
-                if (typeof event.data === 'string') {
-                    try {
-                        const data = JSON.parse(event.data);
-                        handleSignalingMessage(data);
-                    } catch (_) { /* ignore */ }
-                }
-                // Ignore binary messages (not used)
-            };
+                ws.onclose = () => {
+                    state.ws = null;
+                    if (state.heartbeatTimer) {
+                        clearInterval(state.heartbeatTimer);
+                        state.heartbeatTimer = null;
+                    }
+                    setStatus('idle', 'Signaling disconnected — reconnecting …');
+                    appendMessage('🔴 Signaling lost', 'system');
+                    state.knownPeers.clear();
+                    renderPeerList();
+                    setTimeout(connectWebSocket, 3000);
+                };
 
-            ws.onclose = () => {
-                state.ws = null;
-                if (state.heartbeatTimer) {
-                    clearInterval(state.heartbeatTimer);
-                    state.heartbeatTimer = null;
-                }
-                setStatus('idle', 'Signaling disconnected — reconnecting …');
-                appendMessage('🔴 Signaling lost', 'system');
-                // Clean up known peers (they will reappear)
-                state.knownPeers.clear();
-                renderPeerList();
-                // Reconnect after a delay
+                ws.onerror = (err) => {
+                    console.warn('WebSocket error:', err);
+                };
+            } catch (e) {
+                console.error('WebSocket creation error:', e);
                 setTimeout(connectWebSocket, 3000);
-            };
-
-            ws.onerror = (err) => {
-                console.warn('WebSocket error:', err);
-                // Let onclose handle reconnection
-            };
-        } catch (e) {
-            console.error('WebSocket creation error:', e);
-            setTimeout(connectWebSocket, 3000);
+            }
         }
-    }
 
-    function publishPresence() {
-        if (!state.ws || state.ws.readyState !== WebSocket.OPEN || !state.myPeerId) return;
-        const msg = JSON.stringify({
-            type: 'presence',
-            peerId: state.myPeerId,
-            status: state.connections.size > 0 ? 'connected' : 'available',
-            ts: Date.now(),
+        function publishPresence() {
+            if (!state.ws || state.ws.readyState !== WebSocket.OPEN || !state.myPeerId) return;
+            const msg = JSON.stringify({
+                type: 'presence',
+                peerId: state.myPeerId,
+                status: state.connections.size > 0 ? 'connected' : 'available',
+                ts: Date.now(),
+            });
+            state.ws.send(msg);
+        }
+
+        function handleSignalingMessage(data) {
+            if (!data.peerId || data.peerId === state.myPeerId) return;
+            if (data.type === 'presence' || data.type === 'heartbeat') {
+                const now = Date.now();
+                const peer = state.knownPeers.get(data.peerId) || { lastSeen: 0, status: 'unknown' };
+                peer.lastSeen = now;
+                peer.status = data.status || 'available';
+                state.knownPeers.set(data.peerId, peer);
+
+                for (const [id, p] of state.knownPeers) {
+                    if (now - p.lastSeen > PEER_TIMEOUT_MS) {
+                        state.knownPeers.delete(id);
+                        if (state.connections.has(id)) closeConnection(id);
+                    }
+                }
+                renderPeerList();
+
+                if (state.isReady && state.peer && !state.connections.has(data.peerId) && data.peerId > state.myPeerId) {
+                    attemptConnect(data.peerId);
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // PEERJS
+        // ─────────────────────────────────────────────────────────────
+        function attemptConnect(peerId) {
+            if (!state.peer || state.connections.has(peerId)) return;
+            const conn = state.peer.connect(peerId, { reliable: true, serialization: 'raw' });
+            conn.on('open', () => onConnectionEstablished(conn, peerId));
+        }
+
+        function onConnectionEstablished(conn, peerId) {
+            if (state.connections.has(peerId)) { conn.close(); return; }
+            state.connections.set(peerId, { conn, peerId, open: true });
+            appendMessage('🔗 Connected to ' + peerId.slice(0, 10), 'system');
+            renderPeerList();
+            publishPresence();
+
+            conn.on('data', (data) => handlePeerData(peerId, data));
+            conn.on('close', () => closeConnection(peerId));
+            setStatus('connected', state.connections.size + ' peer(s) connected');
+            showChat(true);
+        }
+
+        function closeConnection(peerId) {
+            const entry = state.connections.get(peerId);
+            if (entry) {
+                try { entry.conn.close(); } catch (_) {}
+                state.connections.delete(peerId);
+                appendMessage('🔌 Disconnected from ' + peerId.slice(0, 10) + '…', 'system');
+                renderPeerList();
+                publishPresence();
+                if (state.connections.size === 0) {
+                    ui.sendBtn.disabled = true;
+                    ui.sendFileBtn.disabled = true;
+                    setStatus('searching', 'No peers connected · waiting …');
+                    ui.app.classList.remove('active');
+                } else {
+                    setStatus('connected', state.connections.size + ' peer(s) connected');
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // HANDLE INCOMING DATA (messages + file chunks)
+        // ─────────────────────────────────────────────────────────────
+        function handlePeerData(senderId, data) {
+            if (typeof data === 'string') {
+                if (data.startsWith('FILE_NAME:')) {
+                    const ft = getTransferContext(senderId);
+                    ft.fileName = data.substring(10);
+                    return;
+                }
+                appendMessage('💬 ' + senderId.slice(0, 10) + ': ' + data, 'other');
+                return;
+            }
+
+            // Binary file chunk
+            const packet = new Uint8Array(data);
+            if (packet.byteLength < 12) return;
+            const view = new DataView(packet.buffer);
+            const totalChunks = view.getUint32(0, true);
+            const chunkIndex = view.getUint32(4, true);
+            const expectedChecksum = view.getUint32(8, true);
+
+            const ft = getTransferContext(senderId);
+
+            // First chunk → initialize transfer and show progress
+            if (ft.receivedCount === 0) {
+                ft.totalChunks = totalChunks;
+                ft.expectedChecksum = expectedChecksum;
+                ft.chunks = new Array(totalChunks);
+                ft.active = true;
+                ft.completed = false;
+                // ★ Use showProgress for receive ★
+                showProgress('receive', ft.fileName || 'file', totalChunks);
+            }
+
+            // Safety check
+            if (ft.totalChunks !== totalChunks) {
+                console.warn(`[${senderId}] Chunk total mismatch: expected ${ft.totalChunks}, got ${totalChunks}`);
+                return;
+            }
+
+            ft.chunks[chunkIndex] = new Uint8Array(packet.buffer, 12, packet.byteLength - 12);
+            ft.receivedCount++;
+
+            // ★ Use updateProgress ★
+            updateProgress(ft.receivedCount, totalChunks);
+
+            if (ft.receivedCount === totalChunks) {
+                // Merge all chunks
+                const totalLen = ft.chunks.reduce((acc, c) => acc + c.length, 0);
+                const merged = new Uint8Array(totalLen);
+                let offset = 0;
+                for (const c of ft.chunks) {
+                    merged.set(c, offset);
+                    offset += c.length;
+                }
+
+                const computed = calculateAdler32(merged);
+                const valid = computed === ft.expectedChecksum;
+                if (valid) {
+                    appendMessage('✅ Archive/File successfully received!', 'file-status success');
+                    showDownload(ft.fileName || 'bundle.zip', merged, senderId);
+                    ui.verifyBadge.textContent = '✅';
+                } else {
+                    appendMessage(`❌ Checksum mismatch! (expected ${ft.expectedChecksum}, got ${computed})`,
+                        'file-status error');
+                    ui.verifyBadge.textContent = '❌';
+                }
+
+                // Mark as complete and hide progress after a delay
+                ft.active = false;
+                ft.chunks = [];
+                ft.receivedCount = 0;
+                ft.completed = true;
+                ui.transferLabel.textContent = valid ? `✅ Received "${ft.fileName || 'file'}"` :
+                    `❌ Failed: checksum mismatch`;
+                ui.transferProgress.value = 100;
+                ui.progressLabel.textContent = '100%';
+                // ★ Use hideProgress after delay ★
+                if (state.hideProgressTimeout) clearTimeout(state.hideProgressTimeout);
+                state.hideProgressTimeout = setTimeout(() => {
+                    hideProgress();
+                    state.hideProgressTimeout = null;
+                }, 4000);
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // INIT PEERJS
+        // ─────────────────────────────────────────────────────────────
+        function initPeerJS() {
+            const peer = new Peer({
+                config: {
+                    iceServers: [{
+                        urls: "stun:stun.relay.metered.ca:80"
+                    }, {
+                        urls: "turn:standard.relay.metered.ca:80",
+                        username: "d0012d764320711d20e32cb5",
+                        credential: "NJ8OImbAEeJTEu4H"
+                    }, {
+                        urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+                        username: "d0012d764320711d20e32cb5",
+                        credential: "NJ8OImbAEeJTEu4H"
+                    }, {
+                        urls: "turn:standard.relay.metered.ca:443",
+                        username: "d0012d764320711d20e32cb5",
+                        credential: "NJ8OImbAEeJTEu4H"
+                    }, {
+                        urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+                        username: "d0012d764320711d20e32cb5",
+                        credential: "NJ8OImbAEeJTEu4H"
+                    }]
+                }
+            });
+            peer.on('open', (id) => {
+                state.myPeerId = id;
+                state.peer = peer;
+                state.isReady = true;
+                updatePeerIdDisplay(id);
+                publishPresence();
+                showChat(true);
+            });
+            peer.on('connection', (conn) => {
+                conn.on('open', () => onConnectionEstablished(conn, conn.peer));
+            });
+            state.peer = peer;
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // FILE SENDING (uses showProgress / updateProgress / hideProgress)
+        // ─────────────────────────────────────────────────────────────
+        ui.toggleFileAreaBtn.addEventListener('click', () => {
+            ui.fileTransferArea.classList.toggle('active');
         });
-        state.ws.send(msg);
-    }
 
-    function handleSignalingMessage(data) {
-        if (!data.peerId || data.peerId === state.myPeerId) return;
-        // Only handle presence messages
-        if (data.type === 'presence' || data.type === 'heartbeat') {
+        ui.modeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                ui.fileInput.value = '';
+                ui.fileName.textContent = 'No files selected';
+                ui.sendFileBtn.disabled = true;
+                if (e.target.value === 'folder') {
+                    ui.fileInput.setAttribute('webkitdirectory', '');
+                } else {
+                    ui.fileInput.removeAttribute('webkitdirectory');
+                }
+            });
+        });
+
+        ui.fileInput.addEventListener('change', () => {
+            const count = ui.fileInput.files.length;
+            if (count === 0) {
+                ui.fileName.textContent = 'No files selected';
+                ui.sendFileBtn.disabled = true;
+                return;
+            }
+            ui.fileName.textContent = count === 1 ? ui.fileInput.files[0].name :
+                `${count} items selected (Will auto-zip)`;
+            ui.sendFileBtn.disabled = state.connections.size === 0;
+        });
+
+        async function sendFile() {
+            const files = ui.fileInput.files;
+            if (files.length === 0 || state.connections.size === 0) return;
+
+            ui.sendFileBtn.disabled = true;
+            ui.fileInput.disabled = true;
+
+            let fileDataArrayBuffer;
+            let finalFileName;
+
+            // Compression phase – show progress but with "compressing" label
+            ui.fileTransferArea.classList.add('active');
+            ui.progressWrapper.classList.add('active');
+            ui.transferLabel.textContent = '📦 Compressing …';
+            ui.transferProgress.value = 0;
+            ui.progressLabel.textContent = '0%';
+            ui.chunkInfo.textContent = '…';
+            ui.verifyBadge.textContent = '';
+
+            if (files.length > 1 || ui.fileInput.hasAttribute('webkitdirectory')) {
+                appendMessage('📦 Compressing files/folder into .zip archive...', 'system');
+                const zip = new JSZip();
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const path = file.webkitRelativePath || file.name;
+                    zip.file(path, await file.arrayBuffer());
+                }
+                fileDataArrayBuffer = await zip.generateAsync({
+                    type: 'arraybuffer',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 6 }
+                }, (metadata) => {
+                    const pct = Math.round(metadata.percent);
+                    ui.transferProgress.value = pct;
+                    ui.progressLabel.textContent = pct + '%';
+                    ui.chunkInfo.textContent = `compressing … ${pct}%`;
+                });
+                finalFileName = 'p2p_bundle.zip';
+            } else {
+                finalFileName = files[0].name;
+                fileDataArrayBuffer = await files[0].arrayBuffer();
+            }
+
+            const data = new Uint8Array(fileDataArrayBuffer);
+            const checksum = calculateAdler32(data);
+            const totalChunks = Math.ceil(data.length / CHUNK_SIZE);
+
+            // ★ Use showProgress for send ★
+            showProgress('send', finalFileName, totalChunks);
+
+            appendMessage(`📤 Transmitting ${finalFileName} (${(data.length / 1024).toFixed(1)} KB, ${totalChunks} chunks) …`,
+                'system');
+
+            // Send file name first
+            for (const [id, entry] of state.connections) {
+                try { entry.conn.send('FILE_NAME:' + finalFileName); } catch (_) {}
+            }
+
+            // Send chunks
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * CHUNK_SIZE;
+                const chunkData = data.subarray(start, Math.min(start + CHUNK_SIZE, data.length));
+
+                const packet = new Uint8Array(12 + chunkData.length);
+                const view = new DataView(packet.buffer);
+                view.setUint32(0, totalChunks, true);
+                view.setUint32(4, i, true);
+                view.setUint32(8, checksum, true);
+                packet.set(chunkData, 12);
+
+                for (const [id, entry] of state.connections) {
+                    try { entry.conn.send(packet.buffer); } catch (_) {}
+                }
+
+                // ★ Use updateProgress ★
+                updateProgress(i + 1, totalChunks);
+                await new Promise(r => setTimeout(r, 0));
+            }
+
+            appendMessage('✅ Transfer complete!', 'system');
+            ui.transferLabel.textContent = `✅ Sent "${finalFileName}"`;
+            ui.verifyBadge.textContent = '✅';
+            ui.transferProgress.value = 100;
+            ui.progressLabel.textContent = '100%';
+
+            // ★ Use hideProgress after delay ★
+            if (state.hideProgressTimeout) clearTimeout(state.hideProgressTimeout);
+            state.hideProgressTimeout = setTimeout(() => {
+                hideProgress();
+                state.hideProgressTimeout = null;
+            }, 3000);
+
+            ui.fileInput.disabled = false;
+            ui.sendFileBtn.disabled = false;
+            ui.fileInput.value = '';
+            ui.fileName.textContent = 'No files selected';
+            ui.fileTransferArea.classList.remove('active');
+        }
+
+        ui.sendFileBtn.addEventListener('click', sendFile);
+
+        // ─────────────────────────────────────────────────────────────
+        // CHAT
+        // ─────────────────────────────────────────────────────────────
+        function sendChatMessage() {
+            const text = ui.chatInput.value.trim();
+            if (!text || state.connections.size === 0) return;
+            for (const [id, entry] of state.connections) {
+                try { entry.conn.send(text); } catch (_) {}
+            }
+            appendMessage(text, 'self');
+            ui.chatInput.value = '';
+            ui.chatInput.focus();
+        }
+
+        ui.sendBtn.addEventListener('click', sendChatMessage);
+        ui.chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendChatMessage();
+            }
+        });
+
+        // ─────────────────────────────────────────────────────────────
+        // DOWNLOAD
+        // ─────────────────────────────────────────────────────────────
+        ui.downloadBtn.addEventListener('click', () => {
+            if (!state.receivedFileData) return;
+            const blob = new Blob([state.receivedFileData]);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = state.receivedFileName || 'bundle.zip';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // ─────────────────────────────────────────────────────────────
+        // CLEANUP
+        // ─────────────────────────────────────────────────────────────
+        function cleanUp() {
+            if (state.heartbeatTimer) clearInterval(state.heartbeatTimer);
+            if (state.ws) {
+                try { state.ws.close(); } catch (_) {}
+                state.ws = null;
+            }
+            if (state.peer) state.peer.destroy();
+            for (const [id, entry] of state.connections) {
+                try { entry.conn.close(); } catch (_) {}
+            }
+            state.connections.clear();
+            state.knownPeers.clear();
+            if (state.hideProgressTimeout) {
+                clearTimeout(state.hideProgressTimeout);
+                state.hideProgressTimeout = null;
+            }
+        }
+
+        window.addEventListener('pagehide', cleanUp);
+        window.addEventListener('beforeunload', cleanUp);
+
+        // ─────────────────────────────────────────────────────────────
+        // START
+        // ─────────────────────────────────────────────────────────────
+        connectWebSocket();
+        initPeerJS();
+
+        // Periodic peer cleanup
+        setInterval(() => {
             const now = Date.now();
-            const peer = state.knownPeers.get(data.peerId) || { lastSeen: 0, status: 'unknown' };
-            peer.lastSeen = now;
-            peer.status = data.status || 'available';
-            state.knownPeers.set(data.peerId, peer);
-
-            // Cleanup stale peers
             for (const [id, p] of state.knownPeers) {
                 if (now - p.lastSeen > PEER_TIMEOUT_MS) {
                     state.knownPeers.delete(id);
-                    if (state.connections.has(id)) {
-                        closeConnection(id);
-                    }
+                    if (state.connections.has(id)) closeConnection(id);
                 }
             }
-
             renderPeerList();
-
-            // If we're ready and we haven't connected to this peer yet, try to connect
-            if (state.isReady && state.peer && !state.connections.has(data.peerId) && data.peerId > state.myPeerId) {
-                attemptConnect(data.peerId);
-            }
-        }
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // PEERJS (unchanged from original)
-    // ─────────────────────────────────────────────────────────────
-    function attemptConnect(peerId) {
-        if (!state.peer || state.connections.has(peerId)) return;
-        const conn = state.peer.connect(peerId, { reliable: true, serialization: 'raw' });
-        conn.on('open', () => onConnectionEstablished(conn, peerId));
-    }
-
-    function onConnectionEstablished(conn, peerId) {
-        if (state.connections.has(peerId)) { conn.close(); return; }
-        state.connections.set(peerId, { conn, peerId, open: true });
-        appendMessage('🔗 Connected to ' + peerId.slice(0, 10), 'system');
-        renderPeerList();
-        publishPresence();
-
-        conn.on('data', (data) => handlePeerData(peerId, data));
-        conn.on('close', () => {
-            closeConnection(peerId);
-        });
-        setStatus('connected', state.connections.size + ' peer(s) connected');
-        showChat(true);
-    }
-
-    function closeConnection(peerId) {
-        const entry = state.connections.get(peerId);
-        if (entry) {
-            try { entry.conn.close(); } catch (_) {}
-            state.connections.delete(peerId);
-            appendMessage('🔌 Disconnected from ' + peerId.slice(0, 10) + '…', 'system');
-            renderPeerList();
-            publishPresence();
-            if (state.connections.size === 0) {
-                ui.sendBtn.disabled = true;
-                ui.sendFileBtn.disabled = true;
-                setStatus('searching', 'No peers connected · waiting …');
-                ui.app.classList.remove('active');
-            } else {
-                setStatus('connected', state.connections.size + ' peer(s) connected');
-            }
-        }
-    }
-
-    function handlePeerData(senderId, data) {
-        if (typeof data === 'string') {
-            if (data.startsWith('FILE_NAME:')) {
-                state.fileTransfer.fileName = data.substring(10);
-                state.fileTransfer.senderId = senderId;
-                return;
-            }
-            appendMessage('💬 ' + senderId.slice(0, 10) + ': ' + data, 'other');
-            return;
-        }
-
-        // Binary file chunk
-        const packet = new Uint8Array(data);
-        if (packet.byteLength < 12) return;
-        const view = new DataView(packet.buffer);
-        const totalChunks = view.getUint32(0, true);
-        const chunkIndex = view.getUint32(4, true);
-        const expectedChecksum = view.getUint32(8, true);
-
-        const ft = state.fileTransfer;
-        if (ft.receivedCount === 0) {
-            ft.totalChunks = totalChunks;
-            ft.expectedChecksum = expectedChecksum;
-            ft.chunks = new Array(totalChunks);
-            ft.active = true;
-            ft.senderId = senderId;
-            ui.progressWrapper.classList.add('active');
-        }
-
-        ft.chunks[chunkIndex] = new Uint8Array(packet.buffer, 12, packet.byteLength - 12);
-        ft.receivedCount++;
-
-        const pct = Math.round((ft.receivedCount / totalChunks) * 100);
-        ui.transferProgress.value = pct;
-        ui.progressLabel.textContent = pct + '%';
-
-        if (ft.receivedCount === totalChunks) {
-            const totalLen = ft.chunks.reduce((acc, c) => acc + c.length, 0);
-            const merged = new Uint8Array(totalLen);
-            let offset = 0;
-            for (const c of ft.chunks) { merged.set(c, offset); offset += c.length; }
-
-            if (calculateAdler32(merged) === ft.expectedChecksum) {
-                appendMessage('✅ Archive/File successfully received!', 'file-status success');
-                showDownload(ft.fileName || 'bundle.zip', merged, senderId);
-            } else {
-                appendMessage('❌ Checksum Mismatch!', 'file-status error');
-            }
-            ft.active = false;
-            ft.chunks = [];
-            ft.receivedCount = 0;
-        }
-    }
-
-    function initPeerJS() {
-        const peer = new Peer({
-  config: {
-    iceServers: [
-      {
-        urls: "stun:stun.relay.metered.ca:80"
-      },
-      {
-        urls: "turn:standard.relay.metered.ca:80",
-        username: "d0012d764320711d20e32cb5",
-        credential: "NJ8OImbAEeJTEu4H"
-      },
-      {
-        urls: "turn:standard.relay.metered.ca:80?transport=tcp",
-        username: "d0012d764320711d20e32cb5",
-        credential: "NJ8OImbAEeJTEu4H"
-      },
-      {
-        urls: "turn:standard.relay.metered.ca:443",
-        username: "d0012d764320711d20e32cb5",
-        credential: "NJ8OImbAEeJTEu4H"
-      },
-      {
-        urls: "turns:standard.relay.metered.ca:443?transport=tcp",
-        username: "d0012d764320711d20e32cb5",
-        credential: "NJ8OImbAEeJTEu4H"
-      }
-    ]
-  }
-});
-        peer.on('open', (id) => {
-            state.myPeerId = id;
-            state.peer = peer;
-            state.isReady = true;
-            updatePeerIdDisplay(id);
-            // Publish presence immediately
-            publishPresence();
-            showChat(true);
-        });
-        peer.on('connection', (conn) => {
-            conn.on('open', () => onConnectionEstablished(conn, conn.peer));
-        });
-        state.peer = peer;
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // FILE SENDING (unchanged from original)
-    // ─────────────────────────────────────────────────────────────
-    ui.toggleFileAreaBtn.addEventListener('click', () => {
-        ui.fileTransferArea.classList.toggle('active');
-    });
-
-    ui.modeRadios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            ui.fileInput.value = '';
-            ui.fileName.textContent = 'No files selected';
-            ui.sendFileBtn.disabled = true;
-            if (e.target.value === 'folder') {
-                ui.fileInput.setAttribute('webkitdirectory', '');
-            } else {
-                ui.fileInput.removeAttribute('webkitdirectory');
-            }
-        });
-    });
-
-    ui.fileInput.addEventListener('change', () => {
-        const count = ui.fileInput.files.length;
-        if (count === 0) {
-            ui.fileName.textContent = 'No files selected';
-            ui.sendFileBtn.disabled = true;
-            return;
-        }
-        ui.fileName.textContent = count === 1 ? ui.fileInput.files[0].name : `${count} items selected (Will auto-zip)`;
-        ui.sendFileBtn.disabled = state.connections.size === 0;
-    });
-
-    async function sendFile() {
-        const files = ui.fileInput.files;
-        if (files.length === 0 || state.connections.size === 0) return;
-
-        ui.sendFileBtn.disabled = true;
-        ui.fileInput.disabled = true;
-        ui.progressWrapper.classList.add('active');
-        ui.transferProgress.value = 0;
-
-        let fileDataArrayBuffer;
-        let finalFileName;
-
-        if (files.length > 1 || ui.fileInput.hasAttribute('webkitdirectory')) {
-            appendMessage('📦 Compressing files/folder into .zip archive...', 'system');
-            const zip = new JSZip();
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const path = file.webkitRelativePath || file.name;
-                zip.file(path, await file.arrayBuffer());
-            }
-
-            fileDataArrayBuffer = await zip.generateAsync({
-                type: 'arraybuffer',
-                compression: 'DEFLATE',
-                compressionOptions: { level: 6 }
-            }, (metadata) => {
-                ui.transferProgress.value = metadata.percent;
-                ui.progressLabel.textContent = `${metadata.percent.toFixed(0)}%`;
-            });
-            finalFileName = 'p2p_bundle.zip';
-        } else {
-            finalFileName = files[0].name;
-            fileDataArrayBuffer = await files[0].arrayBuffer();
-        }
-
-        for (const [id, entry] of state.connections) {
-            try { entry.conn.send('FILE_NAME:' + finalFileName); } catch (_) {}
-        }
-
-        const data = new Uint8Array(fileDataArrayBuffer);
-        const checksum = calculateAdler32(data);
-        const totalChunks = Math.ceil(data.length / CHUNK_SIZE);
-
-        appendMessage(`📤 Transmitting ${finalFileName} (${(data.length / 1024).toFixed(1)} KB)...`, 'system');
-
-        for (let i = 0; i < totalChunks; i++) {
-            const start = i * CHUNK_SIZE;
-            const chunkData = data.subarray(start, Math.min(start + CHUNK_SIZE, data.length));
-
-            const packet = new Uint8Array(12 + chunkData.length);
-            const view = new DataView(packet.buffer);
-            view.setUint32(0, totalChunks, true);
-            view.setUint32(4, i, true);
-            view.setUint32(8, checksum, true);
-            packet.set(chunkData, 12);
-
-            for (const [id, entry] of state.connections) {
-                try { entry.conn.send(packet.buffer); } catch (_) {}
-            }
-
-            const pct = Math.round(((i + 1) / totalChunks) * 100);
-            ui.transferProgress.value = pct;
-            ui.progressLabel.textContent = pct + '%';
-        }
-
-        appendMessage('✅ Transfer complete!', 'system');
-        ui.fileInput.disabled = false;
-        ui.sendFileBtn.disabled = false;
-        ui.fileInput.value = '';
-        ui.fileName.textContent = 'No files selected';
-        ui.fileTransferArea.classList.remove('active');
-    }
-
-    ui.sendFileBtn.addEventListener('click', sendFile);
-
-    // ─────────────────────────────────────────────────────────────
-    // CHAT
-    // ─────────────────────────────────────────────────────────────
-    function sendChatMessage() {
-        const text = ui.chatInput.value.trim();
-        if (!text || state.connections.size === 0) return;
-        for (const [id, entry] of state.connections) {
-            try { entry.conn.send(text); } catch (_) {}
-        }
-        appendMessage(text, 'self');
-        ui.chatInput.value = '';
-        ui.chatInput.focus();
-    }
-
-    ui.sendBtn.addEventListener('click', sendChatMessage);
-    ui.chatInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            sendChatMessage();
-        }
-    });
-
-    // ─────────────────────────────────────────────────────────────
-    // DOWNLOAD
-    // ─────────────────────────────────────────────────────────────
-    ui.downloadBtn.addEventListener('click', () => {
-        if (!state.receivedFileData) return;
-        const blob = new Blob([state.receivedFileData]);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = state.receivedFileName || 'bundle.zip';
-        a.click();
-        URL.revokeObjectURL(url);
-    });
-
-    // ─────────────────────────────────────────────────────────────
-    // CLEANUP
-    // ─────────────────────────────────────────────────────────────
-    function cleanUp() {
-        if (state.heartbeatTimer) clearInterval(state.heartbeatTimer);
-        if (state.ws) {
-            try { state.ws.close(); } catch (_) {}
-            state.ws = null;
-        }
-        if (state.peer) state.peer.destroy();
-        for (const [id, entry] of state.connections) {
-            try { entry.conn.close(); } catch (_) {}
-        }
-        state.connections.clear();
-        state.knownPeers.clear();
-    }
-
-    window.addEventListener('pagehide', cleanUp);
-    window.addEventListener('beforeunload', cleanUp);
-
-    // ─────────────────────────────────────────────────────────────
-    // START
-    // ─────────────────────────────────────────────────────────────
-    connectWebSocket();
-    initPeerJS();
-
-    // Periodic cleanup (same as original)
-    setInterval(() => {
-        const now = Date.now();
-        for (const [id, p] of state.knownPeers) {
-            if (now - p.lastSeen > PEER_TIMEOUT_MS) {
-                state.knownPeers.delete(id);
-                if (state.connections.has(id)) {
-                    closeConnection(id);
-                }
-            }
-        }
-        renderPeerList();
-    }, 15000);
-</script>
+        }, 15000);
+    </script>
 </body>
 </html>
