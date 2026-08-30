@@ -405,6 +405,9 @@
         }
     }
 
+    // dirty flags
+    const CURSOR_PRESSED = 1 << 0;
+
     class Triangle extends Ball {
         constructor(x,y,r) {
             super(x,y,r);
@@ -413,6 +416,19 @@
             this.type = 2;
             this.pressed = 0;
             // this.easingPercent = 0.5;
+        }
+
+        update() {
+            if(this.pressed){
+                this.flags.activate(CURSOR_PRESSED);
+            }
+        }
+
+        applyEvents() {
+            if(this.flags.has(CURSOR_PRESSED)) {
+                fds.spawnNormal(this.x, this.y, this.x);
+                this.flags.toggle(CURSOR_PRESSED);
+            }
         }
 
         draw() {
@@ -449,6 +465,8 @@
             serverCursor.seed[this.id]      = Math.floor(this.seed);
             serverCursor.type[this.id]      = Math.floor(this.type);
             serverCursor.pressed[this.id]   = this.pressed;
+            serverCursor.flags[this.id]   = this.flags.value;
+
 
             if(SPATIAL_LOCALIZATION_ENABLED == true) {
                 const encoded = encodePosition(this.x, this.y);
@@ -464,6 +482,7 @@
 
         deserialize() {
             this.seed = serverCursor.seed[this.id];
+            this.flags.value = serverCursor.flags[this.id];
 
             if(SPATIAL_LOCALIZATION_ENABLED == true) {
                 const decoded = decodePosition(
@@ -598,15 +617,8 @@
         triangles[0].pressed = cursor.pressed[0];
 
         // Broadcast
-        if(isHost) {
-            if(triangles[0].pressed) {
-                outputs.x[0] = cursor.x[0];
-                outputs.y[0] = cursor.y[0];
-                outputs.targetTick[0] = currentTick+100;
-                serverSendInput();
-                applyOutput();
-            }
-        } else {
+        if(!isHost) {
+            // send cursor data
             if(window.clientSendInput) clientSendInput();
         }
     }
@@ -640,47 +652,11 @@
         applyOutput();
     }
 
-    function applyOutput() {
-        console.log(outputs.x[0],outputs.y[0]);
-
-        events.push({
-            targetTick: outputs.targetTick[0],
-            type: "createBall",
-            x: outputs.x[0],
-            y: outputs.y[0]
-        });
-    }
-
     function getStates() {
         balls.forEach(b => b.serialize());
         triangles.forEach(t => t.serialize());
 
         return new Uint8Array(pools.serialize());
-    }
-
-    // Collect and queue events
-    const events = [];
-
-    function executeEvents(frame, events) {
-        // garbage cleanup
-        while(events.length > 1000) {
-            events.shift();
-        }
-
-        for (var i = 0; i < events.length; i++) {
-            if(frame == events[i].targetTick) {
-                switch(events[i].type) {
-                    case "createBall":
-                        // deterministicBalls.push(
-                        //     new DummyBall(events[i].x, events[i].y, 10, events[i].targetTick)
-                        // );
-
-                        fds.spawnNormal(events[i].x, events[i].y, 100);
-                    break;
-                }
-
-            }
-        }
     }
 
     // ── Game loop ──────────────────────────────────────────────
@@ -691,9 +667,17 @@
                 b.update();
             }
 
+            for(const b of triangles) {
+                b.update();
+            }
+
             if(broadcast) broadcast();
 
             for(const b of balls) {
+                b.applyEvents();
+            }
+
+            for(const b of triangles) {
                 b.applyEvents();
             }
         } else {
@@ -714,8 +698,6 @@
         }
 
         handleCollisions();
-
-        executeEvents(currentTick, events);
     }
 
     function renderLoop() {
@@ -735,6 +717,9 @@
         ctx.fillText("Objects: "+balls.length,10,canvas.height-15);
     }
 
+</script>
+<script>
+// ALMOST NEVER TOUCH BELOW THIS
     const LOOP = {
         lastTime: performance.now(),
         acc: 0,
@@ -761,6 +746,7 @@
 
         // RENDER STUFF
         renderLoop();
+
         // ---- Render floating damage system ----
         fds.render(ctx);
         fds.update(delta/1000);
