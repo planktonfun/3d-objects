@@ -169,6 +169,7 @@ class PoolManager {
         }
     }
 }
+
 /* SAVE / LOAD */
 function bufferToBase64(buffer) {
   const bytes = new Uint8Array(buffer);
@@ -246,7 +247,6 @@ function getExited(pool) {
 
 globalThis.createQueriesFor = createQueriesFor;
 
-
 function seedRandom(seed) {
   var x = Math.sin(seed++) * 10000;
   return x - Math.floor(x);
@@ -279,9 +279,9 @@ globalThis.lerp = lerp;
 globalThis.getMaxUserCount = getMaxUserCount;
 
 // testing
-if(window?.process?.argv[2]) {
+if(process?.argv[2]) {
 
-    require('./binary-delta-fixedsize.js');
+    require('./delta-fixed-size.js');
 
     const pools = new PoolManager();
     const userCount = 13; // can handle 50k users in less than a milisecond
@@ -330,7 +330,7 @@ if(window?.process?.argv[2]) {
         FLAG_4: Uint8Array,
     }));
 
-
+    console.log(player.STR);
     const t0 = performance.now();
     // recieve client intents
     // game updates
