@@ -749,7 +749,7 @@
 
         // ---- Render floating damage system ----
         fds.render(ctx);
-        fds.update(delta/1000);
+        fds.update(1000/FPS/1000); // make it consistent even at different fps
 
         requestAnimationFrame(gameLoop);
     }
