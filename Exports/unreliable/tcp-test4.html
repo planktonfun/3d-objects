@@ -742,6 +742,7 @@
         while (LOOP.acc >= LOOP.hz) {
             logicLoop();
             LOOP.acc -= LOOP.hz;
+            fds.update(LOOP.hz/1000);
         }
 
         // RENDER STUFF
@@ -749,7 +750,6 @@
 
         // ---- Render floating damage system ----
         fds.render(ctx);
-        fds.update(1000/FPS/1000); // make it consistent even at different fps
 
         requestAnimationFrame(gameLoop);
     }
