@@ -34,6 +34,8 @@
     <script src="./delta-fixed-size.js"></script>
     <script src="./spatial-localization.js"></script>
     <script src="./damage-floater.js"></script>
+    <script src="./common-reference-timestamp.js"></script>
+    <script src="./deterministic-dead-reckoning.js"></script>
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
 </head>
 <body>
@@ -44,6 +46,59 @@
 
     <canvas id="canvas"></canvas>
     <pre id="connectionName"></pre>
+<script>
+
+
+    const npcSchedule = [
+        {
+            durationMs: 4000,
+            from: { x: 0, y: 0 },
+            to:   { x: 500, y: 0 },
+            ease: 'easeInOut',
+            color: '#3b82f6',
+            label: 'Walking to Shop'
+        },
+        {
+            durationMs: 4000,
+            from: { x: 500, y: 0 },
+            to:   { x: 500, y: 500 },
+            ease: 'easeInOut',
+            color: '#ef4444',
+            label: 'Working at Blacksmith'
+        },
+        {
+            durationMs: 2000,
+            from: { x: 500, y: 500 },
+            to:   { x: 0, y: 500 },
+            ease: 'easeInOut',
+            color: '#10b981',
+            label: 'Returning Home'
+        },
+        {
+            durationMs: 2000,
+            from: { x: 0, y: 500 },
+            to:   { x: 0, y: 0 },
+            ease: 'linear',
+            color: '#10b981',
+            label: 'Sleeping'
+        }
+    ];
+
+    let startTime = Math.floor(getServerTimestamp()/86400000)*86400000;
+    let entities = [];
+
+    (async function() {
+        await getCommonReferencePoint();
+
+        startTime = Math.floor(getServerTimestamp()/86400000)*86400000;
+
+        entities = [
+            createEntityWithSchedule("npc_1", "NPC Schedule", { spawnTime: startTime, baseParams: { startX: 100, startY: 100 } }, npcSchedule),
+            createEntityWithSchedule("npc_2", "NPC Schedule", { spawnTime: startTime+4000, baseParams: { startX: 100, startY: 100 } }, npcSchedule),
+            createEntityWithSchedule("npc_3", "NPC Schedule", { spawnTime: startTime+8000, baseParams: { startX: 100, startY: 100 } }, npcSchedule),
+        ];
+    })();
+</script>
 <script>
         // ---- Create the floating damage system (plug & play!) ----
         const fds = new FloatingDamageSystem({
@@ -67,6 +122,7 @@
     // constants
     const SPATIAL_LOCALIZATION_ENABLED = true;
     const INTERPOLATION_ENABLED = true;
+    const DETERMINISTIC_ENTITIES_ENABLED = true;
     const FPS = 60;  // adjust as needed
 
     // Inputs
@@ -100,6 +156,8 @@
         offsetX: Uint8Array,
         offsetY: Uint8Array,
         flags: Uint8Array,
+        vx: Float32Array,
+        vy: Float32Array,
     }: {
         id: Uint8Array,
         seed: Uint8Array,
@@ -146,7 +204,7 @@
     const deterministicBalls = [];
     const balls = [];
     const triangles = [];
-    const COUNT = 15;
+    const COUNT = 40;
     let ballId = 0;
 
     class ClientObject {
@@ -156,26 +214,32 @@
             this.seed = -1;
             this.x = -1;
             this.y = -1;
-            this.targetX = -1;
-            this.targetY = -1;
+            this.vx = 0;
+            this.vy = 0;
             this.easingPercent = Math.min(0.99, 0.99/60 * FPS);
             this.flags = new BitFlags();
         }
 
-        updateClient(){
-            if(INTERPOLATION_ENABLED) {
+        updateClient(dt=1){
+            this.x += this.vx*dt;
+            this.y += this.vy*dt;
+
+        /*    if(INTERPOLATION_ENABLED) {
                 this.x = lerp(this.x, this.targetX, this.easingPercent);
                 this.y = lerp(this.y, this.targetY, this.easingPercent);
             } else {
                 this.x = this.targetX;
                 this.y = this.targetY;
-            }
+            }*/
         }
 
         serialize() {
             multiplayerObjects.seed[this.id]   = Math.floor(this.seed);
             multiplayerObjects.type[this.id]   = Math.floor(this.type);
             multiplayerObjects.flags[this.id]   = this.flags.value;
+
+            multiplayerObjects.vx[this.id] = this.vx;
+            multiplayerObjects.vy[this.id] = this.vy;
 
             if(SPATIAL_LOCALIZATION_ENABLED == true) {
                 const encoded = encodePosition(this.x, this.y);
@@ -184,8 +248,8 @@
                 multiplayerObjects.offsetX[this.id] = encoded.offsetX;
                 multiplayerObjects.offsetY[this.id] = encoded.offsetY;
             } else {
-                multiplayerObjects.x[this.id]      = Math.floor(this.x);
-                multiplayerObjects.y[this.id]      = Math.floor(this.y);
+                multiplayerObjects.x[this.id] = Math.floor(this.x);
+                multiplayerObjects.y[this.id] = Math.floor(this.y);
             }
         }
 
@@ -193,6 +257,9 @@
 
             this.seed = multiplayerObjects.seed[this.id];
             this.flags.value = multiplayerObjects.flags[this.id];
+
+            this.vx = multiplayerObjects.vx[this.id];
+            this.vy = multiplayerObjects.vy[this.id];
 
             if(SPATIAL_LOCALIZATION_ENABLED == true) {
                 const decoded = decodePosition(
@@ -202,11 +269,11 @@
                     multiplayerObjects.offsetY[this.id]
                 );
 
-                this.targetX = decoded.x;
-                this.targetY = decoded.y;
+                this.x = decoded.x;
+                this.y = decoded.y;
             } else {
-                this.targetX = multiplayerObjects.x[this.id];
-                this.targetY = multiplayerObjects.y[this.id];
+                this.x = multiplayerObjects.x[this.id];
+                this.y = multiplayerObjects.y[this.id];
             }
 
         }
@@ -241,17 +308,28 @@
             this.radius = 15+seedRandom(this.seed)*15;
 
             // Random velocity
-            this.vx = (seedRandom(this.seed)-0.5)*8;
-            this.vy = (seedRandom(this.seed)-0.5)*8;
+            this.vx = (seedRandom(this.seed)-0.5)*8*(60/FPS);
+            this.vy = (seedRandom(this.seed)-0.5)*8*(60/FPS);
 
             // Prevent nearly stationary balls
             if(Math.abs(this.vx)<2) this.vx = this.vx<0?-2:2;
             if(Math.abs(this.vy)<2) this.vy = this.vy<0?-2:2;
 
             this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
+
+            this.updateFrequency = 0;
+
+            this.damage = -1;
+            this.isCrit = false;
         }
 
         update() {
+            this.updateFrequency++;
+            if(this.updateFrequency % 100 == 0) {
+                this.updateFrequency = 0;
+                this.flags.activate(DIRTY_SKILL_2);
+            }
+
             this.x += this.vx;
             this.y += this.vy;
 
@@ -260,7 +338,7 @@
                 this.x=this.radius;
                 this.vx*=-1;
 
-                this.flags.activate(DIRTY_SKILL_1);
+                this.flags.activate(DIRTY_SKILL_2);
             }
 
             // Right
@@ -276,7 +354,7 @@
                 this.y=this.radius;
                 this.vy*=-1;
 
-                this.flags.activate(DIRTY_SKILL_3);
+                this.flags.activate(DIRTY_SKILL_2);
             }
 
             // Bottom
@@ -284,36 +362,22 @@
                 this.y=canvas.height-this.radius;
                 this.vy*=-1;
 
-                this.flags.activate(DIRTY_SKILL_4);
+                this.flags.activate(DIRTY_SKILL_2);
             }
         }
 
         applyEvents() {
             if(this.flags.has(DIRTY_SKILL_1)) {
-                fds.spawnNormal(this.x, this.y, this.x);
+                if(this.isCrit) {
+                    fds.spawnCritical(this.x, this.y, this.damage*2);
+                } else {
+                    fds.spawnNormal(this.x, this.y, this.damage);
+                }
+
                 this.flags.toggle(DIRTY_SKILL_1);
             }
             if(this.flags.has(DIRTY_SKILL_2)) {
-                fds.spawnNormal(this.x, this.y, this.x);
                 this.flags.toggle(DIRTY_SKILL_2);
-            }
-            if(this.flags.has(DIRTY_SKILL_3)) {
-                fds.spawnNormal(this.x, this.y, this.x);
-                this.flags.toggle(DIRTY_SKILL_3);
-            }
-            if(this.flags.has(DIRTY_SKILL_4)) {
-                fds.spawnNormal(this.x, this.y, this.x);
-                this.flags.toggle(DIRTY_SKILL_4);
-            }
-        }
-
-        updateClient(){
-            if(INTERPOLATION_ENABLED) {
-                this.x = lerp(this.x, this.targetX, this.easingPercent);
-                this.y = lerp(this.y, this.targetY, this.easingPercent);
-            } else {
-                this.x = this.targetX;
-                this.y = this.targetY;
             }
         }
 
@@ -332,11 +396,62 @@
             ctx.stroke();
         }
 
-        deserialize() {
-            this.decodeTarget();
+        serialize() {
+            multiplayerObjects.flags[this.id]   = this.flags.value;
+            if(!this.flags.has(DIRTY_SKILL_2)) {
+                return;
+            }
+
+            multiplayerObjects.seed[this.id]   = Math.floor(this.seed);
+            multiplayerObjects.type[this.id]   = Math.floor(this.type);
+
+            multiplayerObjects.vx[this.id] = this.vx;
+            multiplayerObjects.vy[this.id] = this.vy;
+
+            if(SPATIAL_LOCALIZATION_ENABLED == true) {
+                const encoded = encodePosition(this.x, this.y);
+                multiplayerObjects.cellX[this.id]   = encoded.cellX;
+                multiplayerObjects.cellY[this.id]   = encoded.cellY;
+                multiplayerObjects.offsetX[this.id] = encoded.offsetX;
+                multiplayerObjects.offsetY[this.id] = encoded.offsetY;
+            } else {
+                multiplayerObjects.x[this.id] = Math.floor(this.x);
+                multiplayerObjects.y[this.id] = Math.floor(this.y);
+            }
+        }
+
+        deserialize(seed) {
+            this.damage = seed;
+            this.isCrit = (seedRandom(seed) > 0.5);
+            this.flags.value = multiplayerObjects.flags[this.id];
+            if(!this.flags.has(DIRTY_SKILL_2)) {
+                return;
+            }
+
+            this.seed = multiplayerObjects.seed[this.id];
+
+            this.vx = multiplayerObjects.vx[this.id];
+            this.vy = multiplayerObjects.vy[this.id];
+
             this.radius = 15+seedRandom(this.seed)*15;
             this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
+
+            if(SPATIAL_LOCALIZATION_ENABLED == true) {
+                const decoded = decodePosition(
+                    multiplayerObjects.cellX[this.id],
+                    multiplayerObjects.cellY[this.id],
+                    multiplayerObjects.offsetX[this.id],
+                    multiplayerObjects.offsetY[this.id]
+                );
+
+                this.x = decoded.x;
+                this.y = decoded.y;
+            } else {
+                this.x = multiplayerObjects.x[this.id];
+                this.y = multiplayerObjects.y[this.id];
+            }
         }
+
     }
 
     class DummyBall {
@@ -415,7 +530,11 @@
             this.id = 0;
             this.type = 2;
             this.pressed = 0;
-            // this.easingPercent = 0.5;
+            this.targetX = -1;
+            this.targetY = -1;
+
+            this.damage = -1;
+            this.isCrit = false;
         }
 
         update() {
@@ -424,9 +543,23 @@
             }
         }
 
+        updateClient(){
+            if(INTERPOLATION_ENABLED) {
+                this.x = lerp(this.x, this.targetX, this.easingPercent);
+                this.y = lerp(this.y, this.targetY, this.easingPercent);
+            } else {
+                this.x = this.targetX;
+                this.y = this.targetY;
+            }
+        }
+
         applyEvents() {
             if(this.flags.has(CURSOR_PRESSED)) {
-                fds.spawnNormal(this.x, this.y, this.x);
+                if(this.isCrit) {
+                    fds.spawnCritical(this.x, this.y, this.damage*2);
+                } else {
+                    fds.spawnNormal(this.x, this.y, this.damage);
+                }
                 this.flags.toggle(CURSOR_PRESSED);
             }
         }
@@ -475,14 +608,17 @@
                 serverCursor.offsetX[this.id] = encoded.offsetX;
                 serverCursor.offsetY[this.id] = encoded.offsetY;
             } else {
-                serverCursor.x[this.id]      = Math.floor(this.x);
-                serverCursor.y[this.id]      = Math.floor(this.y);
+                serverCursor.x[this.id] = Math.floor(this.x);
+                serverCursor.y[this.id] = Math.floor(this.y);
             }
         }
 
-        deserialize() {
+        deserialize(seed) {
             this.seed = serverCursor.seed[this.id];
             this.flags.value = serverCursor.flags[this.id];
+
+            this.damage = seed;
+            this.isCrit = (seedRandom(seed) > 0.5);
 
             if(SPATIAL_LOCALIZATION_ENABLED == true) {
                 const decoded = decodePosition(
@@ -518,6 +654,15 @@
 
     triangles.push(new Triangle(0,0,10));
 
+    function isColliding(a, b, r1, r2) {
+        const dx=b.x-a.x;
+        const dy=b.y-a.y;
+
+        const dist=Math.hypot(dx,dy);
+        const minDist=r1+r2;
+
+        return (dist<minDist);
+    }
     function handleCollisions(){
 
         for(let i=0;i<balls.length;i++){
@@ -631,17 +776,17 @@
     }
 
     // common state deserialization for both client and server
-    function deserializePools() {
-        balls.forEach(b => b.deserialize());
-        triangles.forEach(t => t.deserialize());
+    function deserializePools(seed) {
+        balls.forEach(b => b.deserialize(seed));
+        triangles.forEach(t => t.deserialize(seed));
     }
 
     // 3. server -> clients
-    function applyPackedState(raw) {
+    function applyPackedState(raw, seed) {
         // raw is always a Uint8Array
         pools.deserialize(raw.buffer);
 
-        deserializePools();
+        deserializePools(seed);
 
         return raw;  // return the same Uint8Array for chaining
     }
@@ -660,11 +805,43 @@
     }
 
     // ── Game loop ──────────────────────────────────────────────
+    let currentTick = 0;
     function logicLoop() {
+
+        // deterministic objects
+        if(DETERMINISTIC_ENTITIES_ENABLED) {
+            const evalTimeMs = getServerTimestamp();
+            const displaySeconds = (evalTimeMs - startTime) / 1000;
+            entities.forEach(entity => {
+                const state = entity.calculateState(getServerTimestamp());
+                const size = state.size || 12;
+                const x = state.startX + state.x;
+                const y = state.startY + state.y;
+
+                entity.state = {
+                    size: size,
+                    x: x,
+                    y: y,
+                    color: state.color,
+                    status: state.status,
+                };
+            });
+        }
+
+        // non deterministic objects
         if(isHost) {
 
             for(const b of balls) {
                 b.update();
+
+                if(DETERMINISTIC_ENTITIES_ENABLED) {
+                    if(entities.length > 0) {
+                        entities.forEach(entity=>{
+                            if(isColliding(entity.state, b, entity.state.size, b.radius))
+                                b.flags.activate(DIRTY_SKILL_1);
+                        })
+                    }
+                }
             }
 
             for(const b of triangles) {
@@ -683,12 +860,12 @@
         } else {
             // client and host process the updates
             for(const b of balls) {
-                b.updateClient();
+                // b.updateClient();
                 b.applyEvents();
             }
 
             for(const b of triangles) {
-                b.updateClient();
+                // b.updateClient();
                 b.applyEvents();
             }
         }
@@ -697,24 +874,58 @@
             b.update();
         }
 
-        handleCollisions();
+
+
+        // handleCollisions();
     }
 
-    function renderLoop() {
+    function renderLoop(dt) {
         ctx.clearRect(0,0,canvas.width,canvas.height);
 
-        for(const b of balls)
+        for(const b of balls) {
+            if(!isHost) b.updateClient(dt);
             b.draw();
+        }
 
-        for(const b of triangles)
+        for(const b of triangles) {
+            if(!isHost) b.updateClient(dt);
             b.draw();
+        }
 
         for(const b of deterministicBalls)
             b.draw();
 
+        if(DETERMINISTIC_ENTITIES_ENABLED) {
+            entities.forEach(entity => {
+                // Safely check if state exists and is empty
+                if (!entity?.state || Object.keys(entity.state).length === 0) return;
+
+                const size = entity.state.size;
+                const x = entity.state.x;
+                const y = entity.state.y;
+
+                ctx.fillStyle = entity.state.color;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = "#e1e1e6";
+                ctx.font = "12px sans-serif";
+
+                ctx.fillText(`${entity.type} (${entity.state.status})`, x + 18, y + 4);
+                ctx.fillStyle = "#4e4e54";
+                ctx.font = "10px monospace";
+                ctx.fillText(`X: ${Math.round(x)} Y: ${Math.round(y)}`, x + 18, y + 16);
+            });
+        }
+
         ctx.fillStyle="white";
         ctx.font="16px Arial";
         ctx.fillText("Objects: "+balls.length,10,canvas.height-15);
+
+        const displaySeconds = (getServerTimestamp() - startTime) / 1000;
+        ctx.fillText(`Time Elapsed: ${displaySeconds.toFixed(2)}s`,10,canvas.height-30);
+        ctx.fillText(`Tick Elapsed: ${currentTick}`,10,canvas.height-45);
     }
 
 </script>
@@ -727,7 +938,10 @@
         MAX_DELTA: 100, // ms, prevents spiral of death
     };
 
-    function gameLoop() {
+    let renderTick = 0;
+
+    function gameLoop(dt) {
+        if(window.drainBufferedState) window.drainBufferedState();
         const time = performance.now();
         let delta = time - LOOP.lastTime;
         LOOP.lastTime = time;
@@ -746,7 +960,8 @@
         }
 
         // RENDER STUFF
-        renderLoop();
+        // console.log(delta/1000)
+        renderLoop(delta/LOOP.hz);
 
         // ---- Render floating damage system ----
         fds.render(ctx);
@@ -758,7 +973,7 @@
 
     // ── Networking ─────────────────────────────────────────────
     let broadcast = null;
-    let currentTick = 0;
+
     const PACKET_TYPE_ENUM = [
         'Snapshot',
         'Delta',
@@ -777,7 +992,7 @@
 
             conn.on('data', raw => decodeInput(new Uint8Array(raw)));  // raw is ArrayBuffer from DataChannel
             conn.on('open', () => {
-                if (current) conn.send(packPacket(tick, PACKET_TYPE_ENUM.indexOf('Snapshot'), current).buffer);
+                if (current) conn.send(packPacketWithSeed(tick, 1, PACKET_TYPE_ENUM.indexOf('Snapshot'), current).buffer);
             });
         });
 
@@ -791,27 +1006,31 @@
         broadcast = () => {
             tick++;
             currentTick = tick;
-
-            if (!clients.length) return;
-
             current = getStates();
-            const payload = prevState
-                ? createDeltaOptimized(prevState, current)   // both are Uint8Array
-                : current;
-            prevState = current;
-            lastPayload = payload;
+            const seed = Math.floor(Math.random()*1000);
 
-            const packet = packPacket(tick, PACKET_TYPE_ENUM.indexOf('Delta'), payload);
-            clients.forEach(conn => {
-                if (conn?.open && conn.dataChannel.bufferedAmount < 16384) {
-                    conn.send(packet.buffer);
-                }
-            });
+            if (clients.length) {
+                const payload = prevState
+                    ? createDeltaOptimized(prevState, current)   // both are Uint8Array
+                    : current;
+                prevState = current;
+
+                const packet = packPacketWithSeed(tick, seed, PACKET_TYPE_ENUM.indexOf('Delta'), payload);
+                lastPayload = packet;
+                clients.forEach(conn => {
+                    if (conn?.open && conn.dataChannel.bufferedAmount < 16384) {
+                        conn.send(packet.buffer);
+                    }
+                });
+            }
+
+            // apply the payload to self too
+            applyPackedState(current, seed);
         }
 
         window.serverSendInput = () => {
             if (!clients.length) return;
-            const packet = packPacket(tick, PACKET_TYPE_ENUM.indexOf('Event'), new Uint8Array(outputPools.serialize()));
+            const packet = packPacketWithSeed(tick, Math.floor(Math.random()*1000), PACKET_TYPE_ENUM.indexOf('Event'), new Uint8Array(outputPools.serialize()));
             clients.forEach(conn => {
                 if (conn?.open && conn.dataChannel.bufferedAmount < 16384) {
                     conn.send(packet);   // returns ArrayBuffer, which is acceptable
@@ -822,7 +1041,7 @@
         // Optional bandwidth logging
         setInterval(() => {
             if (!lastPayload) return;
-            console.log(getMaxUserCount(lastPayload.byteLength / 3, 5_000_000, FPS));
+            console.log(getMaxUserCount(lastPayload.byteLength / 3, 5_000_000, FPS), lastPayload.byteLength);
         }, 1000);
     }
 
@@ -830,30 +1049,41 @@
         let previous = null;
         let receivedTick = -1;
         let receivedInitial = false;
-
+        let bufferedStates = [];
         peer.on('open', () => {
             const conn = peer.connect(hostname, { reliable: true });
             conn.on('error', console.error);
 
+            // buffer is needed for batched slow connections
             conn.on('data', raw => {
-                const { tick, type, payload } = unpackPacket(new Uint8Array(raw));
+                const { tick, seed, type, payload } = unpackPacketWithSeed(new Uint8Array(raw));
+                bufferedStates.push({ tick, seed, type, payload });
+            });
+
+            // run at render
+            window.drainBufferedState = function() {
+                if(bufferedStates.length==0) return;
+                const { tick, seed, type, payload } = bufferedStates.shift();
 
                 if(type == PACKET_TYPE_ENUM.indexOf('Event')) {
                     decodeOutput(payload);
                 }
 
                 if (receivedTick > tick) return;
+
+                // console.log(receivedTick-tick, seed);
+
                 receivedTick = tick;
                 currentTick = receivedTick;
 
                 if (type === PACKET_TYPE_ENUM.indexOf('Snapshot')) {
-                    previous = applyPackedState(payload);
+                    previous = applyPackedState(payload, seed);
                     receivedInitial = true;
                 } else if (type === PACKET_TYPE_ENUM.indexOf('Delta') && receivedInitial) {
                     const rebuilt = applyDeltaOptimized(previous, payload);
-                    previous = applyPackedState(rebuilt);
+                    previous = applyPackedState(rebuilt, seed);
                 }
-            });
+            }
 
             conn.on('close', () => {
                 console.log('❌ Connection closed.');
@@ -884,10 +1114,34 @@
         connectionList.unshift({ value: `${UNIQUE_SERVER_NAME}-host${i}`, host: null });
     }
 
+    const peerConfig = {
+        config: {
+            iceServers: [{
+                urls: "stun:stun.relay.metered.ca:80"
+            }, {
+                urls: "turn:standard.relay.metered.ca:80",
+                username: "d0012d764320711d20e32cb5",
+                credential: "NJ8OImbAEeJTEu4H"
+            }, {
+                urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+                username: "d0012d764320711d20e32cb5",
+                credential: "NJ8OImbAEeJTEu4H"
+            }, {
+                urls: "turn:standard.relay.metered.ca:443",
+                username: "d0012d764320711d20e32cb5",
+                credential: "NJ8OImbAEeJTEu4H"
+            }, {
+                urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+                username: "d0012d764320711d20e32cb5",
+                credential: "NJ8OImbAEeJTEu4H"
+            }]
+        }
+    };
+
     // Helper function converting event-based Obj into a Promise
     function connect(name, type) {
         return new Promise((resolve, reject) => {
-            const peer = new Peer(name);
+            const peer = new Peer(name, peerConfig);
 
             peer.on('open', id => resolve(peer));
             peer.on('error', err => reject(err));
@@ -902,7 +1156,7 @@
                 // If connection succeeds, execute your callback and stop trying others
                 if(connection.host) {
                     isHost = false;
-                    startAsClient(new Peer(), connection.host);
+                    startAsClient(new Peer(null, peerConfig), connection.host);
                 } else {
                     isHost = true;
                     startAsHost(peer);

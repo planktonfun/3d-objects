@@ -14,6 +14,176 @@
 
         function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
+      // ================================================================
+      //  SPRITE & BALLOON TEXTURE CACHES
+      // ================================================================
+      const fdsSpriteCache = new Map();
+      const MAX_FDS_SPRITE_CACHE = 300;
+      const fdsCritBalloonCache = new Map();
+
+      function getFloaterSprite(
+        text,
+        type,
+        fontSize,
+        renderScale,
+        textColor,
+        outlineColor,
+        shadowColor,
+        isCrit,
+        isSkillTotal,
+        isHeal,
+        isMiss
+      ) {
+        const fs = Math.max(8, Math.round(fontSize * clamp(Number(renderScale) || 1, 0.25, 2)));
+        const key = `${type}|${text}|${fs}|${textColor}|${outlineColor}|${shadowColor}`;
+        let cached = fdsSpriteCache.get(key);
+        if (cached) return cached;
+
+        const offCanvas = document.createElement('canvas');
+        const offCtx = offCanvas.getContext('2d');
+
+        const fontFamily =
+          isCrit || isSkillTotal
+            ? '"Arial Black", "Impact", system-ui, sans-serif'
+            : '"Arial Black", "Segoe UI Black", system-ui, sans-serif';
+        const fontStr = `900 ${fs}px ${fontFamily}`;
+
+        offCtx.font = fontStr;
+        const metrics = offCtx.measureText(text);
+        const textW = Math.ceil(metrics.width) || Math.ceil(fs * text.length * 0.6);
+        const padX = Math.ceil(fs * 0.9) + 28;
+        const padY = Math.ceil(fs * 0.9) + 28;
+        const cw = textW + padX * 2;
+        const ch = fs * 2 + padY * 2;
+
+        offCanvas.width = cw;
+        offCanvas.height = ch;
+
+        offCtx.font = fontStr;
+        offCtx.textAlign = 'center';
+        offCtx.textBaseline = 'middle';
+        const cx = cw / 2;
+        const cy = ch / 2;
+
+        if (isMiss) {
+          offCtx.lineWidth = 2.5;
+          offCtx.strokeStyle = '#0a0a12';
+          offCtx.lineJoin = 'round';
+          offCtx.strokeText(text, cx, cy);
+          offCtx.shadowColor = 'rgba(150, 150, 180, 0.10)';
+          offCtx.shadowBlur = 10;
+          offCtx.fillStyle = '#9999BB';
+          offCtx.fillText(text, cx, cy);
+        } else {
+          const lineW = isCrit || isSkillTotal ? 3 : 2;
+          offCtx.lineWidth = lineW;
+          offCtx.strokeStyle = outlineColor || '#000000';
+          offCtx.lineJoin = 'round';
+          offCtx.lineCap = 'round';
+          offCtx.shadowColor = 'rgba(0,0,0,0)';
+          offCtx.strokeText(text, cx, cy);
+
+          offCtx.shadowColor = shadowColor || 'rgba(0,0,0,0)';
+          offCtx.shadowBlur = isCrit ? 20 : isSkillTotal || isHeal ? 10 : 10;
+          offCtx.shadowOffsetY = isCrit || isSkillTotal || isHeal ? 0 : 1;
+          offCtx.fillStyle = textColor;
+          offCtx.fillText(text, cx, cy);
+
+          if (isCrit || isSkillTotal || isHeal) {
+            offCtx.shadowColor = isHeal ? 'rgba(102, 255, 102, 0.15)' : 'rgba(255, 215, 0, 0.15)';
+            offCtx.shadowBlur = 30;
+            offCtx.shadowOffsetY = 0;
+            offCtx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            offCtx.fillText(text, cx - 1, cy - 1);
+          }
+        }
+
+        cached = { canvas: offCanvas, width: cw, height: ch };
+        if (fdsSpriteCache.size >= MAX_FDS_SPRITE_CACHE) {
+          const iter = fdsSpriteCache.keys();
+          for (let i = 0; i < 60; i++) {
+            const next = iter.next();
+            if (next.done) break;
+            fdsSpriteCache.delete(next.value);
+          }
+        }
+        fdsSpriteCache.set(key, cached);
+        return cached;
+      }
+
+      function getCritBalloonSprite(baseFs) {
+        const fs = Math.max(8, Math.round(baseFs));
+        const key = `crit_balloon_${fs}`;
+        let cached = fdsCritBalloonCache.get(key);
+        if (cached) return cached;
+
+        const offCanvas = document.createElement('canvas');
+        const offCtx = offCanvas.getContext('2d');
+
+        const bw = fs * 1.6;
+        const bh = fs * 1.4;
+        const outerR = bw * 0.55;
+        const innerR = bw * 0.35;
+        const pad = Math.ceil(outerR * 0.5) + 24;
+        const cw = Math.ceil((outerR + pad) * 2);
+        const ch = Math.ceil((outerR + pad) * 2);
+
+        offCanvas.width = cw;
+        offCanvas.height = ch;
+
+        offCtx.translate(cw / 2, ch / 2 - 2);
+
+        // 1. Red glow circle
+        const glow = offCtx.createRadialGradient(0, 0, 0, 0, 0, bw * 0.9);
+        glow.addColorStop(0, 'rgba(255, 60, 60, 0.20)');
+        glow.addColorStop(1, 'rgba(255, 0, 0, 0)');
+        offCtx.fillStyle = glow;
+        offCtx.beginPath();
+        offCtx.arc(0, 0, bw * 0.9, 0, Math.PI * 2);
+        offCtx.fill();
+
+        // 2. Star spike polygon with gradient & shadow
+        const spikes = 14;
+        offCtx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+          const angle = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2;
+          const r = i % 2 === 0 ? outerR : innerR;
+          offCtx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+        }
+        offCtx.closePath();
+
+        const grad = offCtx.createRadialGradient(0, -bh * 0.2, 0, 0, 0, outerR);
+        grad.addColorStop(0, '#FF4444');
+        grad.addColorStop(0.5, '#DD2222');
+        grad.addColorStop(1, '#AA1111');
+        offCtx.fillStyle = grad;
+        offCtx.shadowColor = 'rgba(255, 50, 50, 0.3)';
+        offCtx.shadowBlur = 20;
+        offCtx.fill();
+        offCtx.shadowBlur = 0;
+        offCtx.strokeStyle = '#881111';
+        offCtx.lineWidth = 2.5;
+        offCtx.stroke();
+
+        // 3. Inner decorative star ring
+        offCtx.strokeStyle = 'rgba(255, 200, 200, 0.12)';
+        offCtx.lineWidth = 2;
+        offCtx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+          const angle = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2;
+          const r = i % 2 === 0 ? innerR * 1.1 : innerR * 0.85;
+          offCtx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+        }
+        offCtx.closePath();
+        offCtx.stroke();
+
+        cached = { canvas: offCanvas, width: cw, height: ch };
+        if (fdsCritBalloonCache.size > 20) {
+          fdsCritBalloonCache.clear();
+        }
+        fdsCritBalloonCache.set(key, cached);
+        return cached;
+      }
 
       // ================================================================
       //  FLOATING DAMAGE CLASS (single instance)
@@ -40,7 +210,6 @@
           this.isHeal = false;
           this.critBalloonScale = 0;
           this.fontSize = 44;
-          // Runtime scale is supplied by FloatingDamageSystem settings.
           this.renderScale = 1;
           this.textColor = '#FFFFFF';
           this.outlineColor = '#000000';
@@ -203,8 +372,16 @@
           }
 
           // Off-screen
-          // Floaters use world coordinates; cull only far outside the full world.
           if (this.y > 2600 || this.y < -600 || this.x > 2600 || this.x < -600) this.alive = false;
+        }
+
+        _drawCritBalloon(ctx, x, y, baseFs) {
+          const bs = this.critBalloonScale * 1.1;
+          const sprite = getCritBalloonSprite(baseFs);
+          if (!sprite) return;
+          const dw = sprite.width * bs;
+          const dh = sprite.height * bs;
+          ctx.drawImage(sprite.canvas, x - dw / 2, y - 2 - dh / 2, dw, dh);
         }
 
         draw(ctx) {
@@ -216,37 +393,6 @@
             return;
           }
 
-          ctx.save();
-          ctx.globalAlpha = this.opacity;
-
-          const x = this.x;
-          const y = this.y;
-          const fs = this.fontSize * clamp(Number(this.renderScale) || 1, 0.25, 2) * this.popScale;
-
-          // ---- Crit balloon ----
-          if (this.isCrit && this.critBalloonScale > 0.1) {
-            this._drawCritBalloon(ctx, x, y, fs);
-          }
-
-          // ---- Miss ----
-          if (this.isMiss) {
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.font = `900 ${fs}px "Arial Black", "Segoe UI Black", system-ui, sans-serif`;
-            ctx.lineWidth = 2.5;
-            ctx.strokeStyle = '#0a0a12';
-            ctx.lineJoin = 'round';
-            ctx.strokeText('MISS', x, y);
-            ctx.shadowColor = 'rgba(150, 150, 180, 0.10)';
-            ctx.shadowBlur = 10;
-            ctx.fillStyle = '#9999BB';
-            ctx.fillText('MISS', x, y);
-            ctx.shadowBlur = 0;
-            ctx.restore();
-            return;
-          }
-
-          // ---- Heal: add "+" prefix ----
           let displayValue = this.value;
           if (typeof displayValue === 'number' && Number.isFinite(displayValue)) {
             displayValue = Math.round(displayValue);
@@ -254,120 +400,50 @@
           if (this.isHeal) {
             displayValue = '+' + Math.round(Number(this.value) || 0);
           }
-
-          // ---- Normal text ----
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          const fontFamily =
-            this.isCrit || this.isSkillTotal
-              ? '"Arial Black", "Impact", system-ui, sans-serif'
-              : '"Arial Black", "Segoe UI Black", system-ui, sans-serif';
-          ctx.font = `900 ${fs}px ${fontFamily}`;
-
-          // Thinner outlines keep the numbers crisp without heavy black borders.
-          const lineW = this.isCrit || this.isSkillTotal ? 3 : 2;
-          ctx.lineWidth = lineW;
-          ctx.strokeStyle = '#000000';
-          ctx.lineJoin = 'round';
-          ctx.lineCap = 'round';
-          ctx.shadowColor = 'rgba(0,0,0,0)';
-          ctx.strokeText(String(displayValue), x, y + this.flinchOffset);
-
-          ctx.shadowColor = this.shadowColor;
-          ctx.shadowBlur = this.isCrit ? 20 : 10;
-          ctx.shadowOffsetY = this.isCrit || this.isSkillTotal || this.isHeal ? 0 : 1;
-          ctx.fillStyle = this.textColor;
-          ctx.fillText(String(displayValue), x, y + this.flinchOffset);
-
-          if (this.isCrit || this.isSkillTotal || this.isHeal) {
-            ctx.shadowColor = this.isHeal ? 'rgba(102, 255, 102, 0.15)' : 'rgba(255, 215, 0, 0.15)';
-            ctx.shadowBlur = 30;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-            ctx.fillText(String(displayValue), x - 1, y - 1 + this.flinchOffset);
-          }
-
-          ctx.restore();
-        }
-
-        _drawCritBalloon(ctx, x, y, fs) {
-          const bs = this.critBalloonScale * 1.1;
-          const bw = fs * 1.6 * bs;
-          const bh = fs * 1.4 * bs;
+          const textStr = this.isMiss ? 'MISS' : String(displayValue);
+          const baseFs = this.fontSize * clamp(Number(this.renderScale) || 1, 0.25, 2);
 
           ctx.save();
-          ctx.translate(x, y - 2);
+          ctx.globalAlpha = this.opacity;
 
-          const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, bw * 0.9);
-          glow.addColorStop(0, 'rgba(255, 60, 60, 0.20)');
-          glow.addColorStop(1, 'rgba(255, 0, 0, 0)');
-          ctx.fillStyle = glow;
-          ctx.beginPath();
-          ctx.arc(0, 0, bw * 0.9, 0, Math.PI * 2);
-          ctx.fill();
+          const x = this.x;
+          const y = this.y + this.flinchOffset;
+          const scale = this.popScale;
 
-          const spikes = 14;
-          const outerR = bw * 0.55;
-          const innerR = bw * 0.35;
-          ctx.beginPath();
-          for (let i = 0; i < spikes * 2; i++) {
-            const angle = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2;
-            const r = i % 2 === 0 ? outerR : innerR;
-            ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+          // ---- Crit balloon ----
+          if (this.isCrit && this.critBalloonScale > 0.1) {
+            this._drawCritBalloon(ctx, x, y, baseFs);
           }
-          ctx.closePath();
 
-          const grad = ctx.createRadialGradient(0, -bh * 0.2, 0, 0, 0, outerR);
-          grad.addColorStop(0, '#FF4444');
-          grad.addColorStop(0.5, '#DD2222');
-          grad.addColorStop(1, '#AA1111');
-          ctx.fillStyle = grad;
-          ctx.shadowColor = 'rgba(255, 50, 50, 0.3)';
-          ctx.shadowBlur = 20;
-          ctx.fill();
-          ctx.shadowBlur = 0;
-          ctx.strokeStyle = '#881111';
-          ctx.lineWidth = 2.5;
-          ctx.stroke();
+          // ---- Draw Cached Text Sprite (Ultra-fast blit) ----
+          const sprite = getFloaterSprite(
+            textStr,
+            this.type,
+            this.fontSize,
+            this.renderScale,
+            this.textColor,
+            this.outlineColor,
+            this.shadowColor,
+            this.isCrit,
+            this.isSkillTotal,
+            this.isHeal,
+            this.isMiss
+          );
 
-          ctx.strokeStyle = 'rgba(255, 200, 200, 0.12)';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          for (let i = 0; i < spikes * 2; i++) {
-            const angle = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2;
-            const r = i % 2 === 0 ? innerR * 1.1 : innerR * 0.85;
-            ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+          if (sprite) {
+            const dw = sprite.width * scale;
+            const dh = sprite.height * scale;
+            ctx.drawImage(sprite.canvas, x - dw / 2, y - dh / 2, dw, dh);
           }
-          ctx.closePath();
-          ctx.stroke();
-
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.font = `900 ${fs * 0.45}px "Arial Black", "Impact", system-ui, sans-serif`;
-          ctx.fillStyle = 'rgba(255, 255, 200, 0.85)';
-          ctx.shadowColor = 'rgba(0,0,0,0.3)';
-          ctx.shadowBlur = 8;
-          // ctx.fillText('POW!', 0, -bh * 0.02);
-          ctx.shadowBlur = 0;
 
           ctx.restore();
         }
       }
 
       // ================================================================
-      //  FLOATING DAMAGE SYSTEM (Plug & Play)
+      //  FLOATING DAMAGE SYSTEM (Plug & Play / 120 FPS Engine)
       // ================================================================
       class FloatingDamageSystem {
-        /**
-         * @param {Object} options
-         * @param {number} options.poolSize - Max number of floaters (default 80)
-         * @param {number} options.defaultVy - Initial vertical velocity (default -7.2)
-         * @param {number} options.defaultVx - Horizontal drift (default 4.5)
-         * @param {number} options.defaultGravity - Gravity (default 0.40)
-         * @param {number} options.defaultDuration - Duration in ms (default 1800)
-         * @param {number} options.defaultFadeStart - Fade start as 0-1 (default 0.7)
-         * @param {number} options.defaultYOffset - Y offset from spawn point (default -20)
-         * @param {number} options.initialYOffset - Creator-controlled global Y adjustment for all floating combat text (default 0)
-         */
         constructor(options = {}) {
           this.poolSize = options.poolSize || 80;
           this.defaultVy = options.defaultVy || -7.2;
@@ -376,8 +452,6 @@
           this.defaultDuration = options.defaultDuration || 1800;
           this.defaultFadeStart = options.defaultFadeStart || 0.7;
           this.defaultYOffset = options.defaultYOffset || -20;
-          // Applied once to every floater after its normal/skill/heal spawn offset.
-          // A value of 0 preserves the game's authored placement.
           this.initialYOffset = Number.isFinite(Number(options.initialYOffset))
             ? Number(options.initialYOffset)
             : 0;
@@ -441,9 +515,15 @@
         }
 
         _prune() {
-          for (let i = this.active.length - 1; i >= 0; i--) {
-            if (!this.active[i].alive) this.active.splice(i, 1);
+          let w = 0;
+          const len = this.active.length;
+          for (let i = 0; i < len; i++) {
+            if (this.active[i].alive) {
+              if (w !== i) this.active[w] = this.active[i];
+              w++;
+            }
           }
+          this.active.length = w;
         }
 
         // ---- Settings API ----
@@ -463,8 +543,11 @@
           if (settings.healDuration !== undefined) this.healDuration = settings.healDuration;
           if (settings.healFadeStart !== undefined) this.healFadeStart = settings.healFadeStart;
           if (settings.healYOffset !== undefined) this.healYOffset = settings.healYOffset;
-          if (settings.textScale !== undefined)
+          if (settings.textScale !== undefined) {
             this.textScale = clamp(Number(settings.textScale) || 1, 0.25, 2);
+            fdsSpriteCache.clear();
+            fdsCritBalloonCache.clear();
+          }
         }
 
         // ---- Z-Order Management ----
@@ -548,24 +631,15 @@
             fadeStart: options.fadeStart !== undefined ? options.fadeStart : this.healFadeStart,
             drawFn: options.drawFn || null,
           });
-          // Ensure VX is 0
           ft.vx = 0;
           return ft;
         }
 
         /**
          * Spawn a multi-hit sequence (sequential white numbers)
-         * @param {number} x - Center x
-         * @param {number} y - Center y
-         * @param {number} count - Number of hits (default 5)
-         * @param {number} baseDamage - Base damage per hit (default random 40-80)
-         * @param {Object} options - Override settings
          */
         spawnMulti(x, y, count = 5, baseDamage = null, options = {}) {
           const base = baseDamage || randInt(40, 80);
-          // Each queued hit carries its own delay so multiple multi-hit
-          // sequences (fast attack speed / several targets) can play at the
-          // same time and always finish, even if the target dies mid-way.
           for (let i = 0; i < count; i++) {
             const dmg = base + (options.variance ? randInt(-5, 10) : 0);
             const yOff =
@@ -584,11 +658,6 @@
 
         /**
          * Spawn a skill multi-hit (white arc + yellow total)
-         * @param {number} x - Center x
-         * @param {number} y - Center y
-         * @param {number} count - Number of hits (default random 5-8)
-         * @param {Array} damages - Optional array of damage values
-         * @param {Object} options - Override settings
          */
         spawnSkillMulti(x, y, count = null, damages = null, options = {}) {
           const numHits = count || randInt(5, 8);
@@ -632,14 +701,13 @@
           yellow.opacity = 1;
           this.skillState.yellowNumber = yellow;
 
-          // Store options for spawning
           this.skillState._options = options;
         }
 
         // ---- Update ----
         update(dt) {
-          // Update all alive
-          for (const ft of this.active) {
+          for (let i = 0; i < this.active.length; i++) {
+            const ft = this.active[i];
             if (ft.alive) ft.update(dt);
           }
           this._prune();
@@ -654,34 +722,39 @@
         _processMulti(dt) {
           if (this.multiQueue.length === 0) return;
           const ms = dt * 1000;
-          for (let qi = this.multiQueue.length - 1; qi >= 0; qi--) {
+          let w = 0;
+          const len = this.multiQueue.length;
+          for (let qi = 0; qi < len; qi++) {
             const item = this.multiQueue[qi];
             item.delay -= ms;
-            if (item.delay > 0) continue;
-            this.multiQueue.splice(qi, 1);
+            if (item.delay <= 0) {
+              const opts = item.options || {};
+              const ft = this._get();
+              const vy = opts.vy !== undefined ? opts.vy : this.defaultVy * 0.8 - item.index * 0.12;
+              const vx = opts.vx !== undefined ? opts.vx : this.defaultVx + item.index * 0.15;
+              const grav = opts.gravity !== undefined ? opts.gravity : this.defaultGravity * 0.9;
+              const dur =
+                opts.duration !== undefined
+                  ? opts.duration
+                  : this.defaultDuration * 0.7 + item.index * 60;
+              const fade = opts.fadeStart !== undefined ? opts.fadeStart : this.defaultFadeStart;
 
-            const opts = item.options || {};
-            const ft = this._get();
-            const vy = opts.vy !== undefined ? opts.vy : this.defaultVy * 0.8 - item.index * 0.12;
-            const vx = opts.vx !== undefined ? opts.vx : this.defaultVx + item.index * 0.15;
-            const grav = opts.gravity !== undefined ? opts.gravity : this.defaultGravity * 0.9;
-            const dur =
-              opts.duration !== undefined
-                ? opts.duration
-                : this.defaultDuration * 0.7 + item.index * 60;
-            const fade = opts.fadeStart !== undefined ? opts.fadeStart : this.defaultFadeStart;
-
-            ft.init(item.x, item.y, item.dmg, 'multi', {
-              vy: vy,
-              vx: vx,
-              gravity: grav,
-              duration: dur,
-              fadeStart: fade,
-              drawFn: opts.drawFn || null,
-            });
-            ft.fontSize = 32 + Math.floor(item.index / 2) * 2;
-            ft.textColor = '#FFFFFF';
+              ft.init(item.x, item.y, item.dmg, 'multi', {
+                vy: vy,
+                vx: vx,
+                gravity: grav,
+                duration: dur,
+                fadeStart: fade,
+                drawFn: opts.drawFn || null,
+              });
+              ft.fontSize = 32 + Math.floor(item.index / 2) * 2;
+              ft.textColor = '#FFFFFF';
+            } else {
+              if (w !== qi) this.multiQueue[w] = item;
+              w++;
+            }
           }
+          this.multiQueue.length = w;
         }
 
         _processSkill(dt) {
@@ -711,8 +784,7 @@
 
               // White arc hit
               const white = this._get();
-              const arcSpread = opts.arcSpread || 90;
-              const wx = state.baseX; // + (t - 0.5) * arcSpread;
+              const wx = state.baseX;
               const wy =
                 state.baseY +
                 (opts.yOffset !== undefined ? opts.yOffset : this.defaultYOffset) +
@@ -739,7 +811,7 @@
               white.fontSize = 30;
               white.isSkillHit = true;
 
-              // ---- Update yellow total (reset animation) ----
+              // Update yellow total
               const yellow = state.yellowNumber;
               if (yellow && yellow.alive) {
                 yellow.value = state.totalDamage;
@@ -752,7 +824,6 @@
                 yellow.y = state.baseY + yOff + this.initialYOffset;
                 yellow.vy = -2.5;
 
-                // <<< FIX: Bring yellow to front AFTER every update >>>
                 this.bringToFront(yellow);
               }
 
@@ -765,12 +836,13 @@
           }
         }
 
-        // ---- Render ----
-        render(ctx) {
-          for (const ft of this.active) {
+        // ---- Render (with optional viewport culling) ----
+        render(ctx, inViewFn) {
+          const len = this.active.length;
+          for (let i = 0; i < len; i++) {
+            const ft = this.active[i];
             if (ft.alive) {
-              // Apply the same creator-controlled scale to damage, crits, heals,
-              // multi-hit numbers, and status messages routed through FDS.
+              if (inViewFn && !inViewFn(ft.x, ft.y, 140)) continue;
               ft.renderScale = this.textScale;
               ft.draw(ctx);
             }
@@ -779,9 +851,9 @@
 
         // ---- Clear ----
         clear() {
-          for (const obj of this.pool) obj.alive = false;
-          this.active = [];
-          this.multiQueue = [];
+          for (let i = 0; i < this.pool.length; i++) this.pool[i].alive = false;
+          this.active.length = 0;
+          this.multiQueue.length = 0;
           this.multiTimer = 0;
           this.skillState.active = false;
           this.skillState.phase = 'idle';

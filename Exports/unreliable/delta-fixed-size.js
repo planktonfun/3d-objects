@@ -1,4 +1,4 @@
-function createDelta(oldData, newData) {
+ function createDelta(oldData, newData) {
     if (oldData.length !== newData.length) {
         throw new Error("Arrays must have the same length");
     }
@@ -222,6 +222,42 @@ function unpackPacket(buffer) {
   const payload = data.slice(PACKET_HEADER_SIZE); // copy; use subarray if you prefer no copy
   return { tick, type, payload };
 }
+
+
+// Helper functions for delta handling
+// ── Packet format: [ tick (uint32) ][ seed (uint32) ][ type (uint8) ][ payload (bytes) ] ──
+const PACKET_HEADER_SIZE_W_SEED = 9; // 4 (tick) + 4 (seed) + 1 (type)
+
+function packPacketWithSeed(tick, seed, type, payload) {
+  const header = new Uint8Array(PACKET_HEADER_SIZE_W_SEED);
+  const view = new DataView(header.buffer);
+
+  view.setUint32(0, tick, true);
+  view.setUint32(4, seed, true); // Added seed at offset 4
+  view.setUint8(8, type);         // Moved type to offset 8
+
+  const packet = new Uint8Array(PACKET_HEADER_SIZE_W_SEED + payload.length);
+  packet.set(header, 0);
+  packet.set(payload, PACKET_HEADER_SIZE_W_SEED);
+
+  return packet;
+}
+
+function unpackPacketWithSeed(buffer) {
+  // Accepts ArrayBuffer or Uint8Array
+  const data = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+  const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+
+  const tick = view.getUint32(0, true);
+  const seed = view.getUint32(4, true); // Extracted seed from offset 4
+  const type = data[8];                 // Extracted type from offset 8
+
+  // Using subarray references the original memory instead of copying it
+  const payload = data.subarray(PACKET_HEADER_SIZE_W_SEED);
+
+  return { tick, seed, type, payload };
+}
+
 
 globalThis.createDelta = createDeltaOptimized;
 globalThis.applyDelta = applyDeltaOptimized;
