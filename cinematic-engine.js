@@ -1,5 +1,5 @@
 
-/*! cinematic-engine.js — Renderer-agnostic deterministic cinematic timeline. */
+/*! cinematic-engine.js */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else if (typeof define === 'function' && define.amd) define([], factory);
@@ -19,17 +19,6 @@
     ? (id) => cancelAnimationFrame(id)
     : (id) => clearTimeout(id);
 
-  function getByPath(obj, path) {
-    if (obj == null || !path) return obj;
-    const parts = path.split('.');
-    let cur = obj;
-    for (let i = 0; i < parts.length; i++) {
-      if (cur == null) return undefined;
-      cur = cur[parts[i]];
-    }
-    return cur;
-  }
-
   function setByPath(obj, path, value) {
     if (obj == null || !path) return;
     const parts = path.split('.');
@@ -43,20 +32,20 @@
   }
 
   const Easing = {
-    linear:         t => t,
-    easeIn:         t => t * t,
-    easeOut:        t => t * (2 - t),
-    easeInOut:      t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
-    easeInCubic:    t => t * t * t,
-    easeOutCubic:   t => 1 - Math.pow(1 - t, 3),
+    linear: t => t,
+    easeIn: t => t * t,
+    easeOut: t => t * (2 - t),
+    easeInOut: t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
+    easeInCubic: t => t * t * t,
+    easeOutCubic: t => 1 - Math.pow(1 - t, 3),
     easeInOutCubic: t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
-    easeInQuart:    t => t * t * t * t,
-    easeOutQuart:   t => 1 - Math.pow(1 - t, 4),
-    easeOutBack:    t => { const c1 = 1.70158, c3 = c1 + 1;
-                           return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+    easeInQuart: t => t * t * t * t,
+    easeOutQuart: t => 1 - Math.pow(1 - t, 4),
+    easeOutBack: t => { const c1 = 1.70158, c3 = c1 + 1;
+                        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
     easeOutElastic: t => t === 0 || t === 1 ? t
-                         : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI / 3)) + 1,
-    step:           t => t < 1 ? 0 : 1
+                      : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI / 3)) + 1,
+    step: t => t < 1 ? 0 : 1
   };
 
   const lerpNum = (a, b, t) => a + (b - a) * t;
@@ -79,10 +68,8 @@
     return rgbHex(lerpNum(ca.r, cb.r, t), lerpNum(ca.g, cb.g, t), lerpNum(ca.b, cb.b, t));
   }
   function lerpVec2(a, b, t) { return [lerpNum(a[0], b[0], t), lerpNum(a[1], b[1], t)]; }
-  function lerpVec3(a, b, t) { return [lerpNum(a[0], b[0], t), lerpNum(a[1], b[1], t), lerpNum(a[2], b[2], t)]; }
   function slerpQuat(qa, qb, t) {
-    let [ax, ay, az, aw] = qa;
-    let [bx, by, bz, bw] = qb;
+    let [ax, ay, az, aw] = qa, [bx, by, bz, bw] = qb;
     let dot = ax * bx + ay * by + az * bz + aw * bw;
     if (dot < 0) { bx = -bx; by = -by; bz = -bz; bw = -bw; dot = -dot; }
     if (dot > 0.9995) {
@@ -91,9 +78,8 @@
       const len = Math.hypot(x, y, z, w) || 1;
       return [x / len, y / len, z / len, w / len];
     }
-    const theta0 = Math.acos(dot);
-    const theta  = theta0 * t;
-    const sin0   = Math.sin(theta0) || 1e-6;
+    const theta0 = Math.acos(dot), theta = theta0 * t;
+    const sin0 = Math.sin(theta0) || 1e-6;
     const s0 = Math.cos(theta) - dot * Math.sin(theta) / sin0;
     const s1 = Math.sin(theta) / sin0;
     return [ax * s0 + bx * s1, ay * s0 + by * s1, az * s0 + bz * s1, aw * s0 + bw * s1];
@@ -122,20 +108,20 @@
   class CinematicEngine {
     constructor(options) {
       options = options || {};
-      this.duration  = options.duration != null ? options.duration : 0;
-      this.loop      = !!options.loop;
-      this.speed     = options.speed != null ? options.speed : 1;
-      this.playhead  = 0;
-      this.playing   = false;
-      this.targets   = options.targets || {};
-      this.tracks    = [];
-      this.cues      = [];
-      this.adapter   = options.adapter || {};
+      this.duration = options.duration != null ? options.duration : 0;
+      this.loop     = !!options.loop;
+      this.speed    = options.speed != null ? options.speed : 1;
+      this.playhead = 0;
+      this.playing  = false;
+      this.targets  = options.targets || {};
+      this.tracks   = [];
+      this.cues     = [];
+      this.adapter  = options.adapter || {};
       this._activeCues = new Map();
       this._listeners  = Object.create(null);
-      this._rafId      = null;
-      this._lastTime   = 0;
-      this._headless   = options.headless !== false;
+      this._rafId = null;
+      this._lastTime = 0;
+      this._headless = options.headless !== false;
 
       if (options.tracks) this.setTracks(options.tracks);
       if (options.cues)   this.setCues(options.cues);
@@ -155,42 +141,8 @@
       return this;
     }
 
-    loadJSON(json) {
-      const parsed = typeof json === 'string' ? JSON.parse(json) : json;
-      return this.loadScene(parsed);
-    }
-
-    toJSON() {
-      return {
-        duration: this.duration,
-        loop:     this.loop,
-        speed:    this.speed,
-        tracks: this.tracks.map(t => ({
-          target: typeof t.target === 'object'
-            ? (t.target.id || t.target.name || undefined)
-            : t.target,
-          path:    t.path,
-          keys:    t.keys,
-          ease:    t.ease,
-          enabled: t.enabled !== false ? undefined : false
-        })),
-        cues: this.cues.map(c => ({
-          time:     c.time,
-          duration: c.duration || undefined,
-          type:     c.type,
-          data:     c.data,
-          once:     c.once || undefined,
-          enabled:  c.enabled !== false ? undefined : false
-        }))
-      };
-    }
-
     setTracks(tracks) {
       this.tracks = tracks.map(t => this._normalizeTrack(t));
-      return this;
-    }
-    addTrack(track) {
-      this.tracks.push(this._normalizeTrack(track));
       return this;
     }
     _normalizeTrack(t) {
@@ -199,10 +151,10 @@
       return {
         target:  t.target,
         path:    t.path,
+        type:    t.type || 'value',
         keys,
         ease:    t.ease || 'easeInOut',
         lerp:    t.lerp || null,
-        get:     t.get || null,
         set:     t.set || null,
         enabled: t.enabled !== false
       };
@@ -210,19 +162,13 @@
 
     setCues(cues) {
       this.cues = cues.map(c => ({
-        time:     c.time,
-        duration: c.duration || c.durationMs || 0,
-        type:     c.type || 'cue',
-        data:     c.data != null ? c.data : c.payload,
-        once:     !!c.once,
-        enabled:  c.enabled !== false
+        time: c.time,
+        duration: c.duration || 0,
+        type: c.type || 'cue',
+        data: c.data != null ? c.data : c.payload,
+        enabled: c.enabled !== false
       })).sort((a, b) => a.time - b.time);
       this._activeCues.clear();
-      return this;
-    }
-    addCue(cue) {
-      this.cues.push(cue);
-      this.cues.sort((a, b) => a.time - b.time);
       return this;
     }
 
@@ -248,23 +194,54 @@
       return last.value;
     }
 
+    _resolveAnimTrack(track, t) {
+      const keys = track.keys;
+      if (!keys.length) return { name: null, startTime: 0 };
+      let current = keys[0], startTime = keys[0].time;
+      for (let i = 0; i < keys.length; i++) {
+        if (t >= keys[i].time) { current = keys[i]; startTime = keys[i].time; }
+        else break;
+      }
+      return { name: current.value, startTime };
+    }
+
+    _resolveSpriteFrame(sprite, animName, localElapsedMs) {
+      if (!sprite || !sprite.sheet) return null;
+      const anim = sprite.sheet.animations && sprite.sheet.animations[animName];
+      if (!anim || !Array.isArray(anim.frames) || !anim.frames.length) return null;
+      const fps = anim.fps || 8;
+      let idx = Math.floor(Math.max(0, localElapsedMs) / (1000 / fps));
+      if (anim.loop !== false)
+        idx = ((idx % anim.frames.length) + anim.frames.length) % anim.frames.length;
+      else
+        idx = Math.min(idx, anim.frames.length - 1);
+      return anim.frames[idx];
+    }
+
     applyAt(t) {
       for (let i = 0; i < this.tracks.length; i++) {
         const tr = this.tracks[i];
-        if (!tr.enabled) continue;
+        if (!tr.enabled || tr.type === 'anim') continue;
         const value = this.evaluateTrack(tr, t);
-        this._writeTrack(tr, value, t);
+        const target = this._resolveTarget(tr.target);
+        if (tr.set) { tr.set(target, value, tr, t); continue; }
+        if (typeof this.adapter.apply === 'function') {
+          this.adapter.apply(target, tr, value, t, this);
+          continue;
+        }
+        if (tr.path) setByPath(target, tr.path, value);
       }
-    }
-
-    _writeTrack(tr, value, t) {
-      const target = this._resolveTarget(tr.target);
-      if (tr.set) { tr.set(target, value, tr); return; }
-      if (typeof this.adapter.apply === 'function') {
-        this.adapter.apply(target, tr, value, t, this);
-        return;
+      for (let i = 0; i < this.tracks.length; i++) {
+        const tr = this.tracks[i];
+        if (!tr.enabled || tr.type !== 'anim') continue;
+        const target = this._resolveTarget(tr.target);
+        if (!target) continue;
+        const { name, startTime } = this._resolveAnimTrack(tr, t);
+        if (name != null) target.anim = name;
+        target.animStartTime = startTime;
+        const frame = this._resolveSpriteFrame(target, name, t - startTime);
+        if (frame != null) target.frame = frame;
       }
-      if (tr.path) setByPath(target, tr.path, value);
     }
 
     _resolveTarget(name) {
@@ -279,26 +256,17 @@
       for (let i = 0; i < this.cues.length; i++) {
         const c = this.cues[i];
         if (!c.enabled) continue;
-        const cEnd = c.time + c.duration;
         let activeNow;
-        if (c.duration > 0) {
-          activeNow = t >= c.time && t < cEnd;
-        } else {
-          activeNow = prevT == null
-            ? (t === c.time)
-            : (prevT < c.time && t >= c.time) || (t === c.time);
-        }
+        if (c.duration > 0) activeNow = t >= c.time && t < c.time + c.duration;
+        else activeNow = prevT == null
+          ? (t === c.time)
+          : (prevT < c.time && t >= c.time) || (t === c.time);
         if (!activeNow) continue;
         seen.add(i);
         const localT = c.duration > 0 ? (t - c.time) / c.duration : 0;
         const payload = { cue: c, localT, time: t, engine: this };
-        const wasActive = active.has(i);
-        if (!wasActive) {
-          active.set(i, c);
-          this._fireCue(c, 'enter', payload);
-        } else {
-          this._fireCue(c, 'update', payload);
-        }
+        if (!active.has(i)) { active.set(i, c); this._fireCue(c, 'enter', payload); }
+        else this._fireCue(c, 'update', payload);
       }
       for (const [i, c] of active) {
         if (!seen.has(i)) {
@@ -313,9 +281,9 @@
         try { this.adapter.onCue(c, phase, payload, this); }
         catch (e) { console.error('[CinematicEngine] adapter.onCue', e); }
       }
-      this.emit('cue',           Object.assign({ phase }, payload));
+      this.emit('cue', Object.assign({ phase }, payload));
       this.emit('cue:' + c.type, Object.assign({ phase }, payload));
-      this.emit('cue:' + phase,  payload);
+      this.emit('cue:' + phase, payload);
       this.emit('cue:' + c.type + ':' + phase, payload);
     }
 
@@ -351,55 +319,20 @@
       this.emit('seek', { playhead: this.playhead, prev, duration: this.duration });
       return this;
     }
-    seekRatio(r) { return this.seek(this.duration * r); }
 
     setSpeed(s) { this.speed = s > 0 ? s : 1; this.emit('speed', { speed: this.speed }); return this; }
     setLoop(l)  { this.loop = !!l; this.emit('loopchange', { loop: this.loop }); return this; }
+    update(dt)  { this._advance(dt); return this; }
 
-    update(dt, absoluteTime) {
-      if (absoluteTime != null) {
-        const prev = this.playhead;
-        this.playhead = Math.max(0, Math.min(this.duration, absoluteTime));
-        this.applyAt(this.playhead);
-        this._tickCues(this.playhead, prev);
-        this._renderFrame();
-        return this;
-      }
-      this._advance(dt);
-      return this;
-    }
-
-    renderAt(t) {
-      const prev = this.playhead;
-      this.playhead = t;
-      this.applyAt(t);
-      this._tickCues(t, prev);
-      this._renderFrame();
-      this.emit('tick', { playhead: t, duration: this.duration, dt: 0 });
-      return this;
-    }
-
-    /** Force-recompute active cues at current playhead (useful after seek). */
     refreshCues() {
       this._activeCues.clear();
       this._tickCues(this.playhead, -1e18);
       this._renderFrame();
       return this;
     }
+    forceRender() { this._renderFrame(); return this; }
 
-    destroy() {
-      this.pause();
-      if (this._rafId != null) caf(this._rafId);
-      this._rafId = null;
-      this._listeners = Object.create(null);
-      this._activeCues.clear();
-      return this;
-    }
-
-    on(evt, fn) {
-      (this._listeners[evt] || (this._listeners[evt] = [])).push(fn);
-      return this;
-    }
+    on(evt, fn) { (this._listeners[evt] || (this._listeners[evt] = [])).push(fn); return this; }
     off(evt, fn) {
       const list = this._listeners[evt];
       if (!list) return this;
@@ -446,18 +379,14 @@
         if (this.loop) {
           t = t % dur;
           this.playhead = t;
-          this.applyAt(t);
-          this._tickCues(t, prev);
-          this._renderFrame();
+          this.applyAt(t); this._tickCues(t, prev); this._renderFrame();
           this.emit('loop', { playhead: t });
           this.emit('tick', { playhead: t, duration: dur, dt });
           return;
         }
         t = dur;
         this.playhead = t;
-        this.applyAt(t);
-        this._tickCues(t, prev);
-        this._renderFrame();
+        this.applyAt(t); this._tickCues(t, prev); this._renderFrame();
         this.playing = false;
         this.emit('tick', { playhead: t, duration: dur, dt });
         this.emit('ended', { playhead: t });
@@ -465,21 +394,17 @@
         return;
       }
       this.playhead = t;
-      this.applyAt(t);
-      this._tickCues(t, prev);
-      this._renderFrame();
+      this.applyAt(t); this._tickCues(t, prev); this._renderFrame();
       this.emit('tick', { playhead: t, duration: dur, dt });
     }
   }
 
   CinematicEngine.Easing      = Easing;
-  CinematicEngine.getByPath   = getByPath;
   CinematicEngine.setByPath   = setByPath;
   CinematicEngine.defaultLerp = defaultLerp;
   CinematicEngine.lerpNum     = lerpNum;
   CinematicEngine.lerpColor   = lerpColor;
   CinematicEngine.lerpVec2    = lerpVec2;
-  CinematicEngine.lerpVec3    = lerpVec3;
   CinematicEngine.slerpQuat   = slerpQuat;
 
   return CinematicEngine;
