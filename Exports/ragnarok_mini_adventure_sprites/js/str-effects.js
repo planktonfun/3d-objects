@@ -69,7 +69,7 @@
     }
 
     function loadEffectList() {
-      fetch(new URL('./effects.txt', window.location.href))
+      fetch(new URL('https://planktonfun.github.io/3d-objects/Exports/ragnarok_mini_adventure_sprites/js/effects.txt', window.location.href))
         .then(function(response) {
           if (!response.ok) {
             throw new Error('HTTP ' + response.status + ' loading effects.txt');
