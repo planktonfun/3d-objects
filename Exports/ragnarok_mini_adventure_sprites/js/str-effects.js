@@ -598,7 +598,7 @@
       setStatus('Connecting client loader (' + threadMode.value + ' mode)…');
       window.ROConfig = window.ROConfig || { development: false };
       window.ROConfig.remoteClient = remoteClient;
-      window.ROConfig.threadWorker = new URL('ThreadEventHandler.js', window.location.href).href;
+      window.ROConfig.threadWorker = new URL('https://planktonfun.github.io/3d-objects/Exports/ragnarok_mini_adventure_sprites/js/ThreadEventHandler.js', window.location.href).href;
       window.ROConfig.threadMode = threadMode.value;
 
       window.define('Renderer/Renderer', [], function() {
