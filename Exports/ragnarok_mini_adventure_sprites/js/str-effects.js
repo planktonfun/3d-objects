@@ -8,6 +8,8 @@
     var getCameraTransform = options.getCameraTransform;
     var configuredEffectIds = options.effectIds;
     var panel = document.createElement('details');
+    panel.id = 'str-effects-panel';
+
     panel.style.cssText = [
       'position:absolute',
       'top:12px',
