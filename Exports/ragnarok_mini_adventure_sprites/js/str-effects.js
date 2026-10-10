@@ -399,7 +399,7 @@
     effectIds[effectId] = o;
   });
 
-  console.log(effectIds);
+  // console.log(effectIds);
 
     function loadEffectList() {
 
@@ -691,6 +691,7 @@
         'Renderer/Effects/StrEffect',
         'Renderer/Renderer'
       ], function(thread, configs, client, matrix, strEffect, renderer) {
+        console.log('STR modules loaded');
         Thread = thread;
         Client = client;
         glMatrix = matrix;
@@ -729,7 +730,9 @@
         StrEffect.init(gl);
 
         Thread.hook('THREAD_READY', function() {
+          console.log('Client thread ready');
           Client.onFilesLoaded = function() {
+            console.log('Client files loaded');
             clientReady = true;
             connecting = false;
             connectButton.textContent = 'Client connected';
@@ -747,6 +750,7 @@
           Thread.hook('THREAD_LOG', function(message) {
             console.warn('roBrowser client asset warning:', message);
           });
+          console.log('Calling Client.init');
           Client.init([]);
         });
         try {
