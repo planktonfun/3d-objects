@@ -12,10 +12,10 @@ function DeltaTimeAccumulator(hz, logicCallback) {
 
             // comment this out if you want the loop to accummulate even window is not active
             // ms, prevents spiral of death
-            if (this.delta > this.MAX_DELTA) {
-                // console.warn('Game is slowing down');
-                this.delta = this.MAX_DELTA;
-            }
+            // if (this.delta > this.MAX_DELTA) {
+            //     // console.warn('Game is slowing down');
+            //     this.delta = this.MAX_DELTA;
+            // }
 
             // Accumulate actual passing time
             this.acc += this.delta;
