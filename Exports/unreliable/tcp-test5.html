@@ -1,0 +1,1145 @@
+</head>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 Object Physics Sandbox</title>
+
+    <style>
+    html, body {
+        margin: 0;
+        overflow: hidden;
+        background: #20242a;
+    }
+
+    canvas {
+        display: block;
+        background: #2f7fd8;
+    }
+
+    #info{
+        position:absolute;
+        left:10px;
+        top:10px;
+        color:white;
+        font-family:Arial,Helvetica,sans-serif;
+        background:rgba(0,0,0,.45);
+        padding:8px 12px;
+        border-radius:8px;
+    }
+    </style>
+    <script src="./bit-flags.js"></script>
+    <script src="./pool-manager.js"></script>
+    <script src="./delta-fixed-size.js"></script>
+    <script src="./delta-accumulator.js"></script>
+    <script src="./spatial-localization.js"></script>
+    <script src="./damage-floater.js"></script>
+    <script src="./common-reference-timestamp.js"></script>
+    <script src="./deterministic-dead-reckoning.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+
+</head>
+<body>
+
+    <div id="info">
+    10 Objects • Moving Forever
+    </div>
+
+    <canvas id="canvas"></canvas>
+    <pre id="connectionName"></pre>
+<script>
+
+
+    const npcSchedule = [
+        {
+            durationMs: 4000,
+            from: { x: 0, y: 0 },
+            to:   { x: 500, y: 0 },
+            ease: 'easeInOut',
+            color: '#3b82f6',
+            label: 'Walking to Shop'
+        },
+        {
+            durationMs: 4000,
+            from: { x: 500, y: 0 },
+            to:   { x: 500, y: 500 },
+            ease: 'easeInOut',
+            color: '#ef4444',
+            label: 'Working at Blacksmith'
+        },
+        {
+            durationMs: 2000,
+            from: { x: 500, y: 500 },
+            to:   { x: 0, y: 500 },
+            ease: 'easeInOut',
+            color: '#10b981',
+            label: 'Returning Home'
+        },
+        {
+            durationMs: 2000,
+            from: { x: 0, y: 500 },
+            to:   { x: 0, y: 0 },
+            ease: 'linear',
+            color: '#10b981',
+            label: 'Sleeping'
+        }
+    ];
+
+    let startTime = Math.floor(getServerTimestamp()/86400000)*86400000;
+    let entities = [];
+
+    (async function() {
+        await getCommonReferencePoint();
+
+        startTime = Math.floor(getServerTimestamp()/86400000)*86400000;
+
+        entities = [
+            createEntityWithSchedule("npc_1", "NPC Schedule", { spawnTime: startTime, baseParams: { startX: 100, startY: 100 } }, npcSchedule),
+            createEntityWithSchedule("npc_2", "NPC Schedule", { spawnTime: startTime+4000, baseParams: { startX: 100, startY: 100 } }, npcSchedule),
+            createEntityWithSchedule("npc_3", "NPC Schedule", { spawnTime: startTime+8000, baseParams: { startX: 100, startY: 100 } }, npcSchedule),
+        ];
+    })();
+</script>
+<script>
+        // ---- Create the floating damage system (plug & play!) ----
+        const fds = new FloatingDamageSystem({
+            poolSize: 80,
+            defaultVy: -12.0,
+            defaultVx: 2.8,
+            defaultGravity: 0.40,
+            defaultDuration: 1300,
+            defaultFadeStart: 0.7,
+            defaultYOffset: -20,
+            skillDuration: 500,
+            skillFadeStart: 0.37,
+            skillYOffset: -64,
+            healVy: -6.0,
+            healDuration: 500,
+            healFadeStart: 0.37,
+            healYOffset: -64
+        });
+
+
+</script>
+<script>
+    // constants
+    const SPATIAL_LOCALIZATION_ENABLED = true;
+    const INTERPOLATION_ENABLED = true;
+    const DETERMINISTIC_ENTITIES_ENABLED = true;
+    const FPS = 60;  // adjust as needed
+
+    // Inputs
+    const inputPools = new PoolManager();
+
+    const cursor = inputPools.add(new Pool(1, {
+        x: Float32Array,
+        y: Float32Array,
+        pressed: Uint8Array,
+    }));
+
+    // Outputs
+    const outputPools = new PoolManager();
+
+    const outputs = outputPools.add(new Pool(1, {
+        x: Float32Array,
+        y: Float32Array,
+        pressed: Uint8Array,
+        targetTick: Float32Array
+    }));
+
+    // States
+    const pools = new PoolManager();
+
+    const multiplayerObjects = pools.add(new Pool(60, (SPATIAL_LOCALIZATION_ENABLED) ? {
+        id: Uint8Array,
+        seed: Uint8Array,
+        type: Uint8Array,
+        cellX: Uint8Array,
+        cellY: Uint8Array,
+        offsetX: Uint8Array,
+        offsetY: Uint8Array,
+        flags: Uint8Array,
+        vx: Float32Array,
+        vy: Float32Array,
+    }: {
+        id: Uint8Array,
+        seed: Uint8Array,
+        type: Uint8Array,
+        x: Uint32Array,
+        y: Uint32Array,
+        flags: Uint8Array,
+    }));
+
+    const serverCursor = pools.add(new Pool(1, (SPATIAL_LOCALIZATION_ENABLED) ? {
+        id: Uint8Array,
+        seed: Uint8Array,
+        type: Uint8Array,
+        pressed: Uint8Array,
+        cellX: Uint8Array,
+        cellY: Uint8Array,
+        offsetX: Uint8Array,
+        offsetY: Uint8Array,
+        flags: Uint8Array,
+    }: {
+        id: Uint8Array,
+        seed: Uint8Array,
+        type: Uint8Array,
+        x: Uint32Array,
+        y: Uint32Array,
+        flags: Uint8Array,
+    }));
+
+    console.log('Max User Count:', getMaxUserCount((pools.byteSize()) / 3, 5_000_000, FPS));
+
+</script>
+<script>
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    fds.setViewCenterProvider(() => 0 + canvas.width / 2);
+
+    function resize(){
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    const deterministicBalls = [];
+    const balls = [];
+    const triangles = [];
+    const COUNT = 40;
+    let ballId = 0;
+
+    class ClientObject {
+        constructor() {
+            this.id = -1;
+            this.type = -1;
+            this.seed = -1;
+            this.x = -1;
+            this.y = -1;
+            this.vx = 0;
+            this.vy = 0;
+            this.easingPercent = Math.min(0.99, 0.99/60 * FPS);
+            this.flags = new BitFlags();
+        }
+
+        updateClient(dt=1){
+            this.x += this.vx*dt;
+            this.y += this.vy*dt;
+
+        /*    if(INTERPOLATION_ENABLED) {
+                this.x = lerp(this.x, this.targetX, this.easingPercent);
+                this.y = lerp(this.y, this.targetY, this.easingPercent);
+            } else {
+                this.x = this.targetX;
+                this.y = this.targetY;
+            }*/
+        }
+
+        serialize() {
+            multiplayerObjects.seed[this.id]   = Math.floor(this.seed);
+            multiplayerObjects.type[this.id]   = Math.floor(this.type);
+            multiplayerObjects.flags[this.id]   = this.flags.value;
+
+            multiplayerObjects.vx[this.id] = this.vx;
+            multiplayerObjects.vy[this.id] = this.vy;
+
+            if(SPATIAL_LOCALIZATION_ENABLED == true) {
+                const encoded = encodePosition(this.x, this.y);
+                multiplayerObjects.cellX[this.id]   = encoded.cellX;
+                multiplayerObjects.cellY[this.id]   = encoded.cellY;
+                multiplayerObjects.offsetX[this.id] = encoded.offsetX;
+                multiplayerObjects.offsetY[this.id] = encoded.offsetY;
+            } else {
+                multiplayerObjects.x[this.id] = Math.floor(this.x);
+                multiplayerObjects.y[this.id] = Math.floor(this.y);
+            }
+        }
+
+        decodeTarget() {
+
+            this.seed = multiplayerObjects.seed[this.id];
+            this.flags.value = multiplayerObjects.flags[this.id];
+
+            this.vx = multiplayerObjects.vx[this.id];
+            this.vy = multiplayerObjects.vy[this.id];
+
+            if(SPATIAL_LOCALIZATION_ENABLED == true) {
+                const decoded = decodePosition(
+                    multiplayerObjects.cellX[this.id],
+                    multiplayerObjects.cellY[this.id],
+                    multiplayerObjects.offsetX[this.id],
+                    multiplayerObjects.offsetY[this.id]
+                );
+
+                this.x = decoded.x;
+                this.y = decoded.y;
+            } else {
+                this.x = multiplayerObjects.x[this.id];
+                this.y = multiplayerObjects.y[this.id];
+            }
+
+        }
+
+        deserialize() {
+            this.decodeTarget();
+        }
+    }
+
+    //---------------------------------------------------
+    // Data first, animation second Bits (can only have up to 8 or 1 << 7) for 8 bits
+    //---------------------------------------------------
+    const DIRTY_SKILL_1 = 1 << 0;
+    const DIRTY_SKILL_2 = 1 << 1;
+    const DIRTY_SKILL_3 = 1 << 2;
+    const DIRTY_SKILL_4 = 1 << 3;
+    const DIRTY_SKILL_5 = 1 << 4;
+    const DIRTY_SKILL_6 = 1 << 5;
+    const DIRTY_SKILL_7 = 1 << 6;
+    const DIRTY_SKILL_8 = 1 << 7;
+
+    class Ball extends ClientObject {
+
+        constructor(x,y,r){
+            super();
+
+            this.id = ++ballId;
+            this.type = 1;
+            this.seed = Math.floor(Math.random()*255);
+            this.x = x;
+            this.y = y;
+            this.radius = 15+seedRandom(this.seed)*15;
+
+            // Random velocity
+            this.vx = (seedRandom(this.seed)-0.5)*8*(60/FPS);
+            this.vy = (seedRandom(this.seed)-0.5)*8*(60/FPS);
+
+            // Prevent nearly stationary balls
+            if(Math.abs(this.vx)<2) this.vx = this.vx<0?-2:2;
+            if(Math.abs(this.vy)<2) this.vy = this.vy<0?-2:2;
+
+            this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
+
+            this.updateFrequency = 0;
+
+            this.damage = -1;
+            this.isCrit = false;
+        }
+
+        update() {
+            this.updateFrequency++;
+            if(this.updateFrequency % 100 == 0) {
+                this.updateFrequency = 0;
+                this.flags.activate(DIRTY_SKILL_2);
+            }
+
+            this.x += this.vx;
+            this.y += this.vy;
+
+            // Left
+            if(this.x-this.radius<0){
+                this.x=this.radius;
+                this.vx*=-1;
+
+                this.flags.activate(DIRTY_SKILL_2);
+            }
+
+            // Right
+            if(this.x+this.radius>canvas.width){
+                this.x=canvas.width-this.radius;
+                this.vx*=-1;
+
+                this.flags.activate(DIRTY_SKILL_2);
+            }
+
+            // Top
+            if(this.y-this.radius<0){
+                this.y=this.radius;
+                this.vy*=-1;
+
+                this.flags.activate(DIRTY_SKILL_2);
+            }
+
+            // Bottom
+            if(this.y+this.radius>canvas.height){
+                this.y=canvas.height-this.radius;
+                this.vy*=-1;
+
+                this.flags.activate(DIRTY_SKILL_2);
+            }
+        }
+
+        applyEvents() {
+            if(this.flags.has(DIRTY_SKILL_1)) {
+                if(this.isCrit) {
+                    fds.spawnCritical(this.x, this.y, this.damage*2);
+                } else {
+                    fds.spawnNormal(this.x, this.y, this.damage);
+                }
+
+                this.flags.toggle(DIRTY_SKILL_1);
+            }
+            if(this.flags.has(DIRTY_SKILL_2)) {
+                this.flags.toggle(DIRTY_SKILL_2);
+            }
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(
+              Math.floor(this.x),
+              Math.floor(this.y),
+              Math.floor(this.radius)
+              ,0,Math.PI*2);
+            ctx.fillStyle=this.color;
+            ctx.fill();
+
+            ctx.strokeStyle="white";
+            ctx.lineWidth=2;
+            ctx.stroke();
+        }
+
+        serialize() {
+            multiplayerObjects.flags[this.id]   = this.flags.value;
+            if(!this.flags.has(DIRTY_SKILL_2)) {
+                return;
+            }
+
+            multiplayerObjects.seed[this.id]   = Math.floor(this.seed);
+            multiplayerObjects.type[this.id]   = Math.floor(this.type);
+
+            multiplayerObjects.vx[this.id] = this.vx;
+            multiplayerObjects.vy[this.id] = this.vy;
+
+            if(SPATIAL_LOCALIZATION_ENABLED == true) {
+                const encoded = encodePosition(this.x, this.y);
+                multiplayerObjects.cellX[this.id]   = encoded.cellX;
+                multiplayerObjects.cellY[this.id]   = encoded.cellY;
+                multiplayerObjects.offsetX[this.id] = encoded.offsetX;
+                multiplayerObjects.offsetY[this.id] = encoded.offsetY;
+            } else {
+                multiplayerObjects.x[this.id] = Math.floor(this.x);
+                multiplayerObjects.y[this.id] = Math.floor(this.y);
+            }
+        }
+
+        deserialize(seed) {
+            this.damage = seed;
+            this.isCrit = (seedRandom(seed) > 0.5);
+            this.flags.value = multiplayerObjects.flags[this.id];
+            if(!this.flags.has(DIRTY_SKILL_2)) {
+                return;
+            }
+
+            this.seed = multiplayerObjects.seed[this.id];
+
+            this.vx = multiplayerObjects.vx[this.id];
+            this.vy = multiplayerObjects.vy[this.id];
+
+            this.radius = 15+seedRandom(this.seed)*15;
+            this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
+
+            if(SPATIAL_LOCALIZATION_ENABLED == true) {
+                const decoded = decodePosition(
+                    multiplayerObjects.cellX[this.id],
+                    multiplayerObjects.cellY[this.id],
+                    multiplayerObjects.offsetX[this.id],
+                    multiplayerObjects.offsetY[this.id]
+                );
+
+                this.x = decoded.x;
+                this.y = decoded.y;
+            } else {
+                this.x = multiplayerObjects.x[this.id];
+                this.y = multiplayerObjects.y[this.id];
+            }
+        }
+
+    }
+
+    class DummyBall {
+
+        constructor(x,y,r,seed){
+            this.type = 1;
+            this.seed = seed % 255;
+            this.x = x;
+            this.y = y;
+            this.radius = 15+seedRandom(this.seed)*15;
+
+            // Random velocity
+            this.vx = (seedRandom(this.seed)-0.5)*8;
+            this.vy = (seedRandom(this.seed)-0.5)*8;
+
+            // Prevent nearly stationary balls
+            if(Math.abs(this.vx)<2) this.vx = this.vx<0?-2:2;
+            if(Math.abs(this.vy)<2) this.vy = this.vy<0?-2:2;
+
+            this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
+        }
+
+        update(){
+
+            this.x += this.vx;
+            this.y += this.vy;
+
+            // Left
+            if(this.x-this.radius<0){
+                this.x=this.radius;
+                this.vx*=-1;
+            }
+
+            // Right
+            if(this.x+this.radius>1400){
+                this.x=1400-this.radius;
+                this.vx*=-1;
+            }
+
+            // Top
+            if(this.y-this.radius<0){
+                this.y=this.radius;
+                this.vy*=-1;
+            }
+
+            // Bottom
+            if(this.y+this.radius>1400){
+                this.y=1400-this.radius;
+                this.vy*=-1;
+            }
+        }
+
+        draw(){
+            ctx.beginPath();
+            ctx.arc(
+              Math.floor(this.x),
+              Math.floor(this.y),
+              Math.floor(this.radius)
+              ,0,Math.PI*2);
+            ctx.fillStyle=this.color;
+            ctx.fill();
+
+            ctx.strokeStyle="white";
+            ctx.lineWidth=2;
+            ctx.stroke();
+        }
+    }
+
+    // dirty flags
+    const CURSOR_PRESSED = 1 << 0;
+
+    class Triangle extends Ball {
+        constructor(x,y,r) {
+            super(x,y,r);
+
+            this.id = 0;
+            this.type = 2;
+            this.pressed = 0;
+            this.targetX = -1;
+            this.targetY = -1;
+
+            this.damage = -1;
+            this.isCrit = false;
+        }
+
+        update() {
+            if(this.pressed){
+                this.flags.activate(CURSOR_PRESSED);
+            }
+        }
+
+        updateClient(){
+            if(INTERPOLATION_ENABLED) {
+                this.x = lerp(this.x, this.targetX, this.easingPercent);
+                this.y = lerp(this.y, this.targetY, this.easingPercent);
+            } else {
+                this.x = this.targetX;
+                this.y = this.targetY;
+            }
+        }
+
+        applyEvents() {
+            if(this.flags.has(CURSOR_PRESSED)) {
+                if(this.isCrit) {
+                    fds.spawnCritical(this.x, this.y, this.damage*2);
+                } else {
+                    fds.spawnNormal(this.x, this.y, this.damage);
+                }
+                this.flags.toggle(CURSOR_PRESSED);
+            }
+        }
+
+        draw() {
+            const x = Math.floor(this.x);
+            const y = Math.floor(this.y);
+
+            if(this.pressed) {
+                ctx.fillStyle = 'red';
+            } else {
+                ctx.fillStyle = this.color;
+            }
+
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+
+            // Cursor arrow
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + 24);
+            ctx.lineTo(x + 6, y + 18);
+            ctx.lineTo(x + 12, y + 30);
+            ctx.lineTo(x + 17, y + 27);
+            ctx.lineTo(x + 11, y + 15);
+            ctx.lineTo(x + 20, y + 15);
+
+            ctx.closePath();
+
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        serialize() {
+            serverCursor.seed[this.id]      = Math.floor(this.seed);
+            serverCursor.type[this.id]      = Math.floor(this.type);
+            serverCursor.pressed[this.id]   = this.pressed;
+            serverCursor.flags[this.id]   = this.flags.value;
+
+
+            if(SPATIAL_LOCALIZATION_ENABLED == true) {
+                const encoded = encodePosition(this.x, this.y);
+                serverCursor.cellX[this.id]   = encoded.cellX;
+                serverCursor.cellY[this.id]   = encoded.cellY;
+                serverCursor.offsetX[this.id] = encoded.offsetX;
+                serverCursor.offsetY[this.id] = encoded.offsetY;
+            } else {
+                serverCursor.x[this.id] = Math.floor(this.x);
+                serverCursor.y[this.id] = Math.floor(this.y);
+            }
+        }
+
+        deserialize(seed) {
+            this.seed = serverCursor.seed[this.id];
+            this.flags.value = serverCursor.flags[this.id];
+
+            this.damage = seed;
+            this.isCrit = (seedRandom(seed) > 0.5);
+
+            if(SPATIAL_LOCALIZATION_ENABLED == true) {
+                const decoded = decodePosition(
+                    serverCursor.cellX[this.id],
+                    serverCursor.cellY[this.id],
+                    serverCursor.offsetX[this.id],
+                    serverCursor.offsetY[this.id]
+                );
+
+                this.targetX = decoded.x;
+                this.targetY = decoded.y;
+            } else {
+                this.targetX = serverCursor.x[this.id];
+                this.targetY = serverCursor.y[this.id];
+            }
+
+            this.color = `hsl(${seedRandom(this.seed)*360},80%,60%)`;
+            this.pressed = serverCursor.pressed[this.id];
+        }
+    }
+
+    // Create exactly 10 balls
+    for(let i=0;i<COUNT;i++){
+
+        balls.push(
+            new Ball(
+                40+Math.random()*(canvas.width-80),
+                40+Math.random()*(canvas.height-80),
+                15+Math.random()*15
+            )
+        );
+    }
+
+    triangles.push(new Triangle(0,0,10));
+
+    function isColliding(a, b, r1, r2) {
+        const dx=b.x-a.x;
+        const dy=b.y-a.y;
+
+        const dist=Math.hypot(dx,dy);
+        const minDist=r1+r2;
+
+        return (dist<minDist);
+    }
+    function handleCollisions(){
+
+        for(let i=0;i<balls.length;i++){
+
+            for(let j=i+1;j<balls.length;j++){
+
+                const a=balls[i];
+                const b=balls[j];
+
+                const dx=b.x-a.x;
+                const dy=b.y-a.y;
+
+                const dist=Math.hypot(dx,dy);
+                const minDist=a.radius+b.radius;
+
+                if(dist<minDist){
+
+                    const nx=dx/dist;
+                    const ny=dy/dist;
+
+                    // Separate balls
+                    const overlap=(minDist-dist)/2;
+
+                    a.x-=nx*overlap;
+                    a.y-=ny*overlap;
+
+                    b.x+=nx*overlap;
+                    b.y+=ny*overlap;
+
+                    // Elastic collision
+                    const dvx=a.vx-b.vx;
+                    const dvy=a.vy-b.vy;
+
+                    const impact=dvx*nx+dvy*ny;
+
+                    if(impact>0) continue;
+
+                    const impulse=impact;
+
+                    a.vx-=impulse*nx;
+                    a.vy-=impulse*ny;
+
+                    b.vx+=impulse*nx;
+                    b.vy+=impulse*ny;
+                }
+            }
+        }
+    }
+
+    canvas.addEventListener('mousedown', (event) => {
+        cursor.pressed[0] = 1;
+
+        if(window.applyInput) applyInput();
+    });
+
+    canvas.addEventListener('mouseup', (event) => {
+        cursor.pressed[0] = 0;
+
+        if(window.applyInput) applyInput();
+    });
+
+    canvas.addEventListener('mousemove', (event) => {
+        const x = event.clientX;
+        const y = event.clientY;
+
+        cursor.x[0] = x;
+        cursor.y[0] = y;
+
+        if(window.applyInput) applyInput();
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        // Prevent scrolling while moving/dragging
+        e.preventDefault();
+
+        // Get coordinates for the first finger
+        const touch = e.touches[0];
+        const x = touch.clientX;
+        const y = touch.clientY;
+
+        cursor.x[0] = x;
+        cursor.y[0] = y;
+
+        if(window.applyInput) applyInput();
+    });
+</script>
+<script>
+    let isHost = true;
+
+    // ── State helpers ──────────────────────────────────────────
+
+    // 1. client || server -> change data
+    function applyInput() {
+        // simulate locally
+        triangles[0].x       = cursor.x[0];
+        triangles[0].y       = cursor.y[0];
+        triangles[0].pressed = cursor.pressed[0];
+
+        // Broadcast
+        if(!isHost) {
+            // send cursor data
+            if(window.clientSendInput) clientSendInput();
+        }
+    }
+
+    // 2. client -> server
+    function decodeInput(raw) {
+        // raw is always a Uint8Array
+        inputPools.deserialize(raw.buffer);
+        applyInput();
+    }
+
+    // common state deserialization for both client and server
+    function deserializePools(seed) {
+        balls.forEach(b => b.deserialize(seed));
+        triangles.forEach(t => t.deserialize(seed));
+    }
+
+    // 3. server -> clients
+    function applyPackedState(raw, seed) {
+        // raw is always a Uint8Array
+        pools.deserialize(raw.buffer);
+
+        deserializePools(seed);
+
+        return raw;  // return the same Uint8Array for chaining
+    }
+
+    function decodeOutput(raw) {
+        // raw is always a Uint8Array
+        outputPools.deserialize(raw.buffer);
+        applyOutput();
+    }
+
+    function getStates() {
+        balls.forEach(b => b.serialize());
+        triangles.forEach(t => t.serialize());
+
+        return new Uint8Array(pools.serialize());
+    }
+
+    // ── Game loop ──────────────────────────────────────────────
+    let currentTick = 0;
+    function logicLoop() {
+
+        // deterministic objects
+        if(DETERMINISTIC_ENTITIES_ENABLED) {
+            const evalTimeMs = getServerTimestamp();
+            const displaySeconds = (evalTimeMs - startTime) / 1000;
+            entities.forEach(entity => {
+                const state = entity.calculateState(getServerTimestamp());
+                const size = state.size || 12;
+                const x = state.startX + state.x;
+                const y = state.startY + state.y;
+
+                entity.state = {
+                    size: size,
+                    x: x,
+                    y: y,
+                    color: state.color,
+                    status: state.status,
+                };
+            });
+        }
+
+        // non deterministic objects
+        if(isHost) {
+
+            for(const b of balls) {
+                b.update();
+
+                if(DETERMINISTIC_ENTITIES_ENABLED) {
+                    if(entities.length > 0) {
+                        entities.forEach(entity=>{
+                            if(isColliding(entity.state, b, entity.state.size, b.radius))
+                                b.flags.activate(DIRTY_SKILL_1);
+                        })
+                    }
+                }
+            }
+
+            for(const b of triangles) {
+                b.update();
+            }
+
+            if(broadcast) {
+                broadcast();
+            }
+
+            for(const b of balls) {
+                b.applyEvents();
+            }
+
+            for(const b of triangles) {
+                b.applyEvents();
+            }
+        } else {
+            // client and host process the updates
+            for(const b of balls) {
+                // b.updateClient();
+                b.applyEvents();
+            }
+
+            for(const b of triangles) {
+                // b.updateClient();
+                b.applyEvents();
+            }
+        }
+
+        for(const b of deterministicBalls) {
+            b.update();
+        }
+
+
+
+        // handleCollisions();
+    }
+
+    let crps = 0;
+    let latency = 0;
+    let maxUsers = 0;
+
+    function renderLoop(dt) {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        for(const b of balls) {
+            if(!isHost) b.updateClient(dt);
+            b.draw();
+        }
+
+        for(const b of triangles) {
+            if(!isHost) b.updateClient(dt);
+            b.draw();
+        }
+
+        for(const b of deterministicBalls)
+            b.draw();
+
+        if(DETERMINISTIC_ENTITIES_ENABLED) {
+            entities.forEach(entity => {
+                // Safely check if state exists and is empty
+                if (!entity?.state || Object.keys(entity.state).length === 0) return;
+
+                const size = entity.state.size;
+                const x = entity.state.x;
+                const y = entity.state.y;
+
+                ctx.fillStyle = entity.state.color;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = "#e1e1e6";
+                ctx.font = "12px sans-serif";
+
+                ctx.fillText(`${entity.type} (${entity.state.status})`, x + 18, y + 4);
+                ctx.fillStyle = "#4e4e54";
+                ctx.font = "10px monospace";
+                ctx.fillText(`X: ${Math.round(x)} Y: ${Math.round(y)}`, x + 18, y + 16);
+            });
+        }
+
+        ctx.fillStyle="white";
+        ctx.font="16px Arial";
+        ctx.fillText("Objects: "+balls.length,10,canvas.height-15);
+
+        const displaySeconds = (getServerTimestamp() - startTime) / 1000;
+        ctx.fillText(`Time Elapsed: ${displaySeconds.toFixed(2)}s`,10,canvas.height-30);
+        ctx.fillText(`Tick Elapsed: ${currentTick}`,10,canvas.height-45);
+        ctx.fillText(`Clients Recieve Per Second: ${crps}`,10,canvas.height-45-15);
+        ctx.fillText(`Latency: ${latency}`,10,canvas.height-45-15-15);
+        ctx.fillText(`Max Users: ${maxUsers}`,10,canvas.height-45-15-15-15);
+    }
+
+</script>
+<script>
+    // ALMOST NEVER TOUCH BELOW THIS
+    const LOOP = new DeltaTimeAccumulator(1000 / FPS, ()=>{
+        if(window.drainBufferedState) window.drainBufferedState();
+        logicLoop();
+        fds.update(LOOP.hz/1000);
+    });
+
+    let renderTick = 0;
+
+    function gameLoop(dt) {
+        LOOP.update();
+
+        // RENDER STUFF
+        // console.log(delta/1000)
+        renderLoop(LOOP.delta/LOOP.hz);
+
+        // ---- Render floating damage system ----
+        fds.render(ctx);
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+
+    // ── Networking ─────────────────────────────────────────────
+    let broadcast = null;
+
+    const PACKET_TYPE_ENUM = [
+        'Snapshot',
+        'Delta',
+        'Event',
+    ];
+
+    function startAsHostApp() {
+        const clients = [];
+        let tick = 0;
+        let prevState = null;
+        let current = null;
+        let lastPayload = null;
+        let broadcastBuffer = [];
+        let tickBuffer = 12;
+
+        window.sendStateCallback = (peerId) => {
+            clients.push(peerId);
+            if (current) p2pChat.sendData([packPacketWithSeed(tick, 1, PACKET_TYPE_ENUM.indexOf('Snapshot'), current).buffer], peerId);
+        };
+
+        window.hostOnMessageCallback = (raw) => {
+          decodeInput(new Uint8Array(raw));
+        };
+
+        p2pChat.events.onPeerConnected = (peerId) => {
+            sendStateCallback(peerId);
+        };
+
+        p2pChat.events.onMessage = ({ from, data }) => {
+            hostOnMessageCallback(data);
+        };
+
+        broadcast = () => {
+            tick++;
+            currentTick = tick;
+            current = getStates();
+            const seed = Math.floor(Math.random()*1000);
+
+            if (clients.length) {
+                const payload = prevState
+                    ? createDeltaOptimized(prevState, current)   // both are Uint8Array
+                    : current;
+                prevState = current;
+
+                const packet = packPacketWithSeed(tick+tickBuffer, seed, PACKET_TYPE_ENUM.indexOf('Delta'), payload);
+                lastPayload = packet;
+
+                broadcastBuffer.push(packet.buffer);
+            }
+
+            // apply the payload to self too
+            applyPackedState(current, seed);
+        }
+
+        setInterval(()=>{
+            clients.forEach(peerId => {
+                p2pChat.sendData(broadcastBuffer, peerId);
+            });
+
+            broadcastBuffer = [];
+        }, 50); // 20 hz
+
+        window.serverSendInput = () => {
+            if (!clients.length) return;
+            const packet = packPacketWithSeed(tick+tickBuffer, Math.floor(Math.random()*1000), PACKET_TYPE_ENUM.indexOf('Event'), new Uint8Array(outputPools.serialize()));
+
+            clients.forEach(peerId => {
+                p2pChat.sendData([packet], peerId);
+            });
+        };
+
+        // Optional bandwidth logging
+        setInterval(() => {
+            if (!lastPayload) return;
+            maxUsers = getMaxUserCount(lastPayload.byteLength / 3, 5_000_000, FPS);
+            // console.log(getMaxUserCount(lastPayload.byteLength / 3, 5_000_000, FPS), lastPayload.byteLength);
+        }, 1000);
+    }
+
+    function startAsClientApp() {
+        let previous = null;
+        let receivedTick = -1;
+        let receivedInitial = false;
+        let bufferedStates = [];
+        let clientPacketsRecievedPerSecond = 0;
+
+        const RING_BUFFER_SIZE = 1000;
+        const SLOT_SIZE  = 1;
+        const inputBuffer = new Array(RING_BUFFER_SIZE * SLOT_SIZE);
+        let head = 0;
+        let tail = 0;
+
+        window.clientOnMessageCallback = (raw) => {
+          const { tick, seed, type, payload } = unpackPacketWithSeed(new Uint8Array(raw));
+          const index = head * SLOT_SIZE;
+          inputBuffer[index] = { tick, seed, type, payload };
+          head = (head + 1) % RING_BUFFER_SIZE;
+        };
+
+        p2pChat.events.onMessage = ({ from, data }) => {
+            data.forEach(raw=>{
+                clientOnMessageCallback(raw);
+            });
+            clientPacketsRecievedPerSecond++;
+        };
+
+        // Optional bandwidth logging
+        setInterval(() => {
+            crps = clientPacketsRecievedPerSecond;
+            clientPacketsRecievedPerSecond = 0;
+        }, 1000);
+
+        // run at render
+        window.drainBufferedState = function() {
+            while (tail !== head) {
+                const index = tail * SLOT_SIZE;
+                const { tick, seed, type, payload } = inputBuffer[index];
+
+                if (type === PACKET_TYPE_ENUM.indexOf('Snapshot')) {
+                    previous = applyPackedState(payload, seed);
+                    receivedInitial = true;
+                    receivedTick = tick;
+                    // Move tail forward
+                    tail = (tail + 1) % RING_BUFFER_SIZE;
+                    break;
+                }
+
+                // If the earliest packet's scheduled time hasn't arrived yet, stop processing for this tick
+                if (receivedTick < tick) {
+                    break;
+                }
+
+                if(type == PACKET_TYPE_ENUM.indexOf('Event')) {
+                    decodeOutput(payload);
+                }
+
+                if (type === PACKET_TYPE_ENUM.indexOf('Delta') && receivedInitial) {
+                    const rebuilt = applyDeltaOptimized(previous, payload);
+                    previous = applyPackedState(rebuilt, seed);
+                }
+
+                // Move tail forward
+                tail = (tail + 1) % RING_BUFFER_SIZE;
+            }
+
+            receivedTick++;
+            currentTick = receivedTick;
+        }
+
+        window.clientSendInput = () => {
+            p2pChat.sendData(inputPools.serialize());
+        };
+    }
+</script>
+<script src="./auto-match-error.js"></script>
+<script>
+p2pChat.events.onStatus = console.log;
+p2pChat.events.onHostChanged = (data) => {
+  isHost = data.isHost;
+  console.log(`Host is ${data.hostId}, I am ${data.isHost ? 'the host' : 'a client'}`);
+  // Enable/disable host‑only features here
+
+  if(isHost) {
+    startAsHostApp();
+  } else {
+    startAsClientApp();
+  }
+};
+</script>
+</body>
+</html>

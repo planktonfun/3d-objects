@@ -278,7 +278,7 @@ globalThis.seedRandom = seedRandom;
 globalThis.lerp = lerp;
 globalThis.getMaxUserCount = getMaxUserCount;
 
-// testing
+/*// testing
 if(process?.argv[2]) {
 
     require('./delta-fixed-size.js');
@@ -403,4 +403,4 @@ if(process?.argv[2]) {
         {players: 80, maxBitsPerTick: Math.floor(budget/79)-560},
         {players: 160, maxBitsPerTick: Math.floor(budget/149)-560},
     ]);
-}
+}*/
